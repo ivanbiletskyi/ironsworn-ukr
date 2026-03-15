@@ -3,5 +3,6 @@ node_modules
 __generated-html__
 website/public
 website_example/
+__rulebook-imgs__
 !website/public/.nojekyll
 !website/public/404.html
