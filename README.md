@@ -23,10 +23,3 @@ This version contains original modifications and additions.
 
 > Some content has been reworded, reorganized, or newly written to suit different play preferences, language flow, or local context.
 
-## Structure
-
-- `md/` - Markdown files containing the game content
-  - `Ironsworn-md-en/` - English version of the rules
-  - `Ironsworn-md-ukr/` - Ukrainian translation of the rules
-- `website_example/` - Reference website implementation (from grimwild-ukr)
-- `website/` - Empty directory for future website development
