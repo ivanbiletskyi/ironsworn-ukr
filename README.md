@@ -13,7 +13,7 @@ This repository contains an unofficial **Ukrainian translation** of the tabletop
 
 ## License
 
-The original game text is licensed under the [Creative Commons Attribution 4.0 International (CC BY 4.0)](https://creativecommons.org/licenses/by/4.0/) license. This means you are free to copy, modify, distribute, and use the material, including for commercial purposes, **as long as proper credit is given**.
+The original game text is licensed under the [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)](https://creativecommons.org/licenses/by-nc-sa/4.0/) license. This means you are free to copy, modify, distribute, and use the material for non-commercial purposes, **as long as proper credit is given and derivative works are shared under the same license**.
 
 - **Original Author:** Shawn Tomkin  
 - **Official Game Website:** [https://tomkinpress.com/pages/ironsworn](https://tomkinpress.com/pages/ironsworn)  
