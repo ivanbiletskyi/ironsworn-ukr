@@ -2,11 +2,40 @@ import React, { useEffect, useState, useRef } from 'react';
 import MarkdownPreview from '@uiw/react-markdown-preview';
 import { loadMarkdownContent } from '../utils/markdownLoader';
 import { useLocation, Link, useParams } from 'react-router-dom';
+import mermaid from 'mermaid';
 
 interface MarkdownRendererProps {
   markdownPath: string; // The relative path in the public folder e.g., "en/1-Basics_1-Playing-Ironsworn.md"
   title?: string;
 }
+
+const Mermaid: React.FC<{ chart: string; isDark: boolean }> = ({ chart, isDark }) => {
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: isDark ? 'dark' : 'default',
+      securityLevel: 'loose',
+    });
+
+    const renderChart = async () => {
+      try {
+        if (ref.current) {
+          const id = `mermaid-${Math.random().toString(36).substr(2, 9)}`;
+          const { svg } = await mermaid.render(id, chart);
+          ref.current.innerHTML = svg;
+        }
+      } catch (err) {
+        console.error("Mermaid parsing error:", err);
+      }
+    };
+
+    renderChart();
+  }, [chart, isDark]);
+
+  return <div ref={ref} className="mermaid-container flex justify-center my-4 overflow-x-auto w-full" />;
+};
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title }) => {
   const [markdownContent, setMarkdownContent] = useState<string>('');
@@ -86,6 +115,22 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title
           "data-color-mode": isDark ? "dark" : "light"
         }}
         components={{
+          code({ node, className, children, ref, ...props }: any) {
+            const match = /language-(\w+)/.exec(className || '');
+            if (match && match[1] === 'mermaid') {
+              const extractText = (childNode: any): string => {
+                if (typeof childNode === 'string') return childNode;
+                if (Array.isArray(childNode)) return childNode.map(extractText).join('');
+                if (childNode && childNode.props && childNode.props.children) {
+                  return extractText(childNode.props.children);
+                }
+                return '';
+              };
+              const codeString = extractText(children).replace(/\n$/, '');
+              return <Mermaid chart={codeString} isDark={isDark} />;
+            }
+            return <code className={className} {...props}>{children}</code>;
+          },
           a: ({ ...props }) => {
             const href = props.href || '';
             
