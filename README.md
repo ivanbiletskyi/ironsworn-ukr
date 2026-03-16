@@ -1,5 +1,6 @@
 # Ironsworn — Ukrainian Fan Translation & Adaptation
 
+[![Web App](https://img.shields.io/badge/Web_App-Live_Version-brightgreen)](https://ivanbiletskyi.github.io/ironsworn-ukr/)
 [![License: CC BY-NC-SA 4.0](https://img.shields.io/badge/License-CC%20BY--NC--SA%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by-nc-sa/4.0/)
 [![Original Game – Ironsworn](https://img.shields.io/badge/Original%20Game-Ironsworn-blueviolet)](https://tomkinpress.com/pages/ironsworn)
 [![Author: Shawn Tomkin](https://img.shields.io/badge/Author-Shawn%20Tomkin-orange)](https://tomkinpress.com)
