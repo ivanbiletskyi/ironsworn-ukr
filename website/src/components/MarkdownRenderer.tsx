@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
 import MarkdownPreview from '@uiw/react-markdown-preview';
 import { loadMarkdownContent } from '../utils/markdownLoader';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link, useParams } from 'react-router-dom';
 
 interface MarkdownRendererProps {
   markdownPath: string; // The relative path in the public folder e.g., "en/1-Basics_1-Playing-Ironsworn.md"
@@ -14,6 +14,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title
   const [loading, setLoading] = useState<boolean>(true);
   const contentRef = useRef<HTMLDivElement>(null);
   const location = useLocation();
+  const { lang } = useParams();
 
   useEffect(() => {
     const loadContent = async () => {
@@ -83,6 +84,40 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title
         source={markdownContent}
         wrapperElement={{
           "data-color-mode": isDark ? "dark" : "light"
+        }}
+        components={{
+          a: ({ ...props }) => {
+            const href = props.href || '';
+            
+            // Handle external links normally
+            if (href.startsWith('http') || href.startsWith('mailto:')) {
+              return <a {...props} target="_blank" rel="noopener noreferrer" />;
+            }
+
+            // Handle pure hash links within the same page
+            if (href.startsWith('#')) {
+              return <Link to={`${location.pathname}${href}`} {...props} />;
+            }
+
+            // Handle internal markdown file links
+            let internalPath = href;
+            let hash = '';
+            
+            // Extract hash if present
+            if (internalPath.includes('#')) {
+              const parts = internalPath.split('#');
+              internalPath = parts[0];
+              hash = '#' + parts[1];
+            }
+
+            // Remove .md extension and relative prefixes
+            internalPath = internalPath.replace(/\.md$/, '').replace(/^\.\//, '');
+            
+            // Construct absolute router path with current language
+            const to = `/${lang || 'uk'}/${internalPath}${hash}`;
+            
+            return <Link to={to} {...props} />;
+          }
         }}
         style={{
           backgroundColor: 'transparent',
