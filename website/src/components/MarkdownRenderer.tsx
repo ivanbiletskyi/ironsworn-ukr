@@ -64,11 +64,68 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title
     loadContent();
   }, [markdownPath]);
 
-  // Handle scroll to specific anchor if present in hash
+  // Handle scroll to search result or anchor hash
   useEffect(() => {
     if (!loading && markdownContent && contentRef.current) {
+      const searchParams = new URLSearchParams(location.search);
+      const searchQuery = searchParams.get('search');
+      
       const hash = location.hash;
-      if (hash) {
+      
+      if (searchQuery) {
+        // Wait for the DOM to be fully rendered - sometimes it takes longer for large docs
+        setTimeout(() => {
+          const contentElement = contentRef.current;
+          if (!contentElement) return;
+
+          // Clear any previous highlights
+          clearHighlights(contentElement);
+
+          const allTextNodes = getTextNodes(contentElement);
+          const lowerQuery = searchQuery.toLowerCase();
+          
+          const matchIndexParam = searchParams.get('matchIndex');
+          const targetMatchIndex = matchIndexParam ? parseInt(matchIndexParam, 10) : 0;
+          
+          let currentMatchCount = 0;
+          let found = false;
+          
+          for (const node of allTextNodes) {
+            const text = node.textContent || '';
+            const lowerText = text.toLowerCase();
+            let pos = 0;
+            
+            while ((pos = lowerText.indexOf(lowerQuery, pos)) !== -1) {
+              if (currentMatchCount === targetMatchIndex) {
+                const element = node.parentElement;
+                if (element) {
+                  highlightSpecificSearchText(node, searchQuery, pos);
+                  scrollToElement(element);
+                  found = true;
+                  break;
+                }
+              }
+              currentMatchCount++;
+              pos += lowerQuery.length;
+            }
+            if (found) break;
+          }
+          
+          // Fallback: search for first occurrence if specific index wasn't found (e.g., mismatch due to DOM differences)
+          if (!found) {
+            for (const node of allTextNodes) {
+              if (node.textContent?.toLowerCase().includes(lowerQuery)) {
+                const element = node.parentElement;
+                if (element) {
+                  highlightSpecificSearchText(node, searchQuery, node.textContent.toLowerCase().indexOf(lowerQuery));
+                  scrollToElement(element);
+                  break;
+                }
+              }
+            }
+          }
+        }, 300); // Increased timeout for better reliability
+      } else if (hash) {
         // Wait a small tick to ensure DOM is updated after markdown render
         setTimeout(() => {
           const id = hash.replace('#', '');
@@ -81,7 +138,74 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title
         }, 150);
       }
     }
-  }, [loading, markdownContent, location.hash]);
+  }, [loading, markdownContent, location.search, location.hash]);
+
+
+
+  const scrollToElement = (element: HTMLElement) => {
+    // block: 'center' ensures the element is clearly visible and not cut off by headers
+    element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  };
+
+  const getTextNodes = (element: HTMLElement): Node[] => {
+    const textNodes: Node[] = [];
+    const walker = document.createTreeWalker(
+      element,
+      NodeFilter.SHOW_TEXT,
+      null
+    );
+    
+    let node;
+    while ((node = walker.nextNode())) {
+      if (node.textContent?.trim()) {
+        const parent = node.parentElement;
+        // Skip code blocks and other non-content elements if needed
+        if (parent && parent.tagName !== 'MARK' && parent.tagName !== 'CODE' && parent.tagName !== 'PRE') {
+          textNodes.push(node);
+        }
+      }
+    }
+    return textNodes;
+  };
+
+  const clearHighlights = (container: HTMLElement) => {
+    const marks = container.querySelectorAll('.search-mark-highlight');
+    marks.forEach(mark => {
+      const parent = mark.parentNode;
+      if (parent) {
+        parent.replaceChild(document.createTextNode(mark.textContent || ''), mark);
+        parent.normalize();
+      }
+    });
+  };
+
+  const highlightSpecificSearchText = (node: Node, query: string, index: number) => {
+    const text = node.textContent || '';
+    
+    if (index !== -1 && node.parentElement) {
+      const parent = node.parentElement;
+      const before = text.substring(0, index);
+      const match = text.substring(index, index + query.length);
+      const after = text.substring(index + query.length);
+      
+      const fragment = document.createDocumentFragment();
+      if (before) fragment.appendChild(document.createTextNode(before));
+      
+      const mark = document.createElement('mark');
+      mark.className = 'search-mark-highlight';
+      mark.textContent = match;
+      mark.style.backgroundColor = 'var(--highlight)';
+      mark.style.color = 'var(--text-primary)';
+      mark.style.padding = '0.2em 0.4em';
+      mark.style.borderRadius = '3px';
+      mark.style.fontWeight = '600';
+      fragment.appendChild(mark);
+      
+      if (after) fragment.appendChild(document.createTextNode(after));
+      
+      parent.replaceChild(fragment, node);
+    }
+  };
 
   if (loading) {
     return (
@@ -115,9 +239,11 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title
           "data-color-mode": isDark ? "dark" : "light"
         }}
         components={{
+          // eslint-disable-next-line @typescript-eslint/no-unused-vars, @typescript-eslint/no-explicit-any
           code({ node, className, children, ref, ...props }: any) {
             const match = /language-(\w+)/.exec(className || '');
             if (match && match[1] === 'mermaid') {
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
               const extractText = (childNode: any): string => {
                 if (typeof childNode === 'string') return childNode;
                 if (Array.isArray(childNode)) return childNode.map(extractText).join('');
