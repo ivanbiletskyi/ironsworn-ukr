@@ -47,6 +47,21 @@ const Navigation: React.FC<NavigationProps> = ({ currentLang, onToggleSidebar, i
           </Link>
         </div>
         <div className="nav-controls">
+          <Link 
+            to={`/${currentLang}/search`} 
+            className="search-btn" 
+            style={{ 
+              background: 'none', 
+              border: 'none', 
+              fontSize: '1.2rem', 
+              marginRight: '1rem', 
+              cursor: 'pointer',
+              textDecoration: 'none'
+            }}
+            aria-label="Search"
+          >
+            🔍
+          </Link>
           <div className="lang-switch">
             <button 
               className={`lang-btn ${currentLang === 'en' ? 'active' : ''}`}

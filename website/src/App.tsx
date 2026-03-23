@@ -2,166 +2,13 @@ import { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useParams, Navigate, useLocation } from 'react-router-dom';
 import Navigation from './components/Navigation';
 import MarkdownRenderer from './components/MarkdownRenderer';
+import Search from './components/Search';
+import { CHAPTERS, UK_TITLES } from './utils/chapters';
 import './App.css';
 
 // Groups of chapters to show on the Home Page and Sidebar
 // Hardcoded structure based on the md files provided.
-const CHAPTERS = [
-  {
-    prefix: '1-Basics',
-    titleEn: '1. Basics',
-    titleUk: '1. Основи',
-    files: [
-      '1-Basics_1-Playing-Ironsworn.md',
-      '1-Basics_2-Moves.md',
-      '1-Basics_3-The-Action-Roll.md',
-      '1-Basics_4-Momentum.md',
-      '1-Basics_5-Progress-Tracks.md',
-      '1-Basics_6-Harm.md',
-      '1-Basics_7-Stress.md',
-      '1-Basics_8-Assets.md',
-      '1-Basics_9-Oracles.md',
-      '1-Basics_10-Bonds.md',
-      '1-Basics_11-Other-Characters.md',
-      '1-Basics_12-Equipment.md',
-      '1-Basics_13-The-Flow-of-Play.md',
-      '1-Basics_14-Whats-Next.md',
-    ]
-  },
-  {
-    prefix: '2-Your-Character',
-    titleEn: '2. Your Character',
-    titleUk: '2. Ваш Персонаж',
-    files: [
-      '2-Your-Character_1-You-Are-Ironsworn.md',
-      '2-Your-Character_2-Character-Basics.md',
-      '2-Your-Character_3-Vows.md',
-      '2-Your-Character_4-Bonds.md',
-      '2-Your-Character_5-Debilities.md',
-      '2-Your-Character_6-Assets.md',
-      '2-Your-Character_7-Experience.md',
-      '2-Your-Character_8-Equipment.md',
-      '2-Your-Character_9-Becoming-Ironsworn.md',
-      '2-Your-Character_10-Character-Creation-Summary.md',
-    ]
-  },
-  {
-    prefix: '3-Moves',
-    titleEn: '3. Moves',
-    titleUk: '3. Ходи',
-    files: [
-      '3-Moves_1-Making-Moves.md',
-      '3-Moves_2-Adventure-Moves.md',
-      '3-Moves_3-Relationship-Moves.md',
-      '3-Moves_4-Combat-Moves.md',
-      '3-Moves_5-Suffer-Moves.md',
-      '3-Moves_6-Quest-Moves.md',
-      '3-Moves_7-Fate-Moves.md',
-    ]
-  },
-  {
-    prefix: '4-Your-World',
-    titleEn: '4. Your World',
-    titleUk: '4. Ваш Світ',
-    files: [
-      '4-Your-World_1-Welcome-to-the-Ironlands.md',
-      '4-Your-World_2-Regions-of-the-Ironlands.md',
-      '4-Your-World_3-Your-Truths.md',
-      '4-Your-World_4-Mapping-Your-Journeys.md',
-    ]
-  },
-  {
-    prefix: '5-Foes-and-Encounters',
-    titleEn: '5. Foes and Encounters',
-    titleUk: '5. Вороги та Зустрічі',
-    files: [
-      '5-Foes-and-Encounters_1-NPCs-in-the-Ironlands.md',
-      '5-Foes-and-Encounters_2-Ironlanders.md',
-      '5-Foes-and-Encounters_3-Firstborn.md',
-      '5-Foes-and-Encounters_4-Animals.md',
-      '5-Foes-and-Encounters_5-Beasts.md',
-      '5-Foes-and-Encounters_6-Horrors.md',
-    ]
-  },
-  {
-    prefix: '6-Oracles',
-    titleEn: '6. Oracles',
-    titleUk: '6. Оракули',
-    files: [
-      '6-Oracles_1-Seeking-Inspiration.md',
-      '6-Oracles_2-Ironland-Oracles.md',
-      '6-Oracles_3-More-Oracles.md',
-    ]
-  },
-  {
-    prefix: '7-Gameplay',
-    titleEn: '7. Gameplay',
-    titleUk: '7. Ігровий Процес',
-    files: [
-      '7-Gameplay_1-Starting-Your-Campaign.md',
-      '7-Gameplay_2-The-Mechanics-and-the-Fiction.md',
-      '7-Gameplay_3-Managing-Your-Quests.md',
-      '7-Gameplay_4-Principles.md',
-      '7-Gameplay_5-Gameplay-Options.md',
-      '7-Gameplay_6-Hacking-Ironsworn.md',
-      '7-Gameplay_7-Extended-Example-of-Play.md',
-    ]
-  }
-];
 
-const UK_TITLES: Record<string, string> = {
-  '1-Basics_1-Playing-Ironsworn.md': 'Гра в Ironsworn',
-  '1-Basics_2-Moves.md': 'Ходи',
-  '1-Basics_3-The-Action-Roll.md': 'Кидок дії',
-  '1-Basics_4-Momentum.md': 'Імпульс',
-  '1-Basics_5-Progress-Tracks.md': 'Шкали прогресу',
-  '1-Basics_6-Harm.md': 'Шкода',
-  '1-Basics_7-Stress.md': 'Стрес',
-  '1-Basics_8-Assets.md': 'Активи',
-  '1-Basics_9-Oracles.md': 'Оракули',
-  '1-Basics_10-Bonds.md': 'Стосунки',
-  '1-Basics_11-Other-Characters.md': 'Інші персонажі',
-  '1-Basics_12-Equipment.md': 'Спорядження',
-  '1-Basics_13-The-Flow-of-Play.md': 'Процес гри',
-  '1-Basics_14-Whats-Next.md': 'Що далі',
-  '2-Your-Character_1-You-Are-Ironsworn.md': 'Ви — Ironsworn',
-  '2-Your-Character_2-Character-Basics.md': 'Основи персонажа',
-  '2-Your-Character_3-Vows.md': 'Присяги',
-  '2-Your-Character_4-Bonds.md': 'Стосунки',
-  '2-Your-Character_5-Debilities.md': 'Слабкості',
-  '2-Your-Character_6-Assets.md': 'Активи',
-  '2-Your-Character_7-Experience.md': 'Досвід',
-  '2-Your-Character_8-Equipment.md': 'Спорядження',
-  '2-Your-Character_9-Becoming-Ironsworn.md': 'Становлення як Ironsworn',
-  '2-Your-Character_10-Character-Creation-Summary.md': 'Коротко про створення',
-  '3-Moves_1-Making-Moves.md': 'Виконання ходів',
-  '3-Moves_2-Adventure-Moves.md': 'Ходи подорожі',
-  '3-Moves_3-Relationship-Moves.md': 'Ходи стосунків',
-  '3-Moves_4-Combat-Moves.md': 'Бойові ходи',
-  '3-Moves_5-Suffer-Moves.md': 'Ходи страждань',
-  '3-Moves_6-Quest-Moves.md': 'Ходи квесту',
-  '3-Moves_7-Fate-Moves.md': 'Ходи долі',
-  '4-Your-World_1-Welcome-to-the-Ironlands.md': 'Залізні землі',
-  '4-Your-World_2-Regions-of-the-Ironlands.md': 'Регіони Залізних земель',
-  '4-Your-World_3-Your-Truths.md': 'Ваші істини',
-  '4-Your-World_4-Mapping-Your-Journeys.md': 'Картографування подорожей',
-  '5-Foes-and-Encounters_1-NPCs-in-the-Ironlands.md': 'НПС у Залізних землях',
-  '5-Foes-and-Encounters_2-Ironlanders.md': 'Залізоземці',
-  '5-Foes-and-Encounters_3-Firstborn.md': 'Первородні',
-  '5-Foes-and-Encounters_4-Animals.md': 'Тварини',
-  '5-Foes-and-Encounters_5-Beasts.md': 'Звірі',
-  '5-Foes-and-Encounters_6-Horrors.md': 'Жахи',
-  '6-Oracles_1-Seeking-Inspiration.md': 'Пошук натхнення',
-  '6-Oracles_2-Ironland-Oracles.md': 'Оракули Залізних земель',
-  '6-Oracles_3-More-Oracles.md': 'Більше оракулів',
-  '7-Gameplay_1-Starting-Your-Campaign.md': 'Початок кампанії',
-  '7-Gameplay_2-The-Mechanics-and-the-Fiction.md': 'Механіка та фікшен',
-  '7-Gameplay_3-Managing-Your-Quests.md': 'Керування присягами',
-  '7-Gameplay_4-Principles.md': 'Принципи',
-  '7-Gameplay_5-Gameplay-Options.md': 'Опції гри',
-  '7-Gameplay_6-Hacking-Ironsworn.md': 'Модифікація Ironsworn',
-  '7-Gameplay_7-Extended-Example-of-Play.md': 'Розширений приклад гри',
-};
 
 const FLAT_FILES = CHAPTERS.flatMap(chapter => 
   chapter.files.map(file => ({
@@ -356,7 +203,10 @@ const LayoutParamsWrapper = () => {
         )}
         <div className={`sidebar-overlay ${isSidebarOpen ? 'visible' : ''}`} onClick={closeSidebar} />
         <div className="content-wrapper">
-          <PageRenderer currentLang={currentLang} />
+          <Routes>
+            <Route path="search" element={<Search />} />
+            <Route path="*" element={<PageRenderer currentLang={currentLang} />} />
+          </Routes>
           <Footer currentLang={currentLang} />
         </div>
       </div>
