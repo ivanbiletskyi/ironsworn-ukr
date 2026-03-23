@@ -50,7 +50,7 @@ Whenever you successfully move toward your goal, you partially or fully fill in 
     mark 3          mark 2         mark 1          mark 2       mark 1
     progress        progress       progress        ticks        tick
 
-    [✳️][✳️][✳️]       [✳️][✳️][ ]      [✳️][ ]          [X][ ]       [/][ ]
+    [✳️][✳️][✳️]     [✳️][✳️][ ]    [✳️][ ]          [X][ ]       [/][ ]
 ```
 
 ### MARKING PROGRESS FOR BONDS
