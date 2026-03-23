@@ -3,9 +3,11 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 
 interface NavigationProps {
   currentLang: string;
+  onToggleSidebar: () => void;
+  isSidebarOpen: boolean;
 }
 
-const Navigation: React.FC<NavigationProps> = ({ currentLang }) => {
+const Navigation: React.FC<NavigationProps> = ({ currentLang, onToggleSidebar, isSidebarOpen }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -27,12 +29,23 @@ const Navigation: React.FC<NavigationProps> = ({ currentLang }) => {
   return (
     <header className="navigation">
       <div className="nav-container">
-        <Link to={`/${currentLang}`} className="nav-brand">
-          <h1>Ironsworn</h1>
-          <p className="nav-subtitle">
-            {currentLang === 'uk' ? 'Фан-переклад українською' : 'TTRPG Rules Engine'}
-          </p>
-        </Link>
+        <div className="nav-left">
+          <button 
+            className={`mobile-menu-toggle ${isSidebarOpen ? 'active' : ''}`} 
+            onClick={onToggleSidebar}
+            aria-label="Toggle Menu"
+          >
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+            <span className="hamburger-line"></span>
+          </button>
+          <Link to={`/${currentLang}`} className="nav-brand">
+            <h1>Ironsworn</h1>
+            <p className="nav-subtitle">
+              {currentLang === 'uk' ? 'Фан-переклад українською' : 'TTRPG Rules Engine'}
+            </p>
+          </Link>
+        </div>
         <div className="nav-controls">
           <div className="lang-switch">
             <button 
