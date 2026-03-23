@@ -50,6 +50,7 @@ body {
   margin: 0;
   min-height: 100vh;
   background: radial-gradient(ellipse at center, var(--secondary-bg) 0%, var(--primary-bg) 100%);
+  overflow-x: hidden;
 }
 
 a {
@@ -59,7 +60,11 @@ a {
 }
 a:hover {
   color: var(--highlight-hover);
-  text-decoration: underline;
+  text-decoration: none;
+}
+
+html {
+  scroll-padding-top: 100px;
 }
 
 h1, h2, h3, h4, h5, h6 {
@@ -100,24 +105,65 @@ code {
   border-radius: 3px;
   font-size: 0.9em;
   border: 1px solid var(--border-color);
+  word-break: break-all;
+}
+
+pre {
+  max-width: 100%;
+  overflow-x: auto;
+  border-radius: 6px;
+  background: var(--secondary-bg);
+  padding: 1rem;
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
+
+/* Responsive Tables */
+table {
+  display: block;
+  overflow-x: auto;
+  white-space: nowrap;
+  width: 100%;
+  margin-bottom: 2rem;
+  border-collapse: collapse;
+  -webkit-overflow-scrolling: touch;
+}
+
+@media (min-width: 901px) {
+  table {
+    display: table;
+    white-space: normal;
+  }
 }
 
 th, td {
-  padding: 0.75rem;
+  padding: 0.75rem 1rem;
   text-align: left;
   border: 1px solid var(--border-color);
+  min-width: 150px;
 }
 
 th {
   background-color: var(--accent-bg);
   font-weight: 600;
+  color: var(--highlight);
+  border-bottom: 2px solid var(--border-color);
 }
 
 tr:nth-child(even) {
   background-color: var(--primary-bg);
 }
+
 tr:nth-child(odd) {
   background-color: var(--secondary-bg);
+}
+
+tr:hover {
+  background-color: rgba(88, 166, 255, 0.05);
 }
 
 ::-webkit-scrollbar {
