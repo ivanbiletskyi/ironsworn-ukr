@@ -24,7 +24,7 @@ Set every scene and action within the fiction. What is happening? What are you d
 
 When playing with others, describing your character's intent and actions is part of the conversation you share at your table. When playing solo, take the time to imagine the scene and take note of important details.
 
-To learn more about the fiction and fictional framing, see page 205.
+To learn more about the fiction and fictional framing, see [page 205](7-Gameplay_2-The-Mechanics-and-the-Fiction.md#fictional-framing).
 
 ## GROUP PLAY
 
@@ -56,7 +56,7 @@ Creating a record also makes it easier to pick up where you left off when you re
 
 Oracles are a valuable tool for solo play, but don't let them replace your own storytelling instincts. If it's dramatic, fits the fiction, and pushes your story forward, make it happen. Use oracles when you don't have an immediate answer to a question, or when triggered by a match.
 
-The *Pay the Price* random table (page 105), in particular, isn't something you should roll on for every failure. Note the first option in this move: "Make the most obvious negative outcome happen." Let the result of your failed moves flow from the fiction. Make the occasional oracle roll for added uncertainty and surprise.
+The *Pay the Price* random table ([page 105](3-Moves_7-Fate-Moves.md#pay-the-price)), in particular, isn't something you should roll on for every failure. Note the first option in this move: "Make the most obvious negative outcome happen." Let the result of your failed moves flow from the fiction. Make the occasional oracle roll for added uncertainty and surprise.
 
 **LET IT ALL FALL APART**
 
@@ -76,7 +76,7 @@ You should also look for opportunities to facilitate conversations at your table
 
 You are the guide for your players as they explore the world and the story of their characters. You set the scenes and portray the creatures and characters they encounter. When the narrative hits a lull, you make something happen. But, you are a guide with a vague map and an unreliable compass. Let the players choose their path. Moderate the conversation without dominating it.
 
-For campaign play, you facilitate character creation and worldbuilding to create the framework for your shared story. For a one-shot session (page 231), you can come prepared with a quest outline (page 200) to make the most of the limited time available. No matter what the format of your session, don't resist when everything goes completely and gloriously off-course.
+For campaign play, you facilitate character creation and worldbuilding to create the framework for your shared story. For a one-shot session ([page 231](7-Gameplay_5-Gameplay-Options.md#one-shot-play)), you can come prepared with a quest outline ([page 200](7-Gameplay_1-Starting-Your-Campaign.md#creating-a-quest-outline)) to make the most of the limited time available. No matter what the format of your session, don't resist when everything goes completely and gloriously off-course.
 
 **EMBRACE CHAOS**
 
@@ -84,4 +84,4 @@ Don't overprepare for your session. Feel free to come to the table with absolute
 
 Letting go of your plans leaves you open to the unexpected. Cheer for surprising successes. Seize the story possibilities of dramatic failures. Listen to the players and let their suggestions inspire you.
 
-You can also leverage the oracles for answers and inspiration. Ask a yes/no question through the *Ask the Oracle* move (page 107), or interpret an response from the oracle tables (page 167). You can even collaborate with your players to interpret an oracle's answer.
+You can also leverage the oracles for answers and inspiration. Ask a yes/no question through the *Ask the Oracle* move ([page 107](3-Moves_7-Fate-Moves.md#ask-the-oracle)), or interpret an response from the oracle tables ([page 167](6-Oracles_2-Ironland-Oracles.md#ironland-oracles)). You can even collaborate with your players to interpret an oracle's answer.

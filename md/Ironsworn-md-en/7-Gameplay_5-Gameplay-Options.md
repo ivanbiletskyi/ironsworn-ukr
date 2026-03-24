@@ -9,7 +9,6 @@ For combat scenes with three or more player characters, consider a couple of fac
 * **Don't rely on initiative to manage the spotlight.** Even if a player is on a roll with strong hits, jump to someone else and keep it moving around the table. Use transitions from player to player at key moments as a way to heighten the drama and allow others to react to what just happened or is about to happen.
 * **Since every character can inflict harm and mark progress on a shared progress track, enemies will be easier to take down.** To offset this, increase the rank or number of your foes. You can divide multiple foes among the characters instead of grouping those foes into packs.
 
-![Group of warriors](../../__rulebook-imgs__/Ironsworn-Rulebook_page-0241.jpg)
 
 ### ADJUSTING THE IMPACT OF MATCHES
 
@@ -19,15 +18,15 @@ If you want to make matches feel more unusual and special, use this option: **Re
 
 ## ONE-SHOT PLAY
 
-If you want to run a single, self-contained session of *Ironsworn*, here's what to do. This process is a simplification of the campaign setup on page 202.
+If you want to run a single, self-contained session of *Ironsworn*, here's what to do. This process is a simplification of the campaign setup on [page 202](7-Gameplay_1-Starting-Your-Campaign.md#campaign-setup-summary).
 
-**1. Introduce the world.** If you are the GM or are facilitating the session, briefly describe the setting. You can play in the Ironlands (page 111), or introduce your own setting. Don't worry about the details. You can flesh it out in play.
+**1. Introduce the world.** If you are the GM or are facilitating the session, briefly describe the setting. You can play in the Ironlands ([page 111](4-Your-World_1-Welcome-to-the-Ironlands.md#welcome-to-the-ironlands)), or introduce your own setting. Don't worry about the details. You can flesh it out in play.
 
 **2. Create characters.** Each player creates their character by setting stats and picking assets. Give your character a name, and consider some basic aspects of their look and personality. You can ignore background vows and bonds. Work together to decide how your characters are connected.
 
-**3. Introduce the inciting incident.** If you are the GM or facilitator, you can come prepared with an inciting incident (page 196) and quest outline (page 200). Otherwise, you can work together to envision a story problem (or *Ask the Oracle*). You might consider introducing the inciting incident as part of character creation to help determine the relationship between the characters.
+**3. Introduce the inciting incident.** If you are the GM or facilitator, you can come prepared with an inciting incident ([page 196](7-Gameplay_1-Starting-Your-Campaign.md#envision-your-inciting-incident)) and quest outline ([page 200](7-Gameplay_1-Starting-Your-Campaign.md#creating-a-quest-outline)). Otherwise, you can work together to envision a story problem (or *Ask the Oracle*). You might consider introducing the inciting incident as part of character creation to help determine the relationship between the characters.
 
-**4. Set the scene.** Decide where your adventure starts, and begin play in media res (page 198).
+**4. Set the scene.** Decide where your adventure starts, and begin play in media res ([page 198](7-Gameplay_1-Starting-Your-Campaign.md#set-the-scene)).
 
 **5. Swear an Iron Vow.** Give your quest a rank of troublesome (for a session of an hour or two) or dangerous (for a session of three to four hours).
 
@@ -49,7 +48,7 @@ If things get heated or uncomfortable, take a break. Discuss your approaches out
 
 If you are taking an action in opposition to an ally and want to resolve this conflict through a move, you can use this process:
 
-* You both describe what you are doing to act against or resist your ally, and *Face Danger* (page 60) using an appropriate stat.
+* You both describe what you are doing to act against or resist your ally, and *[Face Danger](3-Moves_2-Adventure-Moves.md#adventure-moves)* using an appropriate stat.
 * If at least one of you scores a hit, determine who gains control of the outcome by comparing your level of success (strong hit > weak hit > miss). If you both have the same level of success, use your action score (you action die + stat + any adds) as a tie-breaker. If you are still tied, envision how your actions lead to a complete stalemate.
 * Whoever gains control of the outcome decides which of the two moves should be resolved. The result of the other move is ignored.
 * If neither of you scored a hit, resolve the miss for both moves. Each of you must *Pay the Price*.
@@ -88,7 +87,7 @@ A **scene challenge** is an optional approach you can use to resolve an extended
 
 First, envision your goal for the scene and decide the rank of your challenge using the standard rank system: Troublesome, dangerous, formidable, extreme, or epic. A typical challenge is dangerous. Make it formidable if you are at a disadvantage, or troublesome if you have clear advantage. An extreme challenge is very tough to overcome, and an epic challenge is nearly hopeless.
 
-Next, create a standard **progress track** with 10 boxes. When you mark progress, you fill in a standard number of boxes or ticks based on the rank of your challenge (page 14).
+Next, create a standard **progress track** with 10 boxes. When you mark progress, you fill in a standard number of boxes or ticks based on the rank of your challenge ([page 14](1-Basics_5-Progress-Tracks.md#progress-tracks)).
 
 Then, create a separate track with only 4 boxes. This is your **countdown track**. When you mark the countdown track, you completely fill in a single box.
 
@@ -152,8 +151,8 @@ To give fate a heavier hand in your character and starting situation, do the fol
 
 **4. Reveal your cards and choose two of them to discard. The remaining three cards are your character's assets.**
 
-**5. *Ask the Oracle*: "What is my background vow?" Then, spark an idea using the Character Goal oracle (page 182). Interpret the result, or roll on additional oracle tables to clarify as you like. Mark your background vow and give it a rank of extreme or epic.**
+**5. *Ask the Oracle*: "What is my background vow?" Then, spark an idea using the Character Goal oracle ([page 182](6-Oracles_2-Ironland-Oracles.md#oracle-10-character-role)). Interpret the result, or roll on additional oracle tables to clarify as you like. Mark your background vow and give it a rank of extreme or epic.**
 
-**6. *Ask the Oracle*: "Who do I share a bond with?" Then, roll once on the Character Role oracle (page 182) and twice on the Character Descriptor oracle (page 183). Envision this NPC, give them a name, and mark a bond. You may do this for your two remaining starting bonds, or come up with other bonds from scratch.**
+**6. *Ask the Oracle*: "Who do I share a bond with?" Then, roll once on the Character Role oracle ([page 182](6-Oracles_2-Ironland-Oracles.md#oracle-10-character-role)) and twice on the Character Descriptor oracle ([page 183](6-Oracles_2-Ironland-Oracles.md#oracle-12-character-descriptor)). Envision this NPC, give them a name, and mark a bond. You may do this for your two remaining starting bonds, or come up with other bonds from scratch.**
 
-**7. Together with the other players, *Ask the Oracle*: "What is our inciting incident?" Then, roll on the Settlement Trouble oracle (page 181). Interpret this answer to define your starting situation.**
+**7. Together with the other players, *Ask the Oracle*: "What is our inciting incident?" Then, roll on the Settlement Trouble oracle ([page 181](6-Oracles_2-Ironland-Oracles.md#oracle-9-settlement-trouble)). Interpret this answer to define your starting situation.**

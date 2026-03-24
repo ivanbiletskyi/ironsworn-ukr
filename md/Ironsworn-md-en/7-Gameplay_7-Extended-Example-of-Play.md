@@ -6,7 +6,6 @@ This example demonstrates the use of moves, oracles, and storytelling within a t
 
 Kuno is a scout. She's most comfortable by herself, stalking the untracked wilderness well beyond the settled lands. At this moment, however, she's leading a group of Ironlanders who have fled their own village in the wake of a raider attack. They are bound for a settlement called Mournwood to the north, on the borders of the Hinterlands. There, they hope to find help and shelter. Kuno has sworn a vow to see them safely to their new home.
 
-![Kuno character sheet](../../__rulebook-imgs__/Ironsworn-Rulebook_page-0252.jpg)
 
 ## A JOURNEY INTERRUPTED
 
@@ -26,7 +25,7 @@ She gives Etana an encouraging click of the tongue, and picks up her pace.
 > 
 > [ 0 ] [ +1 ] [ +2 ] [ +3 ] [ +4 ] [ +5 ]
 
-I make the *Undertake a Journey* move (page 65) for this segment of travel. Leveraging my companion's **Swift** ability gives me a +1 add.
+I make the *Undertake a Journey* move ([page 65](3-Moves_2-Adventure-Moves.md#undertake-a-journey)) for this segment of travel. Leveraging my companion's **Swift** ability gives me a +1 add.
 
 ```text
 [ 3 ] WITS  +  [ 1 ] ADDS  +  [ 1 ] = ( 5 )
@@ -34,7 +33,7 @@ I make the *Undertake a Journey* move (page 65) for this segment of travel. Leve
 [ 7 ] (Challenge Die) [ X ]
 ```
 
-That's a miss. The outcome for *Undertake a Journey* tells me: "you are waylaid by a perilous event." I don't have anything in mind, so let's see what the oracles have to say. I roll on the Action/Theme tables (page 174).
+That's a miss. The outcome for *Undertake a Journey* tells me: "you are waylaid by a perilous event." I don't have anything in mind, so let's see what the oracles have to say. I roll on the Action/Theme tables ([page 174](6-Oracles_2-Ironland-Oracles.md#oracle-1-action)).
 
 "Reveal creature," the oracle says.
 
@@ -60,7 +59,7 @@ But can I manage to put them to use? A wyvern is a horrific foe, and not somethi
 > 
 > "Courage," Kuno says. "These people need our help."
 
-I make the *Compel* move (page 69) to resolve what happens when I rally these warriors to aid me. We'll roll with heart for this action. Per the move, "If you charm, pacify, barter, or convince: Roll +heart."
+I make the *Compel* move ([page 69](3-Moves_3-Relationship-Moves.md#relationship-moves)) to resolve what happens when I rally these warriors to aid me. We'll roll with heart for this action. Per the move, "If you charm, pacify, barter, or convince: Roll +heart."
 
 ```text
 [ 5 ] HEART  +  [ 2 ] ADDS  +  [ 0 ] = ( 7 )
@@ -74,7 +73,7 @@ Plus, *Compel* gives me +1 momentum on a strong hit. I started the scene with my
 
 ## INTO THE FIGHT
 
-I'll make the *Enter the Fray* move (page 78) as Kuno rides toward the wyvern. Since the beast is focused on its prey, and hasn't taken note of Kuno, we'll be using shadow for this roll. Per the move, "If you are moving into position against an unaware foe, or striking without warning: Roll +shadow."
+I'll make the *Enter the Fray* move ([page 78](3-Moves_4-Combat-Moves.md#combat-moves)) as Kuno rides toward the wyvern. Since the beast is focused on its prey, and hasn't taken note of Kuno, we'll be using shadow for this roll. Per the move, "If you are moving into position against an unaware foe, or striking without warning: Roll +shadow."
 
 ```text
 [ 3 ] SHADOW  +  [ 1 ] ADDS  +  [ 0 ] = ( 4 )
@@ -84,7 +83,7 @@ I'll make the *Enter the Fray* move (page 78) as Kuno rides toward the wyvern. S
 
 That's a weak hit. According to *Enter the Fray*, I must choose between taking initiative or +2 momentum. I choose initiative, which means I'll put the focus on Kuno taking proactive actions as I wade into the fight.
 
-I'll use the initiative to *Secure an Advantage* (page 61). I envision this as an opportunity to leverage Kuno's fierce determination and her bond with the horse as they charge into battle together. My companion's **Fearless** ability will also help me here. Per the asset, "When you *Enter the Fray* or *Secure an Advantage* with +heart by charging into combat, add +1 and take +1 momentum on a hit."
+I'll use the initiative to *[Secure an Advantage](3-Moves_2-Adventure-Moves.md#secure-an-advantage)*. I envision this as an opportunity to leverage Kuno's fierce determination and her bond with the horse as they charge into battle together. My companion's **Fearless** ability will also help me here. Per the asset, "When you *Enter the Fray* or *Secure an Advantage* with +heart by charging into combat, add +1 and take +1 momentum on a hit."
 
 ```text
 [ 4 ] HEART  +  [ 2 ] ADDS  +  [ 1 ] = ( 7 )
@@ -98,7 +97,7 @@ The weak hit on *Secure an Advantage* gives me +1 momentum, and another +1 for t
 > 
 > But the wyvern catches their scent and fixes its gaze on them. It roars, a crown of horns flaring on its thick, wolfish head. No longer concerned with the trapped Ironlanders, it clambers over the top of the wagon and moves fast to meet their charge. Its wings flex as it lunges.
 
-I think a moment about my options here. Kuno, despite her courage, would be unnerved by the sight of this beast leaping towards them. Also, her first concern is the safety of her horse. I could *Clash* (page 80), but I want to play it a bit safe this early in the fight. If I *Clash* and score only a weak hit, I'd have to suffer the full harm or some other dramatic result. *Face Danger* (page 60), on the other hand, gives me only a minor cost on a weak hit. Also, my companion has the **Swift** ability, which allows me to make that move with a bonus. Per the asset, "When you *Face Danger* with +edge using your horse's speed and grace, or when you *Undertake a Journey*, add +1."
+I think a moment about my options here. Kuno, despite her courage, would be unnerved by the sight of this beast leaping towards them. Also, her first concern is the safety of her horse. I could *[Clash](3-Moves_4-Combat-Moves.md#clash)*, but I want to play it a bit safe this early in the fight. If I *Clash* and score only a weak hit, I'd have to suffer the full harm or some other dramatic result. *[Face Danger](3-Moves_2-Adventure-Moves.md#adventure-moves)*, on the other hand, gives me only a minor cost on a weak hit. Also, my companion has the **Swift** ability, which allows me to make that move with a bonus. Per the asset, "When you *Face Danger* with +edge using your horse's speed and grace, or when you *Undertake a Journey*, add +1."
 
 I won't be able to inflict harm in the exchange, but hopefully I'll build some more momentum and get back initiative. I'll envision this as Kuno and Etana trying to evade the wyvern's attack.
 
@@ -110,11 +109,11 @@ I won't be able to inflict harm in the exchange, but hopefully I'll build some m
 
 It's a miss. The *Face Danger* result tells me, "On a miss, you fail, or your progress is undermined by a dramatic and costly turn of events. *Pay the Price*."
 
-I have also rolled a match on the challenge dice, which indicates something unexpected (page 9). I'll use some oracles to help resolve the match. First, I roll on the *Pay the Price* table.
+I have also rolled a match on the challenge dice, which indicates something unexpected ([page 9](1-Basics_3-The-Action-Roll.md#matches)). I'll use some oracles to help resolve the match. First, I roll on the *Pay the Price* table.
 
 The answer is, "It is stressful."
 
-No surprise there. Facing off against a wyvern is stressful. I want more to go on. I'll roll on the Combat Action oracle (page 188) to see what the wyvern does as part of this outcome.
+No surprise there. Facing off against a wyvern is stressful. I want more to go on. I'll roll on the Combat Action oracle ([page 188](6-Oracles_2-Ironland-Oracles.md#oracle-16-combat-action)) to see what the wyvern does as part of this outcome.
 
 The oracle responds, "Shift focus to someone or something else."
 
@@ -132,7 +131,7 @@ Weaving together the move outcome and the oracles, I envision what happens next.
 > 
 > The mother, shakily, eases out from cover and raises a small knife in their defense.
 
-That gives me what I need to resolve the original "It is stressful" outcome of the *Face Danger* move. I *Endure Stress* (page 95) and suffer -2 spirit as a result of seeing the warrior killed. Per the move, I "roll +heart or +spirit, whichever is higher." Since my heart is 2 and my spirit track is now at +3, I'll roll with spirit.
+That gives me what I need to resolve the original "It is stressful" outcome of the *Face Danger* move. I *[Endure Stress](3-Moves_5-Suffer-Moves.md#endure-stress)* and suffer -2 spirit as a result of seeing the warrior killed. Per the move, I "roll +heart or +spirit, whichever is higher." Since my heart is 2 and my spirit track is now at +3, I'll roll with spirit.
 
 ```text
 [ 5 ] SPIRIT  +  [ 3 ] ADDS  +  [ 0 ] = ( 8 )
@@ -150,7 +149,7 @@ She also wants to stop the wyvern from getting at the girl and her brave mother,
 [ 7 ] (Challenge Die) [ X ]
 ```
 
-The weak hit is bad enough, but I've also rolled a 1 on the action die while leveraging one of my companion's abilities. That means I need to involve my horse in the move's outcome (page 43).
+The weak hit is bad enough, but I've also rolled a 1 on the action die while leveraging one of my companion's abilities. That means I need to involve my horse in the move's outcome ([page 43](2-Your-Character_6-Assets.md#using-companion-abilities)).
 
 The good news is I've gained another bit of momentum (up to +7). I envision what happens next.
 
@@ -170,7 +169,7 @@ A strong hit, which means I've overcome the danger, take +1 momentum (now +8), a
 
 > The wyvern's tail lashes along the ground like a scythe. Kuno pulls up hard on the reins, and Etana jumps over the tail as quick and graceful as a cat.
 
-I envision Kuno raising her sword and readying an attack. This seems like the right time to *Strike* (page 79).
+I envision Kuno raising her sword and readying an attack. This seems like the right time to *[Strike](3-Moves_4-Combat-Moves.md#strike)*.
 
 ```text
 [ 5 ] IRON  +  [ 2 ] ADDS  +  [ 0 ] = ( 7 )
@@ -194,7 +193,7 @@ I roll to *Strike* again, hoping to build on my success and add more progress ag
 
 That's a miss. I could burn my +8 momentum to cancel one challenge die and shift the result to a weak hit, but I'd prefer to save it for a more dramatic opportunity.
 
-Now I must *Pay the Price* (page 105). Suffering direct harm for me or my horse is an obvious choice, but I'm interested in leaving it to fate. I roll on the *Pay the Price* table to see what happens.
+Now I must *[Pay the Price](3-Moves_7-Fate-Moves.md#pay-the-price)*. Suffering direct harm for me or my horse is an obvious choice, but I'm interested in leaving it to fate. I roll on the *Pay the Price* table to see what happens.
 
 The answer is, "You are separated from something or someone."
 
@@ -204,7 +203,7 @@ I interpret this as an attack which separates me from Etana.
 
 It seems reasonable to also apply harm to this outcome. I'll split the wyvern's 3 harm between myself and my horse—2 for me, 1 for Etana. This requires suffer moves for both of us.
 
-First, I make the *Endure Harm* move (page 91), subtracting 2 from my health track. Per the move, I "roll +health or +iron, whichever is higher." My health track is at +2, and my iron is 2, so it's a wash.
+First, I make the *Endure Harm* move ([page 91](3-Moves_5-Suffer-Moves.md#endure-harm)), subtracting 2 from my health track. Per the move, I "roll +health or +iron, whichever is higher." My health track is at +2, and my iron is 2, so it's a wash.
 
 ```text
 [ 3 ] IRON  +  [ 2 ] ADDS  +  [ 0 ] = ( 5 )

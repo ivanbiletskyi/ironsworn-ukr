@@ -1,6 +1,6 @@
 # MANAGING YOUR QUESTS
 
-Sworn quests are the narrative engine of your *Ironsworn* adventures. When you start your campaign, your character has two vows: Your background vow (page 195), and a vow triggered by an inciting incident (page 196).
+Sworn quests are the narrative engine of your *Ironsworn* adventures. When you start your campaign, your character has two vows: Your background vow ([page 195](7-Gameplay_1-Starting-Your-Campaign.md#mark-your-background-bonds)), and a vow triggered by an inciting incident ([page 196](7-Gameplay_1-Starting-Your-Campaign.md#envision-your-inciting-incident)).
 
 Making progress in these quests requires you to face and surmount obstacles. You will undertake perilous journeys, uncover information, gain the support of NPCs, recover important items, and defeat powerful foes. Your character will struggle to overcome their own limitations and find their preconceptions and loyalties challenged.
 
@@ -10,13 +10,12 @@ Putting these obstacles in your path isn’t just for dramatic purposes. Succeed
 > 
 > If you want to take on an Ironsworn quest, but the problem in front of you doesn't seem meaningful enough, punch it up. Give it context. Up the stakes.
 
-![A rocky harbor](../../__rulebook-imgs__/Ironsworn-Rulebook_page-0223.jpg)
 
 ## REACHING MILESTONES
 
 **Imagine your *Ironsworn* quest as a path of stones leading across the water.** Each stone marks a major step forward—a milestone—triggering the *Reach a Milestone* move.
 
-You might plan some of your quest milestones in advance (page 200). Others will emerge naturally from the fiction. The outcome of your moves or creative prompts may send your quest in unexpected directions, leading to new milestones and perhaps even new vows.
+You might plan some of your quest milestones in advance ([page 200](7-Gameplay_1-Starting-Your-Campaign.md#creating-a-quest-outline)). Others will emerge naturally from the fiction. The outcome of your moves or creative prompts may send your quest in unexpected directions, leading to new milestones and perhaps even new vows.
 
 ### WHAT'S WORTHY OF A MILESTONE?
 
@@ -31,9 +30,9 @@ The pace of your quest will be largely defined by what you decide is "significan
 
 ### MARKING PROGRESS
 
-Your vows utilize a standard progress track (page 14) to measure how far you have come in your quest. This progress track is a mechanical representation of the likelihood of being successful when you *Fulfill Your Vow* (page 101). More filled boxes means a better chance of a hit on that move. The progress track also shows how much story potential you have fulfilled in your quest. Higher ranked vows require more focus in your story and more effort and sacrifice for your character.
+Your vows utilize a standard progress track ([page 14](1-Basics_5-Progress-Tracks.md#progress-tracks)) to measure how far you have come in your quest. This progress track is a mechanical representation of the likelihood of being successful when you *[Fulfill Your Vow](3-Moves_6-Quest-Moves.md#fulfill-your-vow)*. More filled boxes means a better chance of a hit on that move. The progress track also shows how much story potential you have fulfilled in your quest. Higher ranked vows require more focus in your story and more effort and sacrifice for your character.
 
-When you *Reach a Milestone* (page 100), mark progress per the rank of your vow.
+When you *[Reach a Milestone](3-Moves_6-Quest-Moves.md#reach-a-milestone)*, mark progress per the rank of your vow.
 
 * **Troublesome quest:** Mark 3 progress.
 * **Dangerous quest:** Mark 2 progress.
@@ -43,7 +42,7 @@ When you *Reach a Milestone* (page 100), mark progress per the rank of your vow.
 
 > You've scored a miss for Saskia on *Undertake a Journey*, and the move outcome says you are "waylaid by a perilous event." Plus, you've rolled a match, which gives you an opportunity to introduce an unexpected complication or twist.
 > 
-> You *Ask the Oracle* for guidance, rolling on the Action and Theme tables (page 174). The oracle answers, "Surrender vow."
+> You *Ask the Oracle* for guidance, rolling on the Action and Theme tables ([page 174](6-Oracles_2-Ironland-Oracles.md#oracle-1-action)). The oracle answers, "Surrender vow."
 > 
 > You consider the meaning of this response. "Surrender" makes you think of someone ambushing you and demanding your surrender. But what about "vow"? You currently have two vows: "Defeat the Red Moon Clan" and "Save the Overseer." What if this is an opportunity to tie them together as a way to fulfill the match you've rolled?
 > 
@@ -119,7 +118,7 @@ If you have undertaken two related quests, you may encounter a situation where a
 
 ## FULFILLING YOUR VOW
 
-The fiction driving your quest and the mechanical progress represented by your progress track converges in the decisive moment when you believe your quest is at an end. This is when you make the *Fulfill Your Vow* move (page 101).
+The fiction driving your quest and the mechanical progress represented by your progress track converges in the decisive moment when you believe your quest is at an end. This is when you make the *Fulfill Your Vow* move ([page 101](3-Moves_6-Quest-Moves.md#fulfill-your-vow)).
 
 Managing your mechanical progress and the fiction to reach this moment requires a bit of stagecraft. It's the end of the third act. Your actors need to be in position. Your sets and props need to be in place. The lights come up for the final scene...
 
@@ -139,7 +138,7 @@ However, keep in mind it's not necessary to fill your vow's progress track befor
 
 ## FORGING NEW BONDS
 
-As you pursue your quests, the relationships you form and the hardships you endure with other characters can be given fictional and mechanical significance through the *Forge a Bond* move (page 74).
+As you pursue your quests, the relationships you form and the hardships you endure with other characters can be given fictional and mechanical significance through the *Forge a Bond* move ([page 74](3-Moves_3-Relationship-Moves.md#forge-a-bond)).
 
 A new bond can be a natural outcome of a successful quest. When you successfully *Fulfill Your Vow* in service to a person or community, you may reroll any dice if you *Forge a Bond* with them.
 
@@ -149,7 +148,7 @@ A new bond can be a natural outcome of a successful quest. When you successfully
 
 ## ADVANCING YOUR CHARACTER
 
-When you successfully *Fulfill Your Vow*, you earn experience points. This experience is spent to purchase or upgrade assets through the *Advance* move (page 103).
+When you successfully *Fulfill Your Vow*, you earn experience points. This experience is spent to purchase or upgrade assets through the *Advance* move ([page 103](3-Moves_6-Quest-Moves.md#advance)).
 
 > When **you focus on your skills, receive training, find inspiration, earn a reward, or gain a companion**, you may spend 3 experience to add a new asset, or 2 experience to upgrade an asset.
 
@@ -182,7 +181,6 @@ Envisioning how your new abilities connect to your sworn quests and experiences 
 > 
 > It's time to face your past.
 
-![Warrior on horseback in the woods](../../__rulebook-imgs__/Ironsworn-Rulebook_page-0235.jpg)
 
 ## QUEST FLOW CHART
 

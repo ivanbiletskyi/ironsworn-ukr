@@ -11,8 +11,3 @@ Whatever aids you use, don’t let randomness overwhelm your narrative. Your own
 You will find a blank worksheet at ironswornrpg.com to create your own oracle tables. You can make tables which better fit your preferences or support the tone of your game.
 
 You can also create specific tables for certain narrative situations. Heading out for a dangerous journey into the mountains? Create a table of things you might encounter. Then, roll on the table when you want to introduce an encounter or event.
-
-![A tall rune stone standing in a snowy field](/Users/ivanbiletskyi/Documents/Ivan/D&D/books/Ironsworn/Ironsworn-Rulebook-imgs/Ironsworn-Rulebook_page-0202.jpg)
-
----
-**191 | CHAPTER 6: ORACLES**

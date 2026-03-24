@@ -6,7 +6,7 @@ To get started on your campaign, follow the steps described in this section.
 
 ## CREATE YOUR CHARACTER
 
-Refer to the character creation summary on page 47. Envision your character, considering their motivations, skills, background, appearance, personality, and connections to the world. Set your stats and pick your assets in whatever order you prefer. Give your character a name.
+Refer to the character creation summary on [page 47](2-Your-Character_10-Character-Creation-Summary.md#character-creation-summary). Envision your character, considering their motivations, skills, background, appearance, personality, and connections to the world. Set your stats and pick your assets in whatever order you prefer. Give your character a name.
 
 If you are playing co-op or guided, talk over your character with the other players and establish your connections to each other. You can shorthand your ideas for now, and flesh them out in play.
 
@@ -20,13 +20,13 @@ Feel free to intermix world creation and character creation. The choices you mak
 
 ## CREATE YOUR WORLD
 
-If you are playing in the Ironlands or a similar setting, work through the 'Your Truths' exercise starting on page 122. Review the options and make selections. Keep an eye out for quest starters which trigger an idea for a background vow (page 195) or an inciting incident (page 196).
+If you are playing in the Ironlands or a similar setting, work through the 'Your Truths' exercise starting on [page 122](4-Your-World_3-Your-Truths.md#your-truths). Review the options and make selections. Keep an eye out for quest starters which trigger an idea for a background vow ([page 195](7-Gameplay_1-Starting-Your-Campaign.md#mark-your-background-bonds)) or an inciting incident ([page 196](7-Gameplay_1-Starting-Your-Campaign.md#envision-your-inciting-incident)).
 
-Next, choose where your story begins. Have a look at the regions on page 112. Where are your characters located? Are they part of a community, or wandering the wilderness? Talk it out with other players and envision the setting. Mark the location on your map.
+Next, choose where your story begins. Have a look at the regions on [page 112](4-Your-World_2-Regions-of-the-Ironlands.md#regions-of-the-ironlands). Where are your characters located? Are they part of a community, or wandering the wilderness? Talk it out with other players and envision the setting. Mark the location on your map.
 
 > You envision some basic characteristics of your home village. It is a small settlement along the southern fringes of the Havens. It is surrounded by fields and sits astride a wide river.
 >
-> You roll on the Settlement Name table (page 178), and the oracle answers, "Cinderhome." You envision the burnt ruins of the former longhouse. It is a place haunted by a long-dead overseer who died in the fire.
+> You roll on the Settlement Name table ([page 178](6-Oracles_2-Ironland-Oracles.md#oracle-7-settlement-name)), and the oracle answers, "Cinderhome." You envision the burnt ruins of the former longhouse. It is a place haunted by a long-dead overseer who died in the fire.
 >
 > You mark Cinderhome on your map. This is where Saskia's adventures begins.
 
@@ -42,7 +42,7 @@ If you are the GM, you should facilitate discussion and contribute to the worldb
 
 ## MARK YOUR BACKGROUND BONDS
 
-Give yourself up to three bonds (page 36). These bonds may be to a community or an individual. You do not need to make the *Forge a Bond* move for these starting bonds. Mark a tick for each bond on your character sheet (1 tick per bond), and make note of them.
+Give yourself up to three bonds ([page 36](2-Your-Character_4-Bonds.md#bonds)). These bonds may be to a community or an individual. You do not need to make the *Forge a Bond* move for these starting bonds. Mark a tick for each bond on your character sheet (1 tick per bond), and make note of them.
 
 If you are playing guided or co-op, you can use these starting bonds as your connection to other player characters. Otherwise, you may establish bonds with those characters though play.
 
@@ -72,7 +72,7 @@ Fulfilling this vow will not be easy. In story-time, it might require months, ye
 
 An inciting incident is the problem which arrives at the beginning of a story, propelling the protagonist into action. Everything up to that point is backstory—the normal world to which your character has become accustomed. In *Ironsworn*, the inciting incident is the tipping point which forces you to undertake a life of perilous quests and adventure.
 
-To start your character's story, envision an imminent threat or compelling need. You can use a quest starter from this book (see chapters 4 and 5), talk it out at the table, or *Ask the Oracle* (page 107). This problem dictates what drives your first session and sets your character's story in motion.
+To start your character's story, envision an imminent threat or compelling need. You can use a quest starter from this book (see chapters 4 and 5), talk it out at the table, or *[Ask the Oracle](3-Moves_7-Fate-Moves.md#ask-the-oracle)*. This problem dictates what drives your first session and sets your character's story in motion.
 
 What makes a good inciting incident?
 
@@ -93,7 +93,6 @@ These suggestions can apply to any vow, but are especially relevant for an incit
 >
 > You pile on the stakes until it feels like an imperative. You *must* take on this quest.
 
-![An altar on a plain](../../__rulebook-imgs__/Ironsworn-Rulebook_page-0208.jpg)
 
 ## SET THE SCENE
 
@@ -117,39 +116,39 @@ You can begin with a tense, action-oriented scene as you encounter the problem. 
 
 ## SWEAR AN IRON VOW
 
-To set your quest in motion, as a response to the inciting incident, make this move (page 98). But first, start with the fiction. Envision the scene. Describe what you say and how you perform the ceremony. This is an important moment for your character.
+To set your quest in motion, as a response to the inciting incident, make this move ([page 98](3-Moves_6-Quest-Moves.md#quest-moves)). But first, start with the fiction. Envision the scene. Describe what you say and how you perform the ceremony. This is an important moment for your character.
 
 What was the result of your move?
 
 * **Did you score a strong hit?** Envision your first steps. Do you *Undertake a Journey*? Do you *Compel* someone into action? Play to see what happens next, and make moves as appropriate.
-* **Did you score a weak hit?** Your next steps are unclear. This may typically lead to new scenes and new moves. Perhaps you *Gather Information* (page 62) as you try to identify a path forward.
-* **Did you score a miss?** An unexpected danger or obstacle stands in your way. Envision what it is, or *Ask the Oracle* (page 107). Then, play to see what happens as you attempt to overcome this stumbling block.
+* **Did you score a weak hit?** Your next steps are unclear. This may typically lead to new scenes and new moves. Perhaps you *[Gather Information](3-Moves_2-Adventure-Moves.md#gather-information)* as you try to identify a path forward.
+* **Did you score a miss?** An unexpected danger or obstacle stands in your way. Envision what it is, or *[Ask the Oracle](3-Moves_7-Fate-Moves.md#ask-the-oracle)*. Then, play to see what happens as you attempt to overcome this stumbling block.
 
 For an inciting incident, give your new vow a rank of troublesome, dangerous, or formidable.
 
 > You envision the scene as you kneel before your overseer. You curl your hands tight around the iron blade of your sword—so tight that you open a cut in your palm. You pay the wound no mind. The blood fuels the promise. "I will see you healed," you say. "I swear it."
 >
-> You roll the dice. Because you have the **Banner-Sworn** asset and serve the overseer, you may reroll any dice. It's a strong hit. A good omen. You write your vow on your character sheet and give it a rank of dangerous. Per the move outcome, "you are emboldened and it is clear what you must do next." What do you know about this disease? What's your likely path forward? Envision the answer, talk it out, or *Ask the Oracle* (page 107).
+> You roll the dice. Because you have the **Banner-Sworn** asset and serve the overseer, you may reroll any dice. It's a strong hit. A good omen. You write your vow on your character sheet and give it a rank of dangerous. Per the move outcome, "you are emboldened and it is clear what you must do next." What do you know about this disease? What's your likely path forward? Envision the answer, talk it out, or *[Ask the Oracle](3-Moves_7-Fate-Moves.md#ask-the-oracle)*.
 
 ### SHARING YOUR VOW WITH ALLIES
 
-If you are playing with allies, only one of you will make the *Swear an Iron Vow* move. Other players can make the *Aid your Ally* move (page 76) as a way of representing their own commitment to this vow. If you share this quest with your allies, each of you write the vow and any progress is marked by all players.
+If you are playing with allies, only one of you will make the *Swear an Iron Vow* move. Other players can make the *Aid your Ally* move ([page 76](3-Moves_3-Relationship-Moves.md#aid-your-ally)) as a way of representing their own commitment to this vow. If you share this quest with your allies, each of you write the vow and any progress is marked by all players.
 
 ## NEXT STEPS
 
 Depending on the result of your *Swear an Iron Vow* move, your character may have a clear path forward, may have more questions than answers, or may need to overcome an immediate obstacle or threat before they can undertake their quest. You, as the player or GM, interpret what this result means. Not sure where to begin? *Ask the Oracle*.
 
-> You've sworn your vow and scored a strong hit, which means the next steps—from your character's perspective—are clear. As the player you don't know where to begin. Are there any clues to the source of the sickness? You *Ask the Oracle* by rolling on the Action and Theme tables (page 174).
+> You've sworn your vow and scored a strong hit, which means the next steps—from your character's perspective—are clear. As the player you don't know where to begin. Are there any clues to the source of the sickness? You *Ask the Oracle* by rolling on the Action and Theme tables ([page 174](6-Oracles_2-Ironland-Oracles.md#oracle-1-action)).
 >
 > The oracle answers, "Leave" and "Trade." What does it mean? Your first instinct is to interpret this answer as having something to do with a trade caravan. Perhaps one left your village on the same day the overseer fell ill? There must be a connection.
 >
-> With your immediate goal in sight, you can roleplay your preparations and *Undertake a Journey* (page 65) to set off after the caravan.
+> With your immediate goal in sight, you can roleplay your preparations and *[Undertake a Journey](3-Moves_2-Adventure-Moves.md#undertake-a-journey)* to set off after the caravan.
 
 ## CREATING A QUEST OUTLINE
 
 If you find it helpful, you can envision and write down the main narrative steps in your quest. What journeys must you undertake? Which enemies will oppose you? What information must be found? Who do you need help from?
 
-Your outline should give you ideas for the scenes and challenges which can be part of your quest, with each major step an opportunity to make the *Reach a Milestone* move (page 100). However, you should consider it a sketchy, unreliable plan at best. It is like an ancient map with "here there be monsters" written in blank spaces.
+Your outline should give you ideas for the scenes and challenges which can be part of your quest, with each major step an opportunity to make the *Reach a Milestone* move ([page 100](3-Moves_6-Quest-Moves.md#reach-a-milestone)). However, you should consider it a sketchy, unreliable plan at best. It is like an ancient map with "here there be monsters" written in blank spaces.
 
 If you are a GM and have some ideas for challenges and events in the quest, make note of them. However, don't get locked into a specific path which must be followed. Whether you are a GM or a player, leave yourself open to surprises, new ideas, input from others at your table, and the whims of fate. Be prepared to toss even the mostly loosely defined plan out the window.
 
@@ -167,15 +166,14 @@ Put simply, play to see what happens.
 > 3) Find a cure (get help from the herbalist who lives deep in the Tanglewood?)
 > 4) Return home and deliver the cure
 
-![A solitary warrior on a mountain overlooking a valley](../../__rulebook-imgs__/Ironsworn-Rulebook_page-0212.jpg)
 
 ## CAMPAIGN SETUP SUMMARY
 
-1. **Create your character** (page 193). Envision your character. Choose your name, set your stats, and select your assets. Refer to chapter 2 (page 31) for details. If you prefer, you can start by creating your world (below).
-2. **Create your world** (page 194). If you are playing in the Ironlands, refer to chapter 4 (page 111) and the 'Your Truths' exercise (page 122). Otherwise, establish the basic truths of your own world. Envision where your story will begin and mark it on your map.
-3. **Create your background bonds** (page 195). Mark up to three bonds to represent your connections to home, friends, family, or other loyalties. Make note of these bonds, and mark a tick for each.
-4. **Write your background vow** (page 195). Create a sworn quest as backstory for your character. Write down this vow and give it a rank of extreme or epic. You don’t need to make the *Swear an Iron Vow* move for this quest.
-5. **Envision your inciting incident** (page 196). Come up with the problem that drives your character into action.
-6. **Set the Scene** (page 198). Decide whether you want to start with a prologue (the normal world), or in the midst of the problem (in media res). Envision the scene and begin play.
-7. **Swear an Iron Vow** (page 199). Make the move and write down your vow. Give it a rank of troublesome, dangerous, or formidable.
-8. **Take your next steps** (page 200). Based on the outcome of your *Swear an Iron Vow* move, envision what you do or what happens next. If you like, you may outline the milestones of your adventure. Then, play to see what happens.
+1. **Create your character** ([page 193](7-Gameplay_1-Starting-Your-Campaign.md#starting-your-campaign)). Envision your character. Choose your name, set your stats, and select your assets. Refer to chapter 2 ([page 31](2-Your-Character_1-You-Are-Ironsworn.md#you-are-ironsworn)) for details. If you prefer, you can start by creating your world (below).
+2. **Create your world** ([page 194](7-Gameplay_1-Starting-Your-Campaign.md#create-your-world)). If you are playing in the Ironlands, refer to chapter 4 ([page 111](4-Your-World_1-Welcome-to-the-Ironlands.md#welcome-to-the-ironlands)) and the 'Your Truths' exercise ([page 122](4-Your-World_3-Your-Truths.md#your-truths)). Otherwise, establish the basic truths of your own world. Envision where your story will begin and mark it on your map.
+3. **Create your background bonds** ([page 195](7-Gameplay_1-Starting-Your-Campaign.md#mark-your-background-bonds)). Mark up to three bonds to represent your connections to home, friends, family, or other loyalties. Make note of these bonds, and mark a tick for each.
+4. **Write your background vow** ([page 195](7-Gameplay_1-Starting-Your-Campaign.md#mark-your-background-bonds)). Create a sworn quest as backstory for your character. Write down this vow and give it a rank of extreme or epic. You don’t need to make the *Swear an Iron Vow* move for this quest.
+5. **Envision your inciting incident** ([page 196](7-Gameplay_1-Starting-Your-Campaign.md#envision-your-inciting-incident)). Come up with the problem that drives your character into action.
+6. **Set the Scene** ([page 198](7-Gameplay_1-Starting-Your-Campaign.md#set-the-scene)). Decide whether you want to start with a prologue (the normal world), or in the midst of the problem (in media res). Envision the scene and begin play.
+7. **Swear an Iron Vow** ([page 199](7-Gameplay_1-Starting-Your-Campaign.md#swear-an-iron-vow)). Make the move and write down your vow. Give it a rank of troublesome, dangerous, or formidable.
+8. **Take your next steps** ([page 200](7-Gameplay_1-Starting-Your-Campaign.md#creating-a-quest-outline)). Based on the outcome of your *Swear an Iron Vow* move, envision what you do or what happens next. If you like, you may outline the milestones of your adventure. Then, play to see what happens.
