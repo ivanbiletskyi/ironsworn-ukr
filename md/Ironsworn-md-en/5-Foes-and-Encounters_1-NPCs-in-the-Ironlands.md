@@ -80,7 +80,7 @@ When you inflict harm on the pack, you can envision it as appropriate to the fic
 
 ## JOINING FORCES WITH NPCs
 
-If your story leads you to cooperating with helper NPCs to overcome challenges, you need to consider how they impact the fiction and your moves. NPCs—unless they are a companion asset [page 39](2-Your-Character_5-Assets.md#assets)—won't give you mechanical bonuses on your moves. They also won't make moves of their own. They are simply a part of your story, perhaps impacting the moves you make, the results of those moves, and the rank of your challenges. Gaining the aid of an important NPC might also allow you to *Reach a Milestone* [page 100](3-Moves_6-Quest-Moves.md#reach-a-milestone).
+If your story leads you to cooperating with helper NPCs to overcome challenges, you need to consider how they impact the fiction and your moves. NPCs—unless they are a companion asset [page 39](2-Your-Character_6-Assets.md#assets)—won't give you mechanical bonuses on your moves. They also won't make moves of their own. They are simply a part of your story, perhaps impacting the moves you make, the results of those moves, and the rank of your challenges. Gaining the aid of an important NPC might also allow you to *Reach a Milestone* [page 100](3-Moves_6-Quest-Moves.md#reach-a-milestone).
 
 For example:
 *   If you are charged with protecting NPCs, they might be placed in danger or suffer losses as a result of your failures on moves.

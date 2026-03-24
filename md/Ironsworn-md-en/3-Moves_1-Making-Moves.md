@@ -82,7 +82,7 @@ Similarly, you can envision yourself relying on armor as you like. Do you wear c
 
 You can lose a weapon, run out of ammo, or see your armor damaged as a result of a failed move. This can be represented mechanically through a loss of momentum. Or, you might *Endure Stress* if an item of sentimental value is destroyed. Losing access to a weapon also limits your ability to inflict harm (1 harm instead of 2—see page 19). Always start with the fiction. What moves does this item allow you to make or avoid? What happens when you no longer have it?
 
-If you have a combat talent asset [page 40](2-Your-Character_5-Assets.md#asset-types), your weapon and armor may provide additional benefit through abilities. As long as you carry the item, you may use those abilities.
+If you have a combat talent asset [page 40](2-Your-Character_6-Assets.md#asset-types), your weapon and armor may provide additional benefit through abilities. As long as you carry the item, you may use those abilities.
 
 ***
 

@@ -54,9 +54,9 @@ Next, reduce your health track by the amount suffered. If your health is at 0, a
 
 On a strong hit, you are undaunted. You can regain 1 health or take +1 momentum. On a weak hit, you are battered but manage to persevere.
 
-When you score a miss with 0 health, you need to make an important decision. Do you risk the potential for death by rolling on the oracle table, or mark a debility? The wounded debility [page 37](2-Your-Character_3-Debilities.md#conditions) is temporary and can be dealt with through the *Heal* or *Sojourn* moves, but becoming maimed [page 38](2-Your-Character_3-Debilities.md#banes) is a permanent, life-altering event.
+When you score a miss with 0 health, you need to make an important decision. Do you risk the potential for death by rolling on the oracle table, or mark a debility? The wounded debility [page 37](2-Your-Character_5-Debilities.md#conditions) is temporary and can be dealt with through the *Heal* or *Sojourn* moves, but becoming maimed [page 38](2-Your-Character_5-Debilities.md#banes) is a permanent, life-altering event.
 
-If you score a miss and your debilities are already marked, you have no choice. Roll the dice and hope for the best.
+When you score a miss and your debilities are already marked, you have no choice. Roll the dice and hope for the best.
 
 ***
 
@@ -77,7 +77,7 @@ You make this move when forced to *Face Death* as a result of a miss on the *End
 
 When you first make this move, you should envision how the afterlife is represented in your version of the Ironlands, or specifically to your character. What do you see and experience? Is it only blackness and void? Do you see iron gates parting before you? Does a ferryman guide you across a blood-red river? Do you hear the songs of your kin calling you to the feast hall? On a strong hit, you might only catch glimpses of what lay beyond. Does your experience support your beliefs or call them into question? If in doubt, *Ask the Oracle*.
 
-There is also the personage of death to consider. Does death take form, or is it nameless and unknowable? Is it beautiful and welcoming? Sly and full of guile? As grim as the coldest night? On a weak hit, you may decide what death asks of you, which leads to a new quest and the cursed debility [page 38](2-Your-Character_3-Debilities.md#banes) as you return to the mortal world.
+There is also the personage of death to consider. Does death take form, or is it nameless and unknowable? Is it beautiful and welcoming? Sly and full of guile? As grim as the coldest night? On a weak hit, you may decide what death asks of you, which leads to a new quest and the cursed debility [page 38](2-Your-Character_5-Debilities.md#banes) as you return to the mortal world.
 
 On a miss, you are dead. Envision what awaits you. You may begin again with a new character in a new version of the Ironlands, or explore your current world and storyline from a new perspective. Perhaps your kin will avenge you?
 
@@ -151,7 +151,7 @@ Next, reduce your spirit track by the amount suffered. If your spirit is at 0, a
 
 On a strong hit, you are unfazed. You can suffer 1 less spirit or take +1 momentum. On a weak hit, you are rattled but carry on.
 
-When you score a miss with 0 spirit, you need to make an important decision. Do you risk the potential for desolation by rolling on the oracle table, or mark a debility? The shaken debility [page 37](2-Your-Character_3-Debilities.md#conditions) is temporary and can be dealt with through the *Sojourn* move, but becoming corrupted [page 38](2-Your-Character_3-Debilities.md#banes) is a permanent, life-altering event.
+When you score a miss with 0 spirit, you need to make an important decision. Do you risk to potential for desolation by rolling on the oracle table, or mark a debility? The shaken debility [page 37](2-Your-Character_5-Debilities.md#conditions) is temporary and can be dealt with through the *Sojourn* move, but becoming corrupted [page 38](2-Your-Character_5-Debilities.md#banes) is a permanent, life-altering event.
 
 If you’ve scored a miss and your debilities are both marked, you must roll on the table to determine your fate.
 
@@ -172,7 +172,7 @@ If you’ve scored a miss and your debilities are both marked, you must roll on 
 
 Make this move when forced to *Face Desolation* as a result of a miss on the *Endure Stress* move. This represents the potential breaking point for your character. Do you push on in spite of all you have seen, all you have done, or do you fall into darkness?
 
-Choosing the option to become tormented [page 38](2-Your-Character_3-Debilities.md#banes) on a weak hit creates interesting story possibilities. What is your greatest fear? Preventing that dire outcome can steer your story in a compelling new direction.
+Choosing the option to become tormented [page 38](2-Your-Character_5-Debilities.md#banes) on a weak hit creates interesting story possibilities. What is your greatest fear? Preventing that dire outcome can steer your story in a compelling new direction.
 
 On a miss, you are broken. There is no recovery possible. This is the end of your character’s story.
 
@@ -183,7 +183,7 @@ On a miss, you are broken. There is no recovery possible. This is the end of you
 > ### OUT OF SUPPLY
 > When **your supply is exhausted** (reduced to 0), mark unprepared. If you suffer additional -supply while unprepared, you must exchange each additional -supply for any combination of -health, -spirit or -momentum as appropriate to the circumstances.
 
-When you and your allies reduce your supply to 0 (through a choice or result of another move), you each mark unprepared. The unprepared debility [page 37](2-Your-Character_3-Debilities.md#conditions) can be cleared when you score a hit on the *Sojourn* move and choose the equip option.
+When you and your allies reduce your supply to 0 (through a choice or result of another move), you each mark unprepared. The unprepared debility [page 37](2-Your-Character_5-Debilities.md#conditions) can be cleared when you score a hit on the *Sojourn* move and choose the equip option.
 
 While you are unprepared, you cannot increase your supply track. If you suffer additional -supply while unprepared, you and your allies must exchange each -supply for some combination of -momentum, -health, or -spirit. Select an option appropriate to the situation. A lack of provisions can have an obvious impact on your fitness, morale, and readiness for challenges.
 
