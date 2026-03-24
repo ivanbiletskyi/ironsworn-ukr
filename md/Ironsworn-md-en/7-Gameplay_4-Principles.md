@@ -1,192 +1,87 @@
 # PRINCIPLES
 
+These principles are your guideposts for managing your *Ironsworn* sessions. Much of this is redundant to the best practices discussed elsewhere in this rulebook. They are collected here to summarize core techniques, but you can adjust to your liking. It's your game. Start here, and find the path that leads you to awesome stories.
+
 ## GENERAL PRINCIPLES
 
-These core principles guide all Ironsworn play, regardless of how many people are sitting at the table (or if you're playing solo).
+**SWEAR IRON VOWS, AND SEE THEM FULFILLED OR FORSAKEN**
 
-### 1. Play to Find Out What Happens
-Don't plan the story in advance. Instead, be curious about what emerges from the interaction of mechanics, fiction, and choices.
+Your sworn vows are the narrative framework of your *Ironsworn* stories. You will introduce an urgent problem or personal quest, *Swear an Iron Vow* to set things right, and play to see what happens. As you pursue your quest, you may encounter situations which take your vow in surprising directions or inspire new vows.
 
-- **Embrace uncertainty** - let surprises drive the narrative
-- **Ask questions** about the world and your character
-- **Follow the fiction** wherever it leads
-- **Trust the process** - even when things go in unexpected directions
+**PORTRAY A HEROIC CHARACTER IN A HARSH LAND**
 
-> **🎲 The Oracle is Your Co-Storyteller**: When you're unsure what happens next, ask the oracle. The dice will introduce the unexpected twists that make stories memorable.
+The default tone of *Ironsworn* is heroic but grounded. Your character is exceptional, but you aren't a superhero or mythic figure. Add depth to your character by portraying them as a complete and imperfect person. You are flesh and blood. You will fail. You will get hurt. You will make mistakes. You will lose faith. You will act against your better instincts. Make decisions through the flawed perspective of this character.
 
-### 2. Address Your Character
-When you make moves, speak from your character's perspective. Describe what they do, think, and feel.
+You will also paint your world in shades of gray. The weather is hostile. Terrors lurk in dark nights and deep forests. Too often, Ironlanders fight and scheme amongst themselves instead of standing together against greater threats. But, there is beauty here. There is love and kinship. The people persevere.
 
-- **Use "I" statements** - "I search the room" not "My character searches"
-- **Describe actions** not intentions - "I draw my sword" not "I want to fight"
-- **Consider your character's** knowledge, personality, and motivations
-- **Stay in character** even when it's uncomfortable
+Most of all, there is hope. The act of swearing a vow is an expression of that hope. Seeing it through—no matter the cost—is what makes you a hero.
 
-### 3. Make Things Interesting
-When you have a choice, pick the option that creates the most compelling story.
+**BEGIN AND END WITH THE FICTION**
 
-- **Embrace complications** - they make victories more meaningful
-- **Take risks** - safety is boring in the Ironlands
-- **Make hard choices** - sacrifice and struggle create drama
-- **Raise the stakes** - what matters most should be threatened
+Set every scene and action within the fiction. What is happening? What are you doing? What does it look like? If a move is triggered, make it. Then, look to the fiction to resolve the move and decide what happens next. Keep things moving forward, bookending the mechanics of your moves with the fiction.
 
-### 4. Honor the Fiction
-Respect the established reality of your story and the world.
+*Ironsworn* rules, moves, and assets often use the term "envision." This word is your reminder to visualize the scene or the action. Don't rush through your moves with a focus on the mechanical outcomes. Let your story breathe. Go beyond the surface details. Ask questions (or *Ask the Oracle*), and build on the answers.
 
-- **Stay consistent** with what has already been established
-- **Respect the consequences** of previous actions
-- **Maintain verisimilitude** - things should make sense within the story's logic
-- **Build on what came before** - every action should connect to the ongoing narrative
+When playing with others, describing your character's intent and actions is part of the conversation you share at your table. When playing solo, take the time to imagine the scene and take note of important details.
 
-### 5. Think Dangerously
-The Ironlands are a harsh, unforgiving place. Reflect this in your storytelling.
-
-- **The world is hostile** - nature, weather, and creatures are threats
-- **Resources are scarce** - food, shelter, and safety are never guaranteed
-- **Violence has consequences** - combat is dangerous and lasting
-- **Trust is earned** - people have their own agendas and fears
-
-```
-╔══════════════════════════════════════════════════════════════╗
-║                      THE IRONLANDS TRUTH                     ║
-╠══════════════════════════════════════════════════════════════╣
-║  Life is hard. Death is easy. Hope is scarce. Iron is power.  ║
-║  Trust is foolish. The past haunts. The future threatens.     ║
-╚══════════════════════════════════════════════════════════════╝
-```
+To learn more about the fiction and fictional framing, see page 205.
 
 ## GROUP PLAY
 
-When playing Ironsworn with others, these additional principles help create a collaborative experience.
+**FORGE A STORY THROUGH CONVERSATION**
 
-### 6. Play to Find Out What Happens Together
-Your stories intertwine. Support each other's narratives while pursuing your own goals.
+When you begin your campaign, your characters are actors on an empty stage. At first, everything is hidden in shadow. Gradually, the stage is assembled. The lights come up, showing texture and details. Your characters reveal themselves through action and dialogue. Other characters—some important, some unimportant—are introduced. Elements that seemed little more than stage dressing become a focus of the story.
 
-- **Share the spotlight** - give everyone time to shine
-- **Connect your stories** - find ways your quests intersect
-- **Support each other's moves** - help allies succeed
-- **Create shared experiences** - build memories together
+Because roleplaying doesn't have the luxury of lights, sets, props, and actors, you use the conversation at the table to build your story and your world. The deeper the conversation, the more you reveal of what is happening onstage, the more opportunities you will find to take your story in interesting new directions. Ask questions of each other to help create a coherent, shared picture of what is happening in the fiction. Deepen your setting and your characters by adding evocative details. You'll be surprised how often an offhand suggestion can snowball into exciting story possibilities.
 
-### 7. Be a Fan of Each Other's Characters
-Support and celebrate the other players' characters and their stories.
+When something is uncertain, you can *Ask the Oracle* and work together to interpret the answer. When playing with a GM, they are your oracle.
 
-- **Appreciate their choices** - even when you disagree
-- **Highlight their strengths** - point out cool things they do
-- **Respect their autonomy** - don't dictate their actions
-- **Invest in their success** - want them to achieve their goals
+**SHARE THE SPOTLIGHT**
 
-### 8. Make Moves Together
-When appropriate, combine your efforts through group moves.
+Be a generous, collaborative player. Within scenes, work to keep each character visible and each player engaged. Remember to use the *Aid your Ally* move to interact with the moves other players are making. Use the conversation to give everyone input into the narrative.
 
-- **Coordinate actions** - plan how to work together
-- **Support each other** - use the Aid Your Ally move
-- **Share consequences** - face challenges as a team
-- **Celebrate group victories** - acknowledge everyone's contribution
-
-### 9. Respect the Table
-Create a safe, inclusive environment for everyone.
-
-- **Listen actively** - hear what others are saying
-- **Be respectful** - value different perspectives and play styles
-- **Communicate clearly** - express needs and boundaries
-- **Have fun together** - remember this is a shared hobby
+For your broader campaign, don't let one character's vow drive your story through every session. Mix it up. Give each character opportunities to explore their own motivations and quests, and find ways to give everyone a personal stake in your sworn vows.
 
 ## SOLO PLAY
 
-Playing Ironsworn solo requires additional discipline and creativity. These principles help you create compelling stories on your own.
+**CHRONICLE YOUR ADVENTURES**
 
-### 10. Ask Questions Constantly
-Use questions to drive the narrative and explore your character's world.
+When you play *Ironsworn* with other players, the shared conversation helps create a story that lives beyond the game table. As a solo player, your character and your world exist only for you. This can make your story feel a bit fleeting and unimportant.
 
-- **Ask the oracle** - use dice to answer story questions
-- **Ask yourself** - explore your character's thoughts and feelings
-- **Ask the world** - wonder about the history and nature of places
-- **Ask "what if"** - explore alternative possibilities
+To help ground your session, keep a record at whatever level of detail you prefer. This can be a few bullet points in a text file, a journal filled with sketches and notes, or even a detailed play report you share on a forum or blog. There's no wrong answer here. Use whatever approach works for you and is an enjoyable aspect of your play.
 
-### 11. Embrace Surprises
-The oracle will introduce unexpected elements. Run with them.
+Creating a record also makes it easier to pick up where you left off when you return to the Ironlands.
 
-- **Accept oracle results** - even when they complicate your plans
-- **Find the interesting angle** - every result can be compelling
-- **Connect the dots** - weave random elements into the narrative
-- **Challenge your assumptions** - let the story surprise you
+**ASK THE ORACLE, BUT TRUST YOUR INSTINCTS**
 
-### 12. Be Both Player and GM
-Switch between playing your character and narrating the world.
+Oracles are a valuable tool for solo play, but don't let them replace your own storytelling instincts. If it's dramatic, fits the fiction, and pushes your story forward, make it happen. Use oracles when you don't have an immediate answer to a question, or when triggered by a match.
 
-- **Wear different hats** - character vs. narrator perspective
-- **Challenge your character** - create obstacles for yourself
-- **Reward your character** - allow moments of triumph
-- **Maintain balance** - neither too easy nor too hard
+The *Pay the Price* random table (page 105), in particular, isn't something you should roll on for every failure. Note the first option in this move: "Make the most obvious negative outcome happen." Let the result of your failed moves flow from the fiction. Make the occasional oracle roll for added uncertainty and surprise.
 
-### 13. Document Your Story
-Keep records to maintain continuity and track your journey.
+**LET IT ALL FALL APART**
 
-- **Take notes** - record important events and discoveries
-- **Track relationships** - note how bonds change over time
-- **Map your journey** - keep track of places you've been
-- **Review regularly** - refresh your memory of past events
+As a solo player, you have control over the challenges you face and the outcomes of your actions. Don't let this control keep you from missing out on dramatic opportunities. A great story requires adversity. Failure makes success meaningful. When in doubt, err on the side of the dramatic, even (and especially) when it turns your character's life upside down or takes your story in an unplanned direction.
+
+When you fail in a critical moment, make it hurt. Consider ways to represent this failure beyond shifting the value of one of your tracks. Take away something you cherish. Find yourself betrayed by someone you trusted. See your plans crumble. Narrative cost is a powerful storytelling tool.
 
 ## PLAYING AS THE GM
 
-When you take on the role of Game Master in guided play, these principles help you facilitate the story.
+**DELIVER ANSWERS, OR TURN QUESTIONS BACK TO THE PLAYERS**
 
-### 14. Play to Find Out What Happens
-Don't script the story. React to player choices and let the narrative emerge.
+If you are the GM, the players will look to you to answer questions about the world and help determine the outcome of moves. When they do, you can answer their question, keeping in mind the fictional framing you've established through play. If you see a chance to surprise or delight your players, take it.
 
-- **Prepare situations, not plots** - create interesting circumstances
-- **Ask "what do you do?"** - put the focus on player agency
-- **Embrace player choices** - follow their lead wherever it goes
-- **Be surprised** - let players surprise you with their creativity
+You should also look for opportunities to facilitate conversations at your table. Encourage your players to add details and ground every move in the fiction. Answer a question by asking questions. Work to create a shared world and narrative which everyone has stake in. If a conversation hits a dead end or drags on, take the question back, deliver an answer (or *Ask the Oracle*), and move on.
 
-### 15. Address the Characters, Not the Players
-Speak to and about the characters, maintaining the fictional frame.
+**FACILITATE, DON’T IMPOSE**
 
-- **Use character names** - not player names
-- **Describe what characters see** - not what players should know
-- **Ask characters questions** - not players
-- **Maintain the illusion** - keep everyone in the story
+You are the guide for your players as they explore the world and the story of their characters. You set the scenes and portray the creatures and characters they encounter. When the narrative hits a lull, you make something happen. But, you are a guide with a vague map and an unreliable compass. Let the players choose their path. Moderate the conversation without dominating it.
 
-### 16. Make Things Interesting
-Create compelling challenges and situations for the characters.
+For campaign play, you facilitate character creation and worldbuilding to create the framework for your shared story. For a one-shot session (page 231), you can come prepared with a quest outline (page 200) to make the most of the limited time available. No matter what the format of your session, don't resist when everything goes completely and gloriously off-course.
 
-- **Introduce complications** - raise the stakes and create tension
-- **Present difficult choices** - force meaningful decisions
-- **Threaten what matters** - put important things at risk
-- **Vary the challenges** - mix combat, social, and exploration obstacles
+**EMBRACE CHAOS**
 
-### 17. Never Say the Names of Your Moves
-Keep the mechanics invisible. Describe outcomes in fictional terms.
+Don't overprepare for your session. Feel free to come to the table with absolutely nothing planned. The character-driven quests help you and your players build a story together. Anything that is not a player character or move has very little mechanical detail, and can be introduced on the fly.
 
-- **Describe results, not rules** - "The door crashes open" not "You got a strong hit"
-- **Keep the focus on the story** - mechanics serve the narrative
-- **Maintain immersion** - don't break the fictional frame
-- **Trust the players** - they understand the mechanics
+Letting go of your plans leaves you open to the unexpected. Cheer for surprising successes. Seize the story possibilities of dramatic failures. Listen to the players and let their suggestions inspire you.
 
-### 18. Give Every Life Meaning
-When NPCs die or events occur, give them narrative weight.
-
-- **Make deaths matter** - even minor characters deserve meaningful ends
-- **Show consequences** - actions should have lasting effects
-- **Create emotional impact** - events should feel significant
-- **Build a living world** - things happen beyond the characters' notice
-
-## THE PRINCIPLE OF PRINCIPLES
-
-> **Above all: Tell a compelling story together.**
-
-Whether you're playing solo, with friends, or as a GM, everything serves the narrative. The mechanics, the principles, the world - they all exist to create meaningful stories of struggle, sacrifice, and survival in the harsh lands of the Ironlands.
-
-```
-╔══════════════════════════════════════════════════════════════╗
-║                        STORY FIRST                           ║
-╠══════════════════════════════════════════════════════════════╣
-║  Mechanics serve narrative, not the other way around         ║
-║  Principles guide play, but don't restrict creativity       ║
-║  The story is what matters - everything else is just tools   ║
-╚══════════════════════════════════════════════════════════════╝
-```
-
----
-
-*"These principles are not rules to be followed blindly, but wisdom to guide your journey. Adapt them to your table, your style, your story. The Ironlands are vast, and every path through them is unique."*
+You can also leverage the oracles for answers and inspiration. Ask a yes/no question through the *Ask the Oracle* move (page 107), or interpret an response from the oracle tables (page 167). You can even collaborate with your players to interpret an oracle's answer.
