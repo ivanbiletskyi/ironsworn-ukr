@@ -310,8 +310,6 @@
 | **31-32** | Небезпечний | **65-66** | Холодний | **99-00** | Ізольований |
 | **33-34** | Прихований | **67-68** | Заражений | | |
 
-![Snowy mountains in the Ironlands](/Users/ivanbiletskyi/Documents/Ivan/D&D/books/Ironsworn/Ironsworn-Rulebook-imgs/Ironsworn-Rulebook_page-0188.jpg)
-
 ---
 
 ## ОРАКУЛ 7: НАЗВА ПОСЕЛЕННЯ
@@ -614,8 +612,6 @@
 | **31-32** | Кінзура | **65-66** | Тахута | **99-00** | Фараза |
 | **33-34** | Сумула | **67-68** | Маттісса | | |
 
-![Mist rising from a dense evergreen forest](/Users/ivanbiletskyi/Documents/Ivan/D&D/books/Ironsworn/Ironsworn-Rulebook-imgs/Ironsworn-Rulebook_page-0197.jpg)
-
 ---
 
 ## ОРАКУЛ 15: ІНШІ ІМЕНА
@@ -672,8 +668,6 @@
 | **79-89** | Атакувати з точністю. |
 | **90-99** | Атакувати з силою. |
 | **00** | Зробити абсолютно несподівану дію. |
-
-![Ironlanders in a chaotic battle](/Users/ivanbiletskyi/Documents/Ivan/D&D/books/Ironsworn/Ironsworn-Rulebook-imgs/Ironsworn-Rulebook_page-0199.jpg)
 
 ---
 

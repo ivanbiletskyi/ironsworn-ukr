@@ -310,8 +310,6 @@ Use this oracle when you want to randomly determine the challenge rank of a ques
 | **31-32** | Perilous | **65-66** | Cold | **99-00** | Isolated |
 | **33-34** | Hidden | **67-68** | Blighted | | |
 
-![Snowy mountains in the Ironlands](/Users/ivanbiletskyi/Documents/Ivan/D&D/books/Ironsworn/Ironsworn-Rulebook-imgs/Ironsworn-Rulebook_page-0188.jpg)
-
 ---
 
 ## ORACLE 7: SETTLEMENT NAME
@@ -614,8 +612,6 @@ What influence does the weather have on this settlement?
 | **31-32** | Kinzura | **65-66** | Tahuta | **99-00** | Faraza |
 | **33-34** | Sumula | **67-68** | Mattissa | | |
 
-![Mist rising from a dense evergreen forest](/Users/ivanbiletskyi/Documents/Ivan/D&D/books/Ironsworn/Ironsworn-Rulebook-imgs/Ironsworn-Rulebook_page-0197.jpg)
-
 ---
 
 ## ORACLE 15: OTHER NAMES
@@ -672,8 +668,6 @@ What influence does the weather have on this settlement?
 | **79-89** | Attack with precision. |
 | **90-99** | Attack with power. |
 | **00** | Take a completely unexpected action. |
-
-![Ironlanders in a chaotic battle](/Users/ivanbiletskyi/Documents/Ivan/D&D/books/Ironsworn/Ironsworn-Rulebook-imgs/Ironsworn-Rulebook_page-0199.jpg)
 
 ---
 

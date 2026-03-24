@@ -29,8 +29,3 @@ GM’s can use oracles for support during play and to supplement their narrative
 > The GM interprets this result. “This settlement relies on a steady harvest of a rare medicinal plant found in the depths of the swamp”, she tells her players. “But, a huge basilisk they call ‘one-eye’ lurks there. A group of able hunters set out last week to kill the beast. They did not return.”
 
 You can also use oracles as a prompt for sharing control of the narrative with your players. Not sure what happens next? Not sure how to answer a character’s question? Roll on an appropriate table, or have a player make the roll, and talk it out with everyone at the table.
-
-![A mystic in a dark cloak standing on a rocky shore](../../__rulebook-imgs__/Ironsworn-Rulebook_page-0177.jpg)
-
----
-**166 | CHAPTER 6: ORACLES**
