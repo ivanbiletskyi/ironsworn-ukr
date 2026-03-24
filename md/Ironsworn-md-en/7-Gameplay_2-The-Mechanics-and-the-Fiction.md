@@ -91,7 +91,7 @@ However, the *Ironsworn* rules do not utilize fine-grained mechanics for the dif
 
 ### FROM HELL'S HEART, I STAB AT THEE
 
-A leviathan is an ancient sea beast (page 154). It's tough to kill because of its epic rank, and it inflicts epic harm, but it doesn't have any other mechanical characteristics. If we look to the fiction of the leviathan's, description, we see "flesh as tough as iron." But, rolling a *Strike* against a leviathan is the same as against a common thug. In either case, it's your action die, plus your stat and adds compared to the challenge dice. Your chances to score a strong hit, weak hit, or miss are the same.
+A leviathan is an ancient sea beast ([page 154](5-Foes-and-Encounters_5-Beasts.md#leviathan)). It's tough to kill because of its epic rank, and it inflicts epic harm, but it doesn't have any other mechanical characteristics. If we look to the fiction of the leviathan's, description, we see "flesh as tough as iron." But, rolling a *Strike* against a leviathan is the same as against a common thug. In either case, it's your action die, plus your stat and adds compared to the challenge dice. Your chances to score a strong hit, weak hit, or miss are the same.
 
 So how do you give the leviathan its due as a terrifying, seemingly invulnerable foe? You do it through the fiction.
 
@@ -112,7 +112,6 @@ When you *Undertake a Journey*, *Enter the Fray*, or *Swear an Iron Vow*, consid
 
 The rank can reflect your desired pace of play. Adjust the fiction and set the rank as appropriate to the amount of focus you want to give this challenge in your story. But, don't go easy on your character. Prevailing or failing against overwhelming odds is the stuff of great stories. Be epic. Or die trying.
 
-![Leviathan attacking a ship](../../__rulebook-imgs__/Ironsworn-Rulebook_page-0219.jpg)
 
 ## ZOOMING IN AND OUT
 
@@ -130,7 +129,7 @@ This is a moment of high drama. Linger on it for a moment. Imagine what the gian
 
 Time moves again. The frantic battle continues. The giant acts. You react. Roll for it, and interpret the result. Remember: It's fiction first, then the move, then back to the fiction as you resolve the outcome. If it's interesting, supports your fictional framing, and compounds the tension, make it happen.
 
-Even in a situation where seconds count, such as combat, you can shift the focus and flow of time. A *Strike* might be a single, decisive blow. Or, it might represent a flurry of attacks and blocks leading to a pivotal moment. Don't treat a fight as a series of discrete rounds. Mix it up. There's even a special move for combat, *Battle* (page 84), which lets you zoom out and abstract an entire engagement in a single roll.
+Even in a situation where seconds count, such as combat, you can shift the focus and flow of time. A *Strike* might be a single, decisive blow. Or, it might represent a flurry of attacks and blocks leading to a pivotal moment. Don't treat a fight as a series of discrete rounds. Mix it up. There's even a special move for combat, *[Battle](3-Moves_4-Combat-Moves.md#battle)*, which lets you zoom out and abstract an entire engagement in a single roll.
 
 Later, after you've defeated the giant, you continue on your quest. You're making your way into the mountains. You roll to *Undertake a Journey* and score a weak hit. You imagine it as a montage. You are moving from dense forest into jagged hills. You rest only once, pausing to eat alongside the banks of a surging river. Your eyes are narrowed and your expression wearied as you scan the difficult terrain ahead.
 
@@ -142,7 +141,7 @@ This is the ebb and flow of play. Time is fluid. The moves help dictate this flo
 > 
 > You make the *Undertake a Journey* move, giving your journey a rank of dangerous, and roll a strong hit. You mark progress, and take the option to preserve your supply. You zoom out to envision a good first day of travel. You head south along the trade road, which is little more than a muddy path meandering through the low hills. The weather is fair. You catch a nice fat rabbit for dinner.
 > 
-> You *Ask the Oracle* for guidance on your first waypoint by rolling on the Location (page 176) and Location Descriptor (page 177) tables. The oracle answers, "Mystic site" and "Beautiful."
+> You *Ask the Oracle* for guidance on your first waypoint by rolling on the Location ([page 176](6-Oracles_2-Ironland-Oracles.md#oracle-3-region)) and Location Descriptor ([page 177](6-Oracles_2-Ironland-Oracles.md#oracle-6-location-descriptor)) tables. The oracle answers, "Mystic site" and "Beautiful."
 > 
 > You interpret this answer as a set of standing stones the locals call 'The Three Maidens'. Looking for a bit more detail, you roll on the Action and Theme tables. The oracle responds, "Communicate Dreams."
 > 
