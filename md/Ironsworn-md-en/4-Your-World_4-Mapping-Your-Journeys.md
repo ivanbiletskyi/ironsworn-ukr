@@ -15,7 +15,7 @@ Don’t worry about the details here. Not everything you encounter needs to be m
 
 If you’re using your own map for the Ironlands or playing in a different setting altogether, you can manage the details however you like.
 
-![Rider on horse looking at mountains](/Users/ivanbiletskyi/Documents/Ivan/D&D/books/Ironsworn/Ironsworn-Rulebook-imgs/Ironsworn-Rulebook_page-0141.jpg)
+![Rider on horse looking at mountains](../../__rulebook-imgs__/Ironsworn-Rulebook_page-0141.jpg)
 
 ***
 **130 | CHAPTER 4 | YOUR WORLD**

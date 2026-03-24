@@ -49,9 +49,9 @@ Your action score isn’t greater than either of the challenge dice. You failed,
 
 The move will tell you how to interpret the outcome of your action, or offer a choice. The result may include mechanical changes to your character’s status and narrative changes to the current situation.
 
-When you score a miss on a move, you’ll usually see a prompt to *Pay the Price*. This is a special move that lets you pick a likely negative outcome or roll to see what happens. If you’re playing with a GM, they may consult with this move, or just tell you the price.
+When you score a miss on a move, you'll usually see a prompt to *Pay the Price*. This is a special move that lets you pick a likely negative outcome or roll to see what happens. If you're playing with a GM, they may consult with this move, or just tell you the price.
 
-The main thing to remember on a miss: Something always happens. The situation gets more complex, dramatic, or dangerous. To learn more about the *Pay the Price* move, see [page 105](3-Moves_6-Fate-Moves.md).
+The main thing to remember on a miss: Something always happens. The situation gets more complex, dramatic, or dangerous. To learn more about the *Pay the Price* move, see [page 105](3-Moves_7-Fate-Moves.md).
 
 > [!IMPORTANT]
 > **Ties always go to the challenge dice.** Your action score needs to exceed—not equal—the challenge dice to count as a hit.
