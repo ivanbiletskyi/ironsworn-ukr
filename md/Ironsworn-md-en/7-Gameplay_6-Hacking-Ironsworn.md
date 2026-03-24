@@ -2,273 +2,78 @@
 
 ## PLAYING IN OTHER WORLDS
 
-Ironsworn's mechanics are versatile and can be adapted to many different settings and genres. The core system of moves, progress tracks, and narrative resolution works beyond the Ironlands.
+If you want to play in a different setting—but one that is similar to the Ironlands in tone—you can jump right in. *Ironsworn* characters, moves, and assets can make the transition to similar gritty fantasy or historical settings with very few changes, if any.
 
-### Adapting the Setting
-When moving Ironsworn to a new setting, consider these key elements:
+When you create your character, you can omit any assets which aren't a good fit for your setting. For example, rituals might be left out or limited if there is no magic in your world.
 
-**Core Mechanics to Keep:**
-- **Action rolls** with strong/weak hit/miss outcomes
-- **Progress tracks** for long-term goals
-- **Momentum** as a narrative resource
-- **Vows** as story drivers
-- **Oracle** for random inspiration
+> *Ironsworn* works best when portraying driven heroes undertaking perilous quests. Vows, milestones, and progress tracks are core to the game, and should not be left behind when you explore other settings and genres. If iron vows and sworn quests don't fit your world, you can change how they are represented in the fiction. A solemn promise can take many forms.
 
-**Setting Elements to Adapt:**
-- **Character backgrounds** - match your new world
-- **Asset types** - reflect the setting's technology and magic
-- **Truths** - establish the new world's fundamental nature
-- **Regions** - create appropriate geographical areas
-- **Foes** - populate with setting-appropriate threats
+### HIGH-MAGIC SETTINGS
 
-### Genre Adaptations
+A bigger shift in tone may require more work. If you play in a setting where mystic forces are more powerful, you'll need to consider how to handle magic for your character. The easiest option is to simply create a character without magic capabilities and depict the magic of the setting and NPCs through the fiction. Your story gains the potential advantage of showing your mundane character standing against overwhelming supernatural forces.
 
-#### Science Fiction
-**Space Opera Ironsworn:**
-- **Stats**: Edge (combat), Heart (diplomacy), Iron (technology)
-- **Assets**: Starships, cybernetics, alien allies
-- **Vows**: Explore strange worlds, defeat galactic threats
-- **Truths**: The galaxy is vast and dangerous, ancient civilizations leave mysterious artifacts
+For magic-wielding characters, ritual assets can be envisioned with overt magical effects in high-magic settings. For example, instead of simply wearing an animal pelt using the **Bind** ritual, you can actually shape-change into the creature. The mechanical outcomes can stay the same, but the fictional framing changes dramatically. Rituals might also be envisioned to require less time to prepare or perform, functioning more like the quick-fire spells of heroic fantasy roleplaying games.
 
-**Cyberpunk Ironsworn:**
-- **Stats**: Edge (street skills), Heart (humanity), Iron (tech)
-- **Assets**: Cyberware, hacking tools, corporate connections
-- **Vows**: Expose corporate conspiracies, survive the streets
-- **Truths**: Corporations rule, technology dehumanizes, resistance is costly
+If your setting or character concept don't work within the confines of existing assets, you have some options to consider on the next page.
 
-#### Fantasy
-**High Fantasy Ironsworn:**
-- **Stats**: Edge (combat), Heart (magic), Iron (endurance)
-- **Assets**: Magical items, spells, mythical companions
-- **Vows**: Defeat dark lords, recover ancient artifacts
-- **Truths**: Magic is real but dangerous, ancient evils stir, kingdoms fall
+### EXPLORING OTHER GENRES
 
-#### Horror
-**Cosmic Horror Ironsworn:**
-- **Stats**: Edge (physical), Heart (sanity), Iron (willpower)
-- **Assets**: Occult knowledge, protective charms, allies
-- **Vows**: Uncover dark secrets, survive the impossible
-- **Truths**: Humanity is insignificant, knowledge brings madness, some doors should remain closed
+*Ironsworn* characters and moves are intentionally only lightly themed for the default setting and tone, and they work just fine across a variety of heroic fiction genres. *Undertake a Journey* can be envisioned as faster-than-light travel aboard a spaceship, or as nitrous-fueled journeys on the ruined highways of a post-apocalyptic wasteland.
 
-#### Modern
-**Urban Fantasy Ironsworn:**
-- **Stats**: Edge (action), Heart (social), Iron (resources)
-- **Assets**: Modern equipment, supernatural abilities, contacts
-- **Vows**: Protect the mundane world, uncover supernatural conspiracies
-- **Truths**: Magic hides in plain sight, ancient powers persist, normalcy is fragile
-
-### World-Building Framework
-Use this structure to adapt Ironsworn to any setting:
-
-```
-╔══════════════════════════════════════════════════════════════╗
-║                    SETTING ADAPTATION                        ║
-╠══════════════════════════════════════════════════════════════╣
-║  1. Define the Genre - What kind of stories will you tell?    ║
-║  2. Establish Truths - What makes this world unique?         ║
-║  3. Adapt Stats - How do core abilities translate?           ║
-║  4. Create Assets - What tools and abilities exist?         ║
-║  5. Design Foes - What threats will characters face?         ║
-║  6. Build Oracles - What random tables do you need?          ║
-╚══════════════════════════════════════════════════════════════╝
-```
+Assets are designed to reflect *Ironsworn*'s default world, and require more work to ignore, transition or replace for dramatically different settings and genres. Some options follow.
 
 ## TWEAKING ASSETS
 
-Assets are the most flexible part of Ironsworn and can be extensively modified to suit your setting or playstyle.
+### PLAYING WITHOUT ASSETS
 
-### Asset Structure
-Every asset follows this basic pattern:
-- **Title and Type** - What is it and what category does it belong to?
-- **Description** - What does it do in the fiction?
-- **Abilities** - What mechanical advantages does it provide?
-- **Requirements** - What must you do to use it?
+Playing without assets limits the options for your character, but simplifies things if you prefer less mechanical detail. It also makes it much easier to quickly reskin *Ironsworn* for other settings or genres.
 
-### Creating New Asset Types
-Beyond the standard types (combat, companions, paths, rituals), consider:
+If you do play without assets, you should give your character additional depth through roleplaying and description. Envision your character's background and skills to help define the fictional framing of your actions.
 
-**Technology Assets:**
-- **Vehicles** - mounts, ships, mechs
-- **Equipment** - tools, weapons, gear
-- **Facilities** - bases, workshops, laboratories
+For anything other than a very short campaign or one-shot, you need an alternate reward when you spend experience. Here's a suggestion:
 
-**Social Assets:**
-- **Reputation** - titles, standing, influence
-- **Networks** - contacts, organizations, guilds
-- **Resources** - wealth, information, allies
+**When playing without assets, you may spend 6 experience to increase a single stat by +1. No stat can exceed +4.**
 
-**Magical Assets:**
-- **Spells** - specific magical effects
-- **Artifacts** - items of power
-- **Traditions** - magical knowledge and training
+### USING ROLES INSTEAD OF ASSETS
 
-### Asset Balance Guidelines
-When creating new assets, keep these principles in mind:
+If you aren't using assets but want to add a bit more detail to your character, you can use a simplified representation of assets called a **role**. Here's how it works:
 
-**Cost vs. Benefit:**
-- **Higher requirements** should provide stronger benefits
-- **Limited uses** should be more powerful when used
-- **Situational abilities** can be stronger than general ones
+* Name a role for your character based on their expertise or background. In the Ironlands or a similar setting, you might be a **leader**, **scout**, **mystic**, or **healer**. If you are hacking *Ironsworn* for a different setting or genre, use roles which fit the world. If you chose a combat-oriented role, make it narrow enough that it isn't usable for every potential action in a fight.
+* Your role gives you the fictional framing to act using that role in your story. If you are a **scout**, you are skilled at finding your way in the wilds and observing the enemy from hiding. If you are a **mystic**, you can perform rituals. If you are a **leader**, you can command others. You make moves as normal, but the fictional framing might give you permission to make or avoid specific moves, and affect how you envision your actions.
+* If you like, give your role greater story potential and specificity with an evocative label. You are not just a **priest**, you are a **Wayward Disciple of the Forgotten One**. You are not just a **hunter**, you are a **Sharp-Eyed Hunter of the Hinterlands**.
+* When you make a move (not a progress move) and envision how your role contributes to this action, choose one before rolling: **Add +2, or add +1 and take +1 momentum on a hit.**
+* **For every 6 experience points, you may buy an additional role.** Name it, and write it down. Bonuses from multiple roles may not be combined for a single move. If your roles overlap for a particular action, envision which role provides the most influence over your intent and outcome.
 
-**Progressive Power:**
-- **Basic abilities** available immediately
-- **Advanced abilities** require investment or experience
-- **Ultimate abilities** should feel special and significant
+### RESKINNING ASSETS
 
-**Narrative Integration:**
-- **Assets should tell stories** about your character
-- **Abilities should reflect the asset's nature**
-- **Requirements should make fictional sense**
+Because many of the assets represent the typical tropes of heroic characters, they can often be reimagined for different settings and genres with minimal changes. Use the existing assets as a starting place, and adjust the labels and specific abilities to better fit your imagined world.
 
-### Asset Creation Examples
-
-#### Example: Starship Asset
-```
-STARFREIGHTER [Vehicle]
-A modified cargo vessel, your home and transportation.
-
-▶︎ Hull: 2, Systems: 2, Crew: 2
-- You have a starship capable of interstellar travel
-- When you make a move related to ship operations, add +1
-
-▶︎ Engine Upgrade (requires Systems 3)
-- Once per journey, burn momentum to ignore a navigation complication
-
-▶︎ Weapon Systems (requires Hull 3)
-- When you Enter the Fray with your ship, add +1 and take +1 momentum
-
-▶︎ AI Assistant (requires Crew 3)
-- Your ship has an AI that can aid with complex tasks
-- Once per session, get +1 on any move related to ship systems
+```markdown
+COMBAT TALENT
+**ARCHER**
+If you wield a bow...
+* When you *Secure an Advantage* +wits by taking a moment to aim, envision where you intend to land your shot. Then, add +1 and take +1 momentum on a hit.
+* Once per fight, when you *Strike* or *Clash*, you may take extra shots and suffer -1 supply. When you do, reroll any dice. On a hit, inflict +2 harm and take +1 momentum.
+* When you *Resupply* by hunting, add +1 and take +1 momentum on a hit.
 ```
 
-#### Example: Cyberware Asset
-```
-NEURAL INTERFACE [Technology]
-Direct connection to digital networks through implanted cyberware.
+* Are you a 17th century pirate who is a crack shot with your musket? Rename **Archer** to **Marksman**, and change the condition to "If you wield a musket..."
+* Are you playing a cyborg in a future dystopia? Rename **Archer** to **Gunner**, and change the condition to "If you wield a cybernetic blaster..." Then, swap out the last ability with something that better fits the theme.
 
-▶︎ Integration: 2
-- You can interface directly with digital systems
-- When you Gather Information digitally, add +1
+### CREATING ASSETS AND ABILITIES
 
-▶︎ Data Mining (requires Integration 3)
-- You can extract hidden information from networks
-- Once per session, learn a secret without making a move
+If you want to create new assets or update an existing asset to better fit your theme, look to the existing abilities as your model. Assets provide several types of mechanical benefits, including:
 
-▶︎ Combat Overlay (requires Integration 4)
-- Your neural interface provides tactical assistance
-- When you Strike in combat, add +1
+* They grant a moderate benefit, such as "add +1 and take +1 momentum on a hit", for a relatively common action you expect to perform a few times each session.
+* They grant a strong benefit, such as "reroll any dice", for less common actions or abilities which have a limit ("one time only"). You can also grant strong benefits for abilities which require setup moves or strict fictional framing. For example, to use the **Slayer's** "reroll any dice" ability, you must first kill a formidable beast.
+* They give you an option to exchange one resource for another, such as "suffer -1 momentum and inflict +1 harm on a hit."
+* They provide the fictional framing to make a move in unusual circumstances. For example, you can use the **Communion** ritual to *Gather Information* from the dead.
+* They allow you to use a different stat instead of the one normally required by a move.
 
-▶︎ Ghost Protocol (requires Integration 5)
-- You can leave no digital trace when desired
-- When you Face Danger to avoid digital detection, add +2
-```
+You will find various permutations of these rewards across the default assets, along with many other less common abilities and self-contained moves which are specific to an asset.
 
-### Modifying Existing Assets
-You can also tweak existing assets to better fit your setting:
+One technique you can use when creating a new asset is to mix-and-match abilities from other assets. Whatever you want to portray in the fiction can probably be cobbled together, with some mild tweaking, from abilities which already exist.
 
-**Reskinning:**
-- Keep mechanics, change the fiction
-- Iron sword → Laser rifle
-- Horse companion → Robot companion
-- Healing herbs → Medkit
+A final word: *Ironsworn* is not particularly concerned with strict mechanical balance between assets. You aren't going to break anything by experimenting. If it adds to your fun, it's working.
 
-**Mechanical Tweaks:**
-- Adjust requirements for different power levels
-- Change bonuses to match setting needs
-- Add new abilities that fit the theme
-
-**Combining Assets:**
-- Merge similar assets for streamlined play
-- Create asset trees that build on each other
-- Link assets to create synergistic effects
-
-### Custom Asset Design Process
-Follow these steps when creating new assets:
-
-1. **Concept** - What is the asset's purpose and theme?
-2. **Type** - What category does it belong to?
-3. **Core Ability** - What is its primary function?
-4. **Progression** - How does it improve over time?
-5. **Requirements** - What must you invest to use it?
-6. **Balance** - Is it appropriately powerful for its cost?
-7. **Testing** - How does it play in actual sessions?
-
-### Asset Templates
-Use these templates for quick asset creation:
-
-**Combat Template:**
-```
-[NAME] [Combat]
-[Description]
-
-▶︎ Rating: 2
-- Basic combat ability
-
-▶︎ Special Move (requires Rating 3)
-- Improved combat option
-
-▶︎ Mastery (requires Rating 4)
-- Advanced combat technique
-
-▶︎ Ultimate (requires Rating 5)
-- Signature combat move
-```
-
-**Companion Template:**
-```
-[NAME] [Companion]
-[Description]
-
-▶︎ Health: 2, Spirit: 2
-- Basic companion abilities
-
-▶︎ Special Training (requires Health/Spirit 3)
-- Unique companion capability
-
-▶︎ Bond (requires Health/Spirit 4)
-- Deepened connection with companion
-
-▶︎ Sacrifice (requires Health/Spirit 5)
-- Companion can take risks for you
-```
-
-## PLAYTESTING YOUR HACKS
-
-When modifying Ironsworn, playtesting is crucial to ensure your changes work well.
-
-### Testing Guidelines
-**Start Small:**
-- Test one change at a time
-- Use short scenarios or one-shots
-- Focus on specific mechanics
-
-**Get Feedback:**
-- Ask players about their experience
-- Note what works and what doesn't
-- Watch for unexpected interactions
-
-**Iterate:**
-- Make adjustments based on feedback
-- Test again with different groups
-- Refine until the changes feel natural
-
-### Balance Considerations
-**Power Level:**
-- Are characters too powerful or too weak?
-- Do challenges feel appropriately difficult?
-- Is momentum still meaningful?
-
-**Pacing:**
-- Does the game flow at a good pace?
-- Are sessions engaging throughout?
-- Do stories resolve satisfyingly?
-
-**Fun Factor:**
-- Are the changes making the game more enjoyable?
-- Do they enhance the storytelling experience?
-- Do players feel their choices matter?
-
----
-
-*"Hacking Ironsworn is about making the game yours. The rules are tools, not restrictions. Adapt, modify, and create the experience that tells the stories you want to tell, in the worlds you want to explore."*
+> Of course, the easiest way to play *Ironsworn* in different worlds is to let someone else do the work. Visit ironswornrpg.com for updates on official expansions and community-created content.
