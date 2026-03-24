@@ -14,9 +14,3 @@ You can even use these index cards for random events. Need to know where the rai
 Don’t worry about the details here. Not everything you encounter needs to be marked on the map or recorded. Focus on the people and places important to your story. Don’t fuss with distances or exact positioning. There are no extra points awarded for neatness. That said, if you really enjoy detailed maps and recording your journeys, feel free to do so in whatever form works best for you.
 
 If you’re using your own map for the Ironlands or playing in a different setting altogether, you can manage the details however you like.
-
-![Rider on horse looking at mountains](../../__rulebook-imgs__/Ironsworn-Rulebook_page-0141.jpg)
-
-***
-**130 | CHAPTER 4 | YOUR WORLD**
-***
