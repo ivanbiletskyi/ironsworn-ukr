@@ -61,7 +61,9 @@ function OracleCard({ oracle, lang, lastAtoms, onRoll, onReroll, onDelete }: Ora
   }, []);
 
   useEffect(() => {
-    if (lastAtoms && lastAtoms.length > 0) {
+    if (!lastAtoms || lastAtoms.length === 0) {
+      setDisplayText(null);
+    } else {
       setDisplayText(lastAtoms.map(a => a.text).join(' / '));
     }
   }, [lastAtoms]);
@@ -369,18 +371,14 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
       const entry = h[entryIndex];
       if (!entry) return h;
       const oracleId = entry.atoms[atomIndex]?.oracleId.split(':')[0];
-      // Remove all atoms belonging to the same base oracle (handles multiColumn with multiple atoms per oracle)
+      if (oracleId) {
+        setLastByOracle(prev => { const { [oracleId]: _, ...rest } = prev; return rest; });
+      }
       const remaining = entry.atoms.filter(a => a.oracleId.split(':')[0] !== oracleId);
       if (remaining.length === 0) return h.filter((_, i) => i !== entryIndex);
       return h.map((e, i) => i === entryIndex ? { ...e, atoms: remaining } : e);
     });
-    setLastByOracle(prev => {
-      const oracleId = history[entryIndex]?.atoms[atomIndex]?.oracleId.split(':')[0];
-      if (!oracleId) return prev;
-      const { [oracleId]: _, ...rest } = prev;
-      return rest;
-    });
-  }, [history]);
+  }, []);
 
   const handleCardDelete = useCallback((oracleId: string) => {
     setHistory(h => {
