@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Link, useParams, Navigate, useL
 import Navigation from './components/Navigation';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import Search from './components/Search';
+import OracleGenerators from './components/OracleGenerators';
 import { CHAPTERS, UK_TITLES } from './utils/chapters';
 import './App.css';
 
@@ -29,6 +30,17 @@ const Sidebar = ({ currentLang, isOpen, onClose }: { currentLang: string, isOpen
         <div key={chapter.prefix}>
           <h3>{currentLang === 'uk' ? chapter.titleUk : chapter.titleEn}</h3>
           <ul>
+            {chapter.prefix === '6-Oracles' && (
+              <li>
+                <Link
+                  to={`/${currentLang}/oracles`}
+                  className={location.pathname === `/${currentLang}/oracles` ? 'active' : ''}
+                  onClick={() => { if (window.innerWidth <= 900) onClose(); }}
+                >
+                  {currentLang === 'uk' ? '🎲 Генератори оракулів' : '🎲 Oracle Generators'}
+                </Link>
+              </li>
+            )}
             {chapter.files.map(file => {
               // Create readable link name from filename, e.g., "1-Basics_1-Playing-Ironsworn.md" -> "Playing Ironsworn"
               const linkName = currentLang === 'uk' 
@@ -183,8 +195,8 @@ const LayoutParamsWrapper = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   
   // Valid languages check
-  const validLangs = ['en', 'uk'];
-  const currentLang = validLangs.includes(lang || '') ? lang! : 'uk';
+  const validLangs = ['en', 'uk'] as const;
+  const currentLang: 'en' | 'uk' = validLangs.includes(lang as 'en' | 'uk') ? lang as 'en' | 'uk' : 'uk';
 
   // Toggle sidebar for mobile
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
@@ -205,6 +217,7 @@ const LayoutParamsWrapper = () => {
         <div className="content-wrapper">
           <Routes>
             <Route path="search" element={<Search />} />
+            <Route path="oracles" element={<OracleGenerators currentLang={currentLang} />} />
             <Route path="*" element={<PageRenderer currentLang={currentLang} />} />
           </Routes>
           <Footer currentLang={currentLang} />

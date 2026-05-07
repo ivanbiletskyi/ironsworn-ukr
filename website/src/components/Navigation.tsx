@@ -47,18 +47,19 @@ const Navigation: React.FC<NavigationProps> = ({ currentLang, onToggleSidebar, i
           </Link>
         </div>
         <div className="nav-controls">
-          <Link 
-            to={`/${currentLang}/search`} 
-            className="search-btn" 
-            style={{ 
-              background: 'none', 
-              border: 'none', 
-              fontSize: '1.2rem', 
-              marginRight: '1rem', 
-              cursor: 'pointer',
-              textDecoration: 'none'
-            }}
+          <Link
+            to={`/${currentLang}/oracles`}
+            className="nav-icon-btn"
+            aria-label={currentLang === 'uk' ? 'Генератори оракулів' : 'Oracle Generators'}
+            title={currentLang === 'uk' ? 'Генератори оракулів' : 'Oracle Generators'}
+          >
+            🎲
+          </Link>
+          <Link
+            to={`/${currentLang}/search`}
+            className="nav-icon-btn"
             aria-label="Search"
+            title={currentLang === 'uk' ? 'Пошук' : 'Search'}
           >
             🔍
           </Link>

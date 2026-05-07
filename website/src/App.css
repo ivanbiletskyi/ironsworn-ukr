@@ -78,6 +78,21 @@
   gap: 1rem;
 }
 
+.nav-icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  cursor: pointer;
+  text-decoration: none;
+  line-height: 1;
+  opacity: 0.75;
+  transition: opacity 0.15s;
+}
+
+.nav-icon-btn:hover {
+  opacity: 1;
+}
+
 .lang-switch {
   display: flex;
   gap: 0.5rem;

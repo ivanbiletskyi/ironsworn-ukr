@@ -1,0 +1,518 @@
+/* ── Page layout ──────────────────────────────────────────────────── */
+
+.oracle-page {
+  padding: 1.5rem 2rem 3rem;
+  max-width: 1400px;
+}
+
+.oracle-page-title {
+  font-size: 2rem;
+  margin-bottom: 0.25rem;
+  border-bottom: 1px solid var(--border-color);
+  padding-bottom: 0.3em;
+}
+
+.oracle-page-subtitle {
+  color: var(--text-secondary);
+  margin-bottom: 1.5rem;
+  font-size: 0.95rem;
+}
+
+/* ── Combo preset bar ─────────────────────────────────────────────── */
+
+.combo-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.combo-bar-label {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  white-space: nowrap;
+}
+
+.combo-chip {
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 0.35em 1em;
+  font-size: 0.9rem;
+  cursor: pointer;
+  color: var(--text-primary);
+  transition: background 0.15s, border-color 0.15s;
+  white-space: nowrap;
+}
+
+.combo-chip:hover {
+  background: var(--highlight);
+  border-color: var(--highlight);
+  color: #fff;
+}
+
+/* ── Oracle grid + log layout ─────────────────────────────────────── */
+
+.oracle-layout {
+  display: grid;
+  grid-template-columns: 1fr 320px;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.oracle-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 1rem;
+}
+
+/* ── Oracle card ──────────────────────────────────────────────────── */
+
+.oracle-card {
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  transition: border-color 0.15s;
+}
+
+.oracle-card:hover {
+  border-color: var(--highlight);
+}
+
+.oracle-card-header {
+  flex: 1;
+}
+
+.oracle-card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 0.3rem;
+  border: none;
+  padding: 0;
+}
+
+.oracle-card-desc {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  margin: 0;
+  line-height: 1.4;
+}
+
+/* ── Result area ──────────────────────────────────────────────────── */
+
+.oracle-result {
+  min-height: 3.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  justify-content: center;
+}
+
+.oracle-result-placeholder {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+.oracle-result-text {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--highlight);
+  line-height: 1.3;
+  opacity: 1;
+  transition: opacity 0.2s ease;
+}
+
+.oracle-result.animating .oracle-result-text {
+  opacity: 0.6;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .oracle-result-text {
+    transition: none;
+  }
+}
+
+.oracle-roll-chip {
+  font-size: 0.75rem;
+  color: var(--text-secondary);
+}
+
+/* ── Roll button ──────────────────────────────────────────────────── */
+
+.oracle-roll-row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.oracle-roll-btn {
+  min-height: 48px;
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  flex: 1;
+}
+
+.oracle-roll-btn:hover {
+  background: var(--highlight);
+  border-color: var(--highlight);
+  color: #fff;
+}
+
+.oracle-roll-btn:active,
+.oracle-reroll-btn:active {
+  transform: scale(0.97);
+}
+
+.oracle-reroll-btn,
+.oracle-delete-btn {
+  min-height: 48px;
+  min-width: 48px;
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+
+.oracle-reroll-btn:hover {
+  background: var(--highlight);
+  border-color: var(--highlight);
+}
+
+.oracle-delete-btn {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.oracle-delete-btn:hover {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+/* ── Roll log — desktop sticky panel ─────────────────────────────── */
+
+.roll-log-panel {
+  position: sticky;
+  top: 1rem;
+  max-height: calc(100vh - 6rem);
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.roll-log-title {
+  font-size: 1rem;
+  font-weight: 600;
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+
+.roll-log-content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+}
+
+.roll-log-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.roll-log-count {
+  flex: 1;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.roll-log-action {
+  font-size: 0.8rem;
+  padding: 0.25em 0.6em;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: var(--accent-bg);
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.roll-log-action:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.roll-log-action.danger:hover:not(:disabled) {
+  background: var(--danger);
+  border-color: var(--danger);
+  color: #fff;
+}
+
+.roll-log-empty {
+  padding: 1rem;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  text-align: center;
+  margin: 0;
+}
+
+.roll-log-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  overflow-y: auto;
+  flex: 1;
+}
+
+.roll-log-entry {
+  padding: 0.6rem 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.roll-log-entry:hover {
+  background: rgba(88, 166, 255, 0.04);
+}
+
+.roll-log-entry-header {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.roll-log-time {
+  font-size: 0.7rem;
+  color: var(--text-muted);
+  flex: 1;
+}
+
+.roll-log-copy {
+  font-size: 0.75rem;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background: transparent;
+  color: var(--text-muted);
+  cursor: pointer;
+  line-height: 1;
+}
+
+.roll-log-copy:hover {
+  background: var(--accent-bg);
+  color: var(--text-primary);
+}
+
+.roll-log-atom {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  font-size: 0.82rem;
+}
+
+.roll-log-oracle-title {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.roll-log-arrow {
+  color: var(--text-muted);
+}
+
+.roll-log-atom-text {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.roll-log-rolls {
+  display: flex;
+  gap: 0.2rem;
+}
+
+.roll-log-reroll,
+.roll-log-delete-atom {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  opacity: 0;
+  transition: opacity 0.15s;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.roll-log-reroll {
+  margin-left: auto;
+}
+
+.roll-log-atom:hover .roll-log-reroll,
+.roll-log-atom:hover .roll-log-delete-atom {
+  opacity: 0.5;
+}
+
+.roll-log-reroll:hover,
+.roll-log-delete-atom:hover {
+  opacity: 1 !important;
+  color: var(--danger);
+}
+
+.roll-log-delete-entry {
+  background: none;
+  border: none;
+  font-size: 0.75rem;
+  cursor: pointer;
+  padding: 0.1em 0.4em;
+  border-radius: 4px;
+  color: var(--text-muted);
+  opacity: 0;
+  transition: opacity 0.15s;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.roll-log-entry-header:hover .roll-log-delete-entry {
+  opacity: 0.5;
+}
+
+.roll-log-delete-entry:hover {
+  opacity: 1 !important;
+  color: var(--danger);
+}
+
+.roll-log-roll-num {
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  padding: 0.05em 0.35em;
+  font-size: 0.7rem;
+  color: var(--text-muted);
+}
+
+/* ── Roll log — mobile FAB + drawer ──────────────────────────────── */
+
+.roll-log-fab {
+  position: fixed;
+  bottom: 1.25rem;
+  right: 1.25rem;
+  z-index: 100;
+  background: var(--highlight);
+  border: none;
+  border-radius: 50px;
+  padding: 0.65em 1.1em;
+  font-size: 1.1rem;
+  color: #fff;
+  cursor: pointer;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.roll-log-fab-count {
+  background: var(--danger);
+  border-radius: 12px;
+  padding: 0.1em 0.45em;
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+.roll-log-drawer-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.55);
+  z-index: 200;
+  display: flex;
+  align-items: flex-end;
+}
+
+.roll-log-drawer {
+  background: var(--secondary-bg);
+  border-top: 1px solid var(--border-color);
+  border-radius: 12px 12px 0 0;
+  width: 100%;
+  max-height: 75vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.roll-log-drawer-header {
+  display: flex;
+  align-items: center;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.roll-log-drawer-header .roll-log-title {
+  flex: 1;
+  padding: 0;
+  border: none;
+}
+
+.roll-log-close {
+  background: none;
+  border: none;
+  font-size: 1.2rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  padding: 0.25em;
+  line-height: 1;
+}
+
+/* ── Responsive helpers ───────────────────────────────────────────── */
+
+.desktop-only {
+  display: flex;
+  flex-direction: column;
+}
+
+.mobile-only {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .oracle-page {
+    padding: 1rem 1rem 5rem;
+  }
+
+  .oracle-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .desktop-only {
+    display: none;
+  }
+
+  .mobile-only {
+    display: block;
+  }
+
+  .oracle-grid {
+    grid-template-columns: 1fr;
+  }
+}

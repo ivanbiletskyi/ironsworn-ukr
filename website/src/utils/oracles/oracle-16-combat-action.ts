@@ -1,0 +1,55 @@
+import type { RangeOracle } from './oracle-types';
+
+const oracle: RangeOracle = {
+  kind: 'range',
+  id: 'combat-action',
+  title: { en: 'Combat Action', uk: 'Бойові дії' },
+  description: {
+    en: 'Use to inspire an NPC action in combat — especially when an enemy has initiative.',
+    uk: 'Надихає на дію НПС у бою, особливо коли ворог має ініціативу.',
+  },
+  rows: {
+    en: [
+      { min: 1,   max: 3,  result: 'Compel a surrender.' },
+      { min: 4,   max: 6,  result: 'Coordinate with allies.' },
+      { min: 7,   max: 9,  result: 'Gather reinforcements.' },
+      { min: 10,  max: 13, result: 'Seize something or someone.' },
+      { min: 14,  max: 17, result: 'Provoke a reckless response.' },
+      { min: 18,  max: 21, result: 'Intimidate or frighten.' },
+      { min: 22,  max: 25, result: 'Reveal a surprising truth.' },
+      { min: 26,  max: 29, result: 'Shift focus to someone or something else.' },
+      { min: 30,  max: 33, result: 'Destroy something, or render it useless.' },
+      { min: 34,  max: 39, result: 'Take a decisive action.' },
+      { min: 40,  max: 45, result: 'Reinforce defenses.' },
+      { min: 46,  max: 52, result: 'Ready an action.' },
+      { min: 53,  max: 60, result: 'Use the terrain to gain advantage.' },
+      { min: 61,  max: 68, result: 'Leverage the advantage of a weapon or ability.' },
+      { min: 69,  max: 78, result: 'Create an opportunity.' },
+      { min: 79,  max: 89, result: 'Attack with precision.' },
+      { min: 90,  max: 99, result: 'Attack with power.' },
+      { min: 100, max: 100, result: 'Take a completely unexpected action.' },
+    ],
+    uk: [
+      { min: 1,   max: 3,  result: 'Примусити здатися.' },
+      { min: 4,   max: 6,  result: 'Координуватися із союзниками.' },
+      { min: 7,   max: 9,  result: 'Зібрати підкріплення.' },
+      { min: 10,  max: 13, result: 'Захопити щось або когось.' },
+      { min: 14,  max: 17, result: 'Провокувати на безрозсудну відповідь.' },
+      { min: 18,  max: 21, result: 'Залякати або налякати.' },
+      { min: 22,  max: 25, result: 'Розкрити несподівану правду.' },
+      { min: 26,  max: 29, result: 'Переключити увагу на когось або щось інше.' },
+      { min: 30,  max: 33, result: 'Знищити щось або зробити це непридатним.' },
+      { min: 34,  max: 39, result: 'Зробити вирішальну дію.' },
+      { min: 40,  max: 45, result: 'Посилити захист.' },
+      { min: 46,  max: 52, result: 'Підготувати дію.' },
+      { min: 53,  max: 60, result: 'Використати місцевість для отримання переваги.' },
+      { min: 61,  max: 68, result: 'Скористатися перевагою зброї або здібності.' },
+      { min: 69,  max: 78, result: 'Створити можливість.' },
+      { min: 79,  max: 89, result: 'Атакувати з точністю.' },
+      { min: 90,  max: 99, result: 'Атакувати з силою.' },
+      { min: 100, max: 100, result: 'Зробити абсолютно несподівану дію.' },
+    ],
+  },
+};
+
+export default oracle;
