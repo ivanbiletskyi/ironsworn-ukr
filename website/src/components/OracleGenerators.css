@@ -515,4 +515,10 @@
   .oracle-grid {
     grid-template-columns: 1fr;
   }
+
+  .roll-log-reroll,
+  .roll-log-delete-atom,
+  .roll-log-delete-entry {
+    opacity: 0.5;
+  }
 }
