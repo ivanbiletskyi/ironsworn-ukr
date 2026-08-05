@@ -5,12 +5,15 @@
 [![Original Game – Ironsworn](https://img.shields.io/badge/Original%20Game-Ironsworn-blueviolet)](https://tomkinpress.com/pages/ironsworn)
 [![Author: Shawn Tomkin](https://img.shields.io/badge/Author-Shawn%20Tomkin-orange)](https://tomkinpress.com)
 [![Fan Adaptation](https://img.shields.io/badge/Edition-Fan%20Adaptation-brightgreen)](https://github.com/ivanbiletskyi)
+[![Гральний набір: Залізна Присяга](https://img.shields.io/badge/%D0%93%D1%80%D0%B0%D0%BB%D1%8C%D0%BD%D0%B8%D0%B9%20%D0%BD%D0%B0%D0%B1%D1%96%D1%80-%D0%97%D0%B0%D0%BB%D1%96%D0%B7%D0%BD%D0%B0%20%D0%9F%D1%80%D0%B8%D1%81%D1%8F%D0%B3%D0%B0-e4405f)](https://dense-forest-camp.itch.io/zalizna-prysiaha-playkit)
 
 ## About
 
 This repository contains an unofficial **Ukrainian translation** of the tabletop role-playing game **Ironsworn**, originally created by Shawn Tomkin.
 
 > ⚠️ This is a fan-made, unofficial project and is **not affiliated with or endorsed** by the original author.
+
+> 📢 An **official Ukrainian localization** is currently in the works from [DENSE FOREST CAMP](https://dense-forest-camp.itch.io/). Their "Zalizna Prysiaha" playkit is already available here: [https://dense-forest-camp.itch.io/zalizna-prysiaha-playkit](https://dense-forest-camp.itch.io/zalizna-prysiaha-playkit)
 
 ## License
 

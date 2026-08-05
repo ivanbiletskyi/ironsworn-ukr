@@ -485,6 +485,8 @@
     bottom: 0;
     width: 280px;
     max-height: 100vh;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
     transform: translateX(-101%);
     z-index: 1001;
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);

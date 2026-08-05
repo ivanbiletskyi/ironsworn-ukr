@@ -176,6 +176,28 @@ const Footer = ({ currentLang }: { currentLang: string }) => {
             </p>
           </div>
         </div>
+
+        {isUk && (
+          <div className="footer-section">
+            <h3>📢 Офіційна локалізація</h3>
+            <div className="disclaimer">
+              <p>
+                Наразі готується офіційна локалізація українською мовою від студії{' '}
+                <a href="https://dense-forest-camp.itch.io/" target="_blank" rel="noopener noreferrer">
+                  DENSE FOREST CAMP
+                </a>
+                .
+              </p>
+              <p>
+                Ігровий набір «Залізна Присяга» вже доступний за посиланням:{' '}
+                <a href="https://dense-forest-camp.itch.io/zalizna-prysiaha-playkit" target="_blank" rel="noopener noreferrer">
+                  Zalizna Prysiaha Playkit
+                </a>
+                .
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="footer-bottom">
