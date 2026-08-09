@@ -14,12 +14,92 @@
   color: var(--text-secondary);
 }
 
+.visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ── Панель персонажів ────────────────────────────────────────────── */
+
+.character-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 0.9rem;
+  padding: 0.55rem 0.75rem;
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.character-bar__select {
+  min-width: 12rem;
+  max-width: 100%;
+  padding: 0.35rem 0.5rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.character-bar__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-left: auto;
+}
+
+.character-bar__confirm {
+  display: flex;
+  gap: 0.35rem;
+}
+
+.bar-button {
+  padding: 0.35rem 0.7rem;
+  font-family: inherit;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.bar-button:hover {
+  color: var(--text-primary);
+  border-color: var(--highlight);
+}
+
+.bar-button--danger:hover {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+.character-bar__error {
+  flex-basis: 100%;
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--danger);
+}
+
 /* ── Сітка: широка (паперова) розкладка ───────────────────────────── */
 
 .character-sheet {
   display: grid;
   gap: 0.75rem;
-  grid-template-columns: auto minmax(0, 1fr) minmax(0, 20rem) auto;
+  /* Рейки мають задану ширину, а не `auto`: інакше довгий рядок підказки
+     («Поранений: не можна збільшувати…») роздуває колонку показників
+     і віднімає місце в присяг. */
+  grid-template-columns: minmax(5.5rem, 6.5rem) minmax(0, 1fr) minmax(0, 20rem) minmax(6.5rem, 8rem);
   grid-template-areas:
     'name     name   xp     xp'
     'momentum attrs  attrs  stats'
@@ -163,6 +243,11 @@
   display: flex;
   gap: 0.4rem;
   margin: 0.6rem 0 0;
+}
+
+/* У вертикальній рейці два поля поруч не вміщаються — ставимо їх стовпчиком. */
+.sheet-zone--momentum .scale-readouts {
+  flex-direction: column;
 }
 
 .scale-readout {
@@ -520,6 +605,285 @@
   filter: brightness(1.12);
 }
 
+/* ── Шкала прогресу ───────────────────────────────────────────────── */
+
+.progress-track + .progress-track {
+  margin-top: 0.85rem;
+  padding-top: 0.85rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.progress-track__head {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 0.4rem;
+}
+
+.progress-track__name {
+  flex: 1;
+  min-width: 0;
+  padding: 0.25rem 0;
+  font-family: inherit;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.progress-track__name:focus {
+  outline: none;
+  border-bottom-color: var(--highlight);
+}
+
+.progress-track__name::placeholder {
+  color: var(--text-muted);
+}
+
+.progress-track__rank {
+  padding: 0.2rem 0.4rem;
+  font-family: inherit;
+  font-size: 0.75rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.progress-track__body {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* Клітини стискаються під ширину зони: у вузькій колонці «Стосунки»
+   десять клітин фіксованого розміру не вміщаються. aspect-ratio тримає
+   їх квадратними на будь-якій ширині. */
+.progress-boxes {
+  display: flex;
+  flex: 1 1 auto;
+  min-width: 0;
+  gap: 3px;
+}
+
+.progress-box {
+  flex: 1 1 0;
+  min-width: 0;
+  max-width: 1.9rem;
+  aspect-ratio: 1;
+  padding: 0;
+  background: var(--primary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  cursor: pointer;
+  transition: border-color 0.15s ease;
+}
+
+.progress-box:hover {
+  border-color: var(--highlight);
+}
+
+.progress-box--full {
+  background: var(--accent-bg);
+}
+
+.progress-box svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.progress-box line {
+  stroke: var(--text-primary);
+  stroke-width: 2;
+  stroke-linecap: round;
+}
+
+.progress-track__count {
+  font-size: 0.8rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
+
+.progress-track__actions {
+  display: flex;
+  gap: 0.4rem;
+  margin-left: auto;
+}
+
+.track-button {
+  padding: 0.3rem 0.7rem;
+  font-family: inherit;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.track-button:hover {
+  color: var(--text-primary);
+  border-color: var(--highlight);
+}
+
+.track-button--roll {
+  color: var(--highlight);
+}
+
+/* ── Досвід ───────────────────────────────────────────────────────── */
+
+.xp-summary {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.xp-summary__available {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.xp-summary__available strong {
+  font-size: 1.2rem;
+  color: var(--text-primary);
+}
+
+.xp-summary__detail {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+/* Два ряди по 15 — як на паперовому аркуші. */
+.xp-cells {
+  display: grid;
+  grid-template-columns: repeat(15, minmax(0, 1fr));
+  gap: 4px;
+}
+
+.xp-cell {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  aspect-ratio: 1;
+  min-width: 0;
+  padding: 0;
+  font-size: 0.65rem;
+  line-height: 1;
+  color: var(--text-muted);
+  background: transparent;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  cursor: pointer;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.xp-cell:hover {
+  border-color: var(--highlight);
+}
+
+/* Зароблений — залитий; витрачений — перекреслений хрестиком. */
+.xp-cell--1 {
+  background: var(--highlight);
+  border-color: var(--highlight);
+}
+
+.xp-cell--2 {
+  color: var(--text-muted);
+  background: transparent;
+  border-color: var(--text-muted);
+  border-style: dashed;
+}
+
+/* ── Записи ───────────────────────────────────────────────────────── */
+
+.notes-input {
+  width: 100%;
+  height: 100%;
+  min-height: 12rem;
+  padding: 0.5rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  line-height: 1.7;
+  color: var(--text-primary);
+  background: var(--primary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  resize: vertical;
+}
+
+.notes-input:focus {
+  outline: none;
+  border-color: var(--highlight);
+}
+
+/* ── Треки боїв і подорожей ───────────────────────────────────────── */
+
+.extra-tracks__add {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-bottom: 0.6rem;
+}
+
+.extra-tracks__empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.extra-track {
+  padding: 0.6rem 0;
+  border-top: 1px solid var(--border-color);
+}
+
+.extra-track__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.track-kind {
+  padding: 0.1rem 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid;
+  border-radius: 10px;
+}
+
+.track-kind--combat { color: var(--danger); border-color: var(--danger); }
+.track-kind--journey { color: var(--success); border-color: var(--success); }
+.track-kind--other { color: var(--text-muted); border-color: var(--border-color); }
+
+.extra-track__remove {
+  margin-left: auto;
+  padding: 0 0.4rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.extra-track__remove:hover {
+  color: var(--danger);
+}
+
+/* Перший трек не потребує верхньої лінії — її вже дає кнопковий ряд. */
+.extra-track:first-of-type {
+  border-top: none;
+}
+
 /* ── Журнал кидків ────────────────────────────────────────────────── */
 
 .log-empty {
@@ -678,6 +1042,11 @@
     grid-template-columns: repeat(auto-fill, minmax(2.6rem, 1fr));
     gap: 3px;
   }
+
+  /* Рейка більше не вертикальна — поля знову поруч. */
+  .sheet-zone--momentum .scale-readouts {
+    flex-direction: row;
+  }
 }
 
 /* ── Мобільна розкладка: одна колонка, ігровий порядок ────────────── */
@@ -784,5 +1153,51 @@
   .log-row__remove {
     margin-left: auto;
     padding: 0.25rem 0.5rem;
+  }
+
+  /* Десять клітин по 44px не влазять у 366px, тож на телефоні вони просто
+     заповнюють ряд — це найбільше, що дає повний ряд без прокрутки. */
+  .progress-boxes {
+    gap: 2px;
+  }
+
+  .progress-box {
+    max-width: none;
+  }
+
+  .progress-track__actions {
+    flex: 1;
+    margin-left: 0;
+  }
+
+  .track-button {
+    flex: 1;
+    min-height: 44px;
+  }
+
+  /* 15 кружечків у ряд на 366px — це ~20px кожен: замало для пальця.
+     Тому на телефоні їх десять у ряд, тобто три ряди замість двох. */
+  .xp-cells {
+    grid-template-columns: repeat(10, minmax(0, 1fr));
+    gap: 5px;
+  }
+
+  .character-bar__select {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .character-bar__actions {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+
+  .bar-button {
+    flex: 1;
+    min-height: 40px;
+  }
+
+  .extra-tracks__add .track-button {
+    min-height: 40px;
   }
 }

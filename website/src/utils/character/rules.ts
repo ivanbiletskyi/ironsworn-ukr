@@ -1,7 +1,7 @@
 // Обчислювані значення персонажа. Нічого не зберігається — усе виводиться зі стану.
 // Правила: CHARACTER_SHEET_PLAN.md §3.3, §3.4, §3.6, §3.7, §3.9.
 
-import type { Character, DebilityKey, Rank, StatKey } from './types';
+import type { Character, DebilityKey, Rank, StatKey, XpCell } from './types';
 import {
   BASE_MAX_MOMENTUM,
   BASE_RESET_MOMENTUM,
@@ -92,6 +92,25 @@ export function markBondProgress(ticks: number): number {
   return clampTicks(ticks + 1);
 }
 
+/** Скільки позначок у конкретній клітині: 0–4. */
+export function ticksInBox(ticks: number, boxIndex: number): number {
+  const start = boxIndex * TICKS_PER_BOX;
+  return Math.min(TICKS_PER_BOX, Math.max(0, clampTicks(ticks) - start));
+}
+
+/**
+ * Клік по клітині — як олівцем на папері:
+ * порожня чи неповна клітина отримує ще одну позначку, повна — стирається.
+ * Стирання клітини неминуче стирає й усі наступні: прогрес — одне число.
+ */
+export function toggleBoxTick(ticks: number, boxIndex: number): number {
+  const current = clampTicks(ticks);
+  const start = boxIndex * TICKS_PER_BOX;
+  if (current >= start + TICKS_PER_BOX) return start;
+  if (current < start) return start + 1;
+  return current + 1;
+}
+
 // ── Досвід ────────────────────────────────────────────────────────────
 
 export function earnedXp(character: Character): number {
@@ -105,4 +124,11 @@ export function spentXp(character: Character): number {
 /** Зароблений, але ще не витрачений досвід. */
 export function availableXp(character: Character): number {
   return character.xp.filter(cell => cell === 1).length;
+}
+
+/** Клік по кружечку: порожній → зароблений → витрачений → порожній. */
+export function nextXpState(cell: XpCell): XpCell {
+  if (cell === 0) return 1;
+  if (cell === 1) return 2;
+  return 0;
 }

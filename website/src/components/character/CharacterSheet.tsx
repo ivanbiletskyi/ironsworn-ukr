@@ -4,11 +4,20 @@
 import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import type { AttrKey } from '../../utils/character/types';
+import type { AttrKey, ExtraTrack, ProgressTrack, TrackKind } from '../../utils/character/types';
+import { newId } from '../../utils/character/storage';
 import type { SheetRoll } from '../../utils/character/diceEngine';
-import { commitBurn, previewBurn, rollAction } from '../../utils/character/diceEngine';
+import { commitBurn, previewBurn, rollAction, rollProgress } from '../../utils/character/diceEngine';
 import { ATTR_LABELS, SHEET, UI } from '../../utils/character/labels';
-import { clampAttribute, clampStat, resetMomentum } from '../../utils/character/rules';
+import {
+  clampAttribute,
+  clampStat,
+  markBondProgress,
+  markProgress,
+  nextXpState,
+  resetMomentum,
+  toggleBoxTick,
+} from '../../utils/character/rules';
 import { useCharacterStore } from './useCharacterStore';
 import { useSheetLog } from './useSheetLog';
 import AttributeBoxes from './AttributeBoxes';
@@ -17,7 +26,13 @@ import StatTracks from './StatTracks';
 import DebilitiesBox from './DebilitiesBox';
 import RollResultCard from './RollResultCard';
 import RollLog from './RollLog';
+import ProgressTrackRow from './ProgressTrackRow';
+import XpTrack from './XpTrack';
+import CharacterBar from './CharacterBar';
+import ExtraTracksSection from './ExtraTracksSection';
 import './CharacterSheet.css';
+
+const vowLabel = (name: string, index: number) => name.trim() || `Присяга ${index + 1}`;
 
 /** Зона аркуша. `area` — ім'я з grid-template-areas. */
 const Zone = ({
@@ -42,7 +57,17 @@ const Zone = ({
 );
 
 const CharacterSheetInner = () => {
-  const { character, patchCharacter, updateCharacter } = useCharacterStore();
+  const {
+    store,
+    character,
+    patchCharacter,
+    updateCharacter,
+    selectCharacter,
+    addCharacter,
+    duplicateActive,
+    removeCharacter,
+    importFromText,
+  } = useCharacterStore();
   const { log, push, remove, clear } = useSheetLog();
 
   // Картка живе лише в межах сесії. Якби вона бралася з журналу, після
@@ -75,8 +100,46 @@ const CharacterSheetInner = () => {
     patchCharacter({ momentum: resetMomentum(character) });
   };
 
+  const handleProgressRoll = (label: string, ticks: number) => {
+    const roll = rollProgress(label, ticks);
+    setLastRoll(roll);
+    push(roll);
+  };
+
+  /** Присяга змінюється завжди від актуального стану, а не від пропса. */
+  const updateVow = (index: number, updater: (vow: ProgressTrack) => ProgressTrack) =>
+    updateCharacter(current => ({
+      ...current,
+      vows: current.vows.map((vow, i) => (i === index ? updater(vow) : vow)),
+    }));
+
+  const updateExtraTrack = (id: string, updater: (track: ExtraTrack) => ExtraTrack) =>
+    updateCharacter(current => ({
+      ...current,
+      extraTracks: current.extraTracks.map(track => (track.id === id ? updater(track) : track)),
+    }));
+
+  const addExtraTrack = (kind: TrackKind) =>
+    updateCharacter(current => ({
+      ...current,
+      extraTracks: [
+        ...current.extraTracks,
+        { id: newId(), name: '', rank: 'dangerous', ticks: 0, kind },
+      ],
+    }));
+
   return (
     <div className="character-sheet-page">
+      <CharacterBar
+        store={store}
+        character={character}
+        onSelect={selectCharacter}
+        onAdd={addCharacter}
+        onDuplicate={duplicateActive}
+        onRemove={removeCharacter}
+        onImport={importFromText}
+      />
+
       <div className="character-sheet">
         <section className="sheet-zone sheet-zone--name" style={{ gridArea: 'name' }}>
           <h2 className="sheet-zone__title">{SHEET.character}</h2>
@@ -89,7 +152,17 @@ const CharacterSheetInner = () => {
           />
         </section>
 
-        <Zone area="xp" title={SHEET.experience} />
+        <Zone area="xp" title={SHEET.experience}>
+          <XpTrack
+            character={character}
+            onToggle={index =>
+              updateCharacter(current => ({
+                ...current,
+                xp: current.xp.map((cell, i) => (i === index ? nextXpState(cell) : cell)),
+              }))
+            }
+          />
+        </Zone>
 
         <Zone area="attrs">
           <AttributeBoxes
@@ -139,9 +212,65 @@ const CharacterSheetInner = () => {
           />
         </Zone>
 
-        <Zone area="vows" title={SHEET.vows} />
-        <Zone area="notes" title={SHEET.notes} />
-        <Zone area="bonds" title={SHEET.bonds} />
+        <Zone area="vows" title={SHEET.vows}>
+          {character.vows.map((vow, index) => (
+            <ProgressTrackRow
+              key={vow.id}
+              name={vow.name}
+              rank={vow.rank}
+              ticks={vow.ticks}
+              namePlaceholder={UI.vowNamePlaceholder}
+              onName={name => updateVow(index, current => ({ ...current, name }))}
+              onRank={rank => updateVow(index, current => ({ ...current, rank }))}
+              onMark={() =>
+                updateVow(index, current => ({
+                  ...current,
+                  ticks: markProgress(current.ticks, current.rank),
+                }))
+              }
+              onToggleBox={box =>
+                updateVow(index, current => ({
+                  ...current,
+                  ticks: toggleBoxTick(current.ticks, box),
+                }))
+              }
+              onRoll={() => handleProgressRoll(vowLabel(vow.name, index), vow.ticks)}
+            />
+          ))}
+        </Zone>
+
+        <Zone area="notes" title={SHEET.notes}>
+          <textarea
+            className="notes-input"
+            value={character.notes}
+            placeholder={UI.notesPlaceholder}
+            aria-label={SHEET.notes}
+            onChange={event => patchCharacter({ notes: event.target.value })}
+          />
+        </Zone>
+
+        <Zone area="bonds" title={SHEET.bonds}>
+          <ProgressTrackRow
+            name={character.bondsNotes}
+            ticks={character.bondsTicks}
+            namePlaceholder={UI.bondsNotesPlaceholder}
+            onName={bondsNotes => patchCharacter({ bondsNotes })}
+            /* Рангу немає: за правилами стосунки завжди отримують одну позначку. */
+            onMark={() =>
+              updateCharacter(current => ({
+                ...current,
+                bondsTicks: markBondProgress(current.bondsTicks),
+              }))
+            }
+            onToggleBox={box =>
+              updateCharacter(current => ({
+                ...current,
+                bondsTicks: toggleBoxTick(current.bondsTicks, box),
+              }))
+            }
+            onRoll={() => handleProgressRoll(SHEET.bonds, character.bondsTicks)}
+          />
+        </Zone>
 
         <Zone area="debil" title={SHEET.debilities}>
           <DebilitiesBox
@@ -155,7 +284,20 @@ const CharacterSheetInner = () => {
           />
         </Zone>
 
-        <Zone area="tracks" title={SHEET.tracks} />
+        <Zone area="tracks" title={SHEET.tracks}>
+          <ExtraTracksSection
+            character={character}
+            onAdd={addExtraTrack}
+            onUpdate={updateExtraTrack}
+            onRemove={id =>
+              updateCharacter(current => ({
+                ...current,
+                extraTracks: current.extraTracks.filter(track => track.id !== id),
+              }))
+            }
+            onRoll={handleProgressRoll}
+          />
+        </Zone>
 
         <Zone area="log" title={SHEET.log}>
           <RollLog log={log} onRemove={remove} onClear={clear} />

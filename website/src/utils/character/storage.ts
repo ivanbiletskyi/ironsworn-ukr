@@ -308,6 +308,17 @@ export function importCharacter(store: CharacterStore, character: Character): Ch
   return { ...store, characters: [...store.characters, fresh], activeId: fresh.id };
 }
 
+/** Віддає персонажа файлом. Єдине місце в модулі, що торкається DOM. */
+export function downloadCharacter(character: Character): void {
+  const blob = new Blob([serializeCharacter(character)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = characterFileName(character);
+  link.click();
+  URL.revokeObjectURL(url);
+}
+
 export function characterFileName(character: Character): string {
   const safe = character.name.trim().replace(/[^\p{L}\p{N}\-_ ]/gu, '').replace(/\s+/g, '-');
   return `zalizna-prysiaha-${safe || 'personazh'}.json`;
