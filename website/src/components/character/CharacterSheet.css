@@ -1,0 +1,788 @@
+/* Аркуш персонажа.
+   Усі зони живуть в одній grid-сітці, тому кожна розкладка — це лише інший
+   grid-template-areas. Порядок зон на вузьких екранах ігровий, а не паперовий
+   (CHARACTER_SHEET_PLAN.md §7). */
+
+.character-sheet-page {
+  padding: 1.5rem 2rem 3rem;
+  max-width: 1400px;
+  width: 100%;
+}
+
+.sheet-empty {
+  padding: 2rem;
+  color: var(--text-secondary);
+}
+
+/* ── Сітка: широка (паперова) розкладка ───────────────────────────── */
+
+.character-sheet {
+  display: grid;
+  gap: 0.75rem;
+  grid-template-columns: auto minmax(0, 1fr) minmax(0, 20rem) auto;
+  grid-template-areas:
+    'name     name   xp     xp'
+    'momentum attrs  attrs  stats'
+    'momentum roll   roll   stats'
+    'momentum vows   vows   stats'
+    'momentum notes  bonds  stats'
+    'momentum notes  debil  stats'
+    'tracks   tracks tracks tracks'
+    'log      log    log    log';
+}
+
+/* ── Зона ─────────────────────────────────────────────────────────── */
+
+.sheet-zone {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 0.75rem 1rem;
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+.sheet-zone__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.sheet-zone__body {
+  flex: 1;
+  min-width: 0;
+  min-height: 2.5rem;
+}
+
+/* Порожня зона майбутнього етапу — не «зламана», а свідомо порожня. */
+.sheet-placeholder {
+  display: block;
+  height: 100%;
+  min-height: 2rem;
+  border-radius: 4px;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 6px,
+    var(--accent-bg) 6px,
+    var(--accent-bg) 12px
+  );
+  opacity: 0.5;
+}
+
+/* Вертикальні шкали імпульсу й показників — вузькі колонки, як на папері. */
+.sheet-zone--rail {
+  align-items: stretch;
+  text-align: center;
+}
+
+.sheet-zone--momentum {
+  min-width: 6rem;
+}
+
+.sheet-zone--stats {
+  min-width: 7rem;
+}
+
+.sheet-zone--notes .sheet-zone__body {
+  min-height: 14rem;
+}
+
+/* ── Ім'я персонажа ───────────────────────────────────────────────── */
+
+.sheet-zone--name {
+  gap: 0.25rem;
+}
+
+.sheet-name-input {
+  width: 100%;
+  padding: 0.4rem 0;
+  font-size: 1.35rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid var(--border-color);
+  transition: border-color 0.2s ease;
+}
+
+.sheet-name-input:focus {
+  outline: none;
+  border-bottom-color: var(--highlight);
+}
+
+.sheet-name-input::placeholder {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+/* ── Шкала значень (імпульс, показники) ───────────────────────────── */
+
+.scale-track {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.scale-cell {
+  padding: 0.3rem 0.4rem;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  background: var(--primary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.scale-cell:hover:not(:disabled) {
+  color: var(--text-primary);
+  background: var(--accent-bg);
+}
+
+.scale-cell--current {
+  font-weight: 700;
+  color: #fff;
+  background: var(--highlight);
+  border-color: var(--highlight);
+}
+
+/* Недосяжне за правилами: понад максимум імпульсу або заблоковане слабкістю. */
+.scale-cell:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.scale-readouts {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0.6rem 0 0;
+}
+
+.scale-readout {
+  flex: 1;
+  padding: 0.3rem 0.2rem;
+  text-align: center;
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+}
+
+.scale-readout dt {
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.scale-readout dd {
+  margin: 0.1rem 0 0;
+  font-size: 1rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+}
+
+.scale-hint {
+  margin: 0.4rem 0 0;
+  font-size: 0.7rem;
+  line-height: 1.35;
+  color: var(--warning);
+  text-align: center;
+}
+
+/* ── Показники ────────────────────────────────────────────────────── */
+
+.stat-tracks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+}
+
+.stat-track__title {
+  margin: 0 0 0.35rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-align: center;
+  color: var(--text-primary);
+  background: var(--accent-bg);
+  border-radius: 3px;
+  padding: 0.2rem 0;
+}
+
+/* ── Характеристики ───────────────────────────────────────────────── */
+
+.attribute-boxes {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0.5rem;
+}
+
+.attribute-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.5rem 0.25rem;
+  background: var(--primary-bg);
+  border: 2px solid var(--border-color);
+  border-radius: 5px;
+}
+
+.attribute-box__title {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.attribute-box__steppers {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.stepper {
+  width: 1.9rem;
+  height: 1.9rem;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--text-secondary);
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.stepper:hover:not(:disabled) {
+  color: var(--text-primary);
+  border-color: var(--highlight);
+}
+
+.stepper:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+/* ── Панель кидка ─────────────────────────────────────────────────── */
+
+.attribute-box__value {
+  padding: 0.15rem 0.5rem;
+  font-family: inherit;
+  font-size: 1.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+  color: var(--text-primary);
+  background: none;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.attribute-box__value:hover {
+  color: var(--highlight);
+  background: var(--accent-bg);
+}
+
+.attribute-box--selected {
+  border-color: var(--highlight);
+}
+
+.attribute-box--selected .attribute-box__value {
+  color: var(--highlight);
+}
+
+.roll-panel {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--accent-bg);
+  border: 1px solid var(--highlight);
+  border-radius: 5px;
+}
+
+.roll-panel__target {
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.roll-panel__adds {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.roll-panel__adds-value {
+  min-width: 2rem;
+  font-size: 0.95rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--text-primary);
+}
+
+.roll-button {
+  padding: 0.45rem 1.1rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  background: var(--highlight);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.roll-button:hover {
+  background: var(--highlight-hover);
+}
+
+.roll-panel__close {
+  margin-left: auto;
+  padding: 0 0.4rem;
+  font-size: 1.2rem;
+  line-height: 1;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+/* ── Картка результату ────────────────────────────────────────────── */
+
+.roll-card {
+  padding: 0.85rem 1rem;
+  background: var(--primary-bg);
+  border: 2px solid var(--border-color);
+  border-left-width: 5px;
+  border-radius: 6px;
+}
+
+.roll-card--strong { border-color: var(--success); }
+.roll-card--weak   { border-color: var(--warning); }
+.roll-card--miss   { border-color: var(--danger); }
+
+.roll-card__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.roll-card__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.roll-dice {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.65rem;
+}
+
+.roll-dice__group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.die {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.6rem;
+  height: 2.6rem;
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
+  background: var(--secondary-bg);
+  border: 2px solid var(--border-color);
+  animation: die-appear 0.32s ease-out both;
+}
+
+/* Граник дії — квадрат, граники виклику — ромби, як у книзі. */
+.die--action { border-radius: 6px; }
+.die--challenge { border-radius: 50%; }
+
+.die--canceled {
+  opacity: 0.4;
+  text-decoration: line-through;
+  border-style: dashed;
+}
+
+.die--challenge:nth-child(2) { animation-delay: 0.09s; }
+
+@keyframes die-appear {
+  from { opacity: 0; transform: translateY(-6px) rotate(-10deg) scale(0.8); }
+  to   { opacity: 1; transform: none; }
+}
+
+.roll-math {
+  font-size: 1.05rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.roll-math strong {
+  font-size: 1.3rem;
+  color: var(--text-primary);
+}
+
+.roll-vs {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.roll-legend {
+  display: flex;
+  gap: 3.5rem;
+  margin-top: 0.25rem;
+  font-size: 0.65rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.roll-outcome {
+  margin: 0.6rem 0 0;
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.roll-card--strong .roll-outcome { color: var(--success); }
+.roll-card--weak   .roll-outcome { color: var(--warning); }
+.roll-card--miss   .roll-outcome { color: var(--danger); }
+
+.roll-notes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.roll-badge {
+  padding: 0.15rem 0.5rem;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+}
+
+.roll-badge--matched {
+  color: var(--warning);
+  border-color: var(--warning);
+}
+
+.roll-badge--burn {
+  color: var(--danger);
+  border-color: var(--danger);
+}
+
+/* Не червона: червоний тут зайнятий промахом, а спалення — вигідна дія,
+   а не небезпечна. Колір дії сайту не збігається з жодним кольором результату. */
+.burn-button {
+  width: 100%;
+  margin-top: 0.7rem;
+  padding: 0.55rem 1rem;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: #fff;
+  background: var(--highlight);
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.burn-button:hover {
+  filter: brightness(1.12);
+}
+
+/* ── Журнал кидків ────────────────────────────────────────────────── */
+
+.log-empty {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.roll-log {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  max-height: 20rem;
+  overflow-y: auto;
+}
+
+.log-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.35rem 0.5rem;
+  font-size: 0.82rem;
+  border-left: 3px solid var(--border-color);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.log-row--strong { border-left-color: var(--success); }
+.log-row--weak   { border-left-color: var(--warning); }
+.log-row--miss   { border-left-color: var(--danger); }
+
+.log-row__label {
+  min-width: 7rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.log-row__dice {
+  flex: 1;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+.log-row__outcome {
+  color: var(--text-secondary);
+}
+
+.log-row__flag {
+  font-size: 0.9rem;
+}
+
+.log-row__remove {
+  padding: 0 0.35rem;
+  font-size: 1rem;
+  line-height: 1;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+  opacity: 0.5;
+}
+
+.log-row__remove:hover {
+  color: var(--danger);
+  opacity: 1;
+}
+
+.log-clear {
+  margin-top: 0.6rem;
+  padding: 0.35rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .die {
+    animation: none;
+  }
+}
+
+/* ── Слабкості ────────────────────────────────────────────────────── */
+
+.debilities {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+
+.debility-group__title {
+  margin: 0 0 0.3rem;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.debility-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.debility {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.15rem 0;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  cursor: pointer;
+}
+
+.debility input {
+  width: 1rem;
+  height: 1rem;
+  accent-color: var(--danger);
+  cursor: pointer;
+}
+
+/* ── Проміжна розкладка: планшет і вузький десктоп ────────────────── */
+
+@media (max-width: 1200px) {
+  .character-sheet-page {
+    padding: 1.25rem 1.5rem 2.5rem;
+  }
+
+  .character-sheet {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'name     xp'
+      'attrs    attrs'
+      'roll     roll'
+      'momentum stats'
+      'vows     vows'
+      'bonds    debil'
+      'notes    notes'
+      'tracks   tracks'
+      'log      log';
+  }
+
+  /* Шкали більше не вертикальні колонки — розгортаються вшир. */
+  .sheet-zone--momentum,
+  .sheet-zone--stats {
+    min-width: 0;
+  }
+
+  /* Сітка, а не flex-wrap: інакше останній, неповний ряд розтягує свої
+     клітинки на всю ширину і шкала виглядає рваною. */
+  .scale-track {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(2.6rem, 1fr));
+    gap: 3px;
+  }
+}
+
+/* ── Мобільна розкладка: одна колонка, ігровий порядок ────────────── */
+
+@media (max-width: 700px) {
+  .character-sheet-page {
+    padding: 1rem 0.75rem 2rem;
+  }
+
+  .character-sheet {
+    gap: 0.6rem;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'name'
+      'attrs'
+      'roll'
+      'momentum'
+      'stats'
+      'xp'
+      'vows'
+      'tracks'
+      'bonds'
+      'debil'
+      'notes'
+      'log';
+  }
+
+  .sheet-zone {
+    padding: 0.65rem 0.75rem;
+  }
+
+  .sheet-zone--notes .sheet-zone__body {
+    min-height: 8rem;
+  }
+
+  .sheet-name-input {
+    font-size: 1.15rem;
+  }
+
+  /* Ціль дотику — від 44px. П'ять характеристик в один ряд цього не дають,
+     тож на телефоні вони лягають у сітку 3+2. */
+  .attribute-boxes {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  .stepper {
+    width: 44px;
+    height: 44px;
+    font-size: 1.2rem;
+  }
+
+  .scale-track {
+    grid-template-columns: repeat(auto-fill, minmax(44px, 1fr));
+  }
+
+  .scale-cell {
+    min-height: 44px;
+    font-size: 1rem;
+  }
+
+  .scale-hint {
+    font-size: 0.78rem;
+  }
+
+  .debility {
+    padding: 0.4rem 0;
+    font-size: 0.95rem;
+  }
+
+  .debility input {
+    width: 1.25rem;
+    height: 1.25rem;
+  }
+
+  .roll-button,
+  .burn-button {
+    min-height: 44px;
+  }
+
+  .roll-panel__target {
+    flex-basis: 100%;
+  }
+
+  .roll-legend {
+    gap: 2rem;
+  }
+
+  /* Журнал у стовпчик: у рядок ці колонки на телефоні не влазять. */
+  .log-row {
+    flex-wrap: wrap;
+    gap: 0.25rem 0.5rem;
+    padding: 0.5rem;
+  }
+
+  .log-row__label {
+    min-width: 0;
+  }
+
+  .log-row__dice {
+    flex-basis: 100%;
+    font-size: 0.78rem;
+  }
+
+  .log-row__remove {
+    margin-left: auto;
+    padding: 0.25rem 0.5rem;
+  }
+}

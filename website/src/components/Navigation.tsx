@@ -11,6 +11,10 @@ const Navigation: React.FC<NavigationProps> = ({ currentLang, onToggleSidebar, i
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Аркуш існує лише українською, тож перемикач на EN тут лише спричинив би
+  // редирект назад і мигання — вимикаємо його явно.
+  const isCharacterPage = location.pathname.replace(/\/$/, '').endsWith('/character');
+
   const handleLanguageSwitch = (lang: string) => {
     if (lang === currentLang) return;
     
@@ -47,6 +51,16 @@ const Navigation: React.FC<NavigationProps> = ({ currentLang, onToggleSidebar, i
           </Link>
         </div>
         <div className="nav-controls">
+          {currentLang === 'uk' && (
+            <Link
+              to="/uk/character"
+              className="nav-icon-btn"
+              aria-label="Аркуш персонажа"
+              title="Аркуш персонажа"
+            >
+              📜
+            </Link>
+          )}
           <Link
             to={`/${currentLang}/oracles`}
             className="nav-icon-btn"
@@ -64,9 +78,11 @@ const Navigation: React.FC<NavigationProps> = ({ currentLang, onToggleSidebar, i
             🔍
           </Link>
           <div className="lang-switch">
-            <button 
+            <button
               className={`lang-btn ${currentLang === 'en' ? 'active' : ''}`}
               onClick={() => handleLanguageSwitch('en')}
+              disabled={isCharacterPage}
+              title={isCharacterPage ? 'Аркуш персонажа доступний лише українською' : undefined}
             >
               EN
             </button>

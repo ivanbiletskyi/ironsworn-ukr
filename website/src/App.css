@@ -113,6 +113,11 @@
   border-color: var(--highlight);
 }
 
+.lang-btn:disabled {
+  cursor: not-allowed;
+  opacity: 0.4;
+}
+
 /* Hamburger Menu Toggle */
 .mobile-menu-toggle {
   display: none;
@@ -466,8 +471,27 @@
     padding: 0.5rem 1rem;
   }
 
+  /* На вузьких екранах кнопок у шапці більше, ніж місця: контроли не
+     стискаються, а назва за потреби вкорочується — інакше вони злипаються. */
+  .nav-left {
+    min-width: 0;
+  }
+
+  .nav-brand {
+    min-width: 0;
+  }
+
   .nav-brand h1 {
     font-size: 1.4em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .nav-controls {
+    flex-shrink: 0;
+    gap: 0.6rem;
+    margin-left: 0.75rem;
   }
 
   .nav-subtitle {

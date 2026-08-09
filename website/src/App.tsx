@@ -4,6 +4,7 @@ import Navigation from './components/Navigation';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import Search from './components/Search';
 import OracleGenerators from './components/OracleGenerators';
+import CharacterSheet from './components/character/CharacterSheet';
 import { CHAPTERS, UK_TITLES } from './utils/chapters';
 import './App.css';
 
@@ -240,6 +241,7 @@ const LayoutParamsWrapper = () => {
           <Routes>
             <Route path="search" element={<Search />} />
             <Route path="oracles" element={<OracleGenerators currentLang={currentLang} />} />
+            <Route path="character" element={<CharacterSheet currentLang={currentLang} />} />
             <Route path="*" element={<PageRenderer currentLang={currentLang} />} />
           </Routes>
           <Footer currentLang={currentLang} />
