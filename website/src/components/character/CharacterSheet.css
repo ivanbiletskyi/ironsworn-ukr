@@ -23,49 +23,141 @@
   white-space: nowrap;
 }
 
-/* ── Панель персонажів ────────────────────────────────────────────── */
+/* ── Меню персонажів ──────────────────────────────────────────────── */
 
-.character-bar {
-  display: flex;
-  align-items: center;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.9rem;
-  padding: 0.55rem 0.75rem;
-  background: var(--secondary-bg);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
+/* Дії над персонажем (перемикання, копії, файли) потрібні рідко, тож вони
+   ховаються під бургер у заголовку зони «Персонаж», а не займають смугу
+   над аркушем. */
+.character-menu {
+  position: relative;
+  margin-left: auto;
 }
 
-.character-bar__select {
-  min-width: 12rem;
-  max-width: 100%;
-  padding: 0.35rem 0.5rem;
-  font-family: inherit;
-  font-size: 0.9rem;
-  color: var(--text-primary);
+.character-menu__toggle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  width: 2rem;
+  height: 2rem;
+  padding: 0;
   background: var(--accent-bg);
   border: 1px solid var(--border-color);
   border-radius: 4px;
   cursor: pointer;
 }
 
-.character-bar__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.35rem;
-  margin-left: auto;
+.character-menu__toggle:hover,
+.character-menu__toggle--open {
+  border-color: var(--highlight);
 }
 
+.character-menu__line {
+  width: 14px;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text-secondary);
+}
+
+.character-menu__toggle:hover .character-menu__line,
+.character-menu__toggle--open .character-menu__line {
+  background: var(--text-primary);
+}
+
+/* Меню випадає під кнопку й лягає поверх сусідніх зон — звідси z-index і тінь.
+   Він нижчий за стос карток-сповіщень (900): картка кидка важливіша. Фон
+   primary-bg, а не secondary: на тлі зони меню має читатися як окремий шар. */
+.character-bar {
+  position: absolute;
+  top: calc(100% + 0.4rem);
+  right: 0;
+  z-index: 50;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  width: 14rem;
+  max-width: calc(100vw - 2rem);
+  padding: 0.6rem;
+  background: var(--primary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+}
+
+/* Персонажі — рядки меню. Довгий список прокручується всередині меню,
+   а не витягує його за межі екрана. */
+.character-bar__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  max-height: 11rem;
+  overflow-y: auto;
+  margin: 0;
+  padding: 0 0 0.4rem;
+  border-bottom: 1px solid var(--border-color);
+  list-style: none;
+}
+
+.character-bar__item {
+  display: block;
+  width: 100%;
+  padding: 0.4rem 0.5rem;
+  overflow: hidden;
+  font-family: inherit;
+  font-size: 0.9rem;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--text-primary);
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.character-bar__item:hover {
+  background: var(--accent-bg);
+}
+
+/* Активний персонаж — той, що вже на аркуші: підсвічений, а не «обраний» */
+.character-bar__item--active {
+  color: var(--highlight);
+  background: var(--accent-bg);
+  border-color: var(--highlight);
+}
+
+/* Дії — стовпчиком, як пункти меню, а не смугою кнопок. */
+.character-bar__actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+
+/* Питання про видалення — окремий блок у рамці кольору небезпеки, а не ще
+   два пункти меню: інакше «Точно видалити» стоїть у стовпчику так само
+   спокійно, як «Експорт». Кнопки в ньому стоять в один рядок, поки
+   вміщаються, і переносяться, коли ні: обрізаний підпис гірший за два рядки. */
 .character-bar__confirm {
   display: flex;
-  gap: 0.35rem;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+  padding: 0.35rem;
+  background: var(--secondary-bg);
+  border: 1px solid var(--danger);
+  border-radius: 5px;
+}
+
+.character-bar__confirm .bar-button {
+  flex: 1;
+  text-align: center;
 }
 
 .bar-button {
-  padding: 0.35rem 0.7rem;
+  padding: 0.4rem 0.7rem;
   font-family: inherit;
-  font-size: 0.8rem;
+  font-size: 0.82rem;
+  text-align: left;
   color: var(--text-secondary);
   background: var(--accent-bg);
   border: 1px solid var(--border-color);
@@ -85,7 +177,6 @@
 }
 
 .character-bar__error {
-  flex-basis: 100%;
   margin: 0;
   font-size: 0.82rem;
   color: var(--danger);
@@ -217,6 +308,12 @@
 
 .sheet-zone--name {
   gap: 0.25rem;
+}
+
+/* Відступ під заголовком тримає gap зони, тож власний margin тут зайвий:
+   інакше поле імені відходить від заголовка вдвічі далі, ніж треба. */
+.sheet-zone--name .sheet-zone__head {
+  margin-bottom: 0;
 }
 
 .sheet-name-input {
@@ -755,15 +852,16 @@
 
 /* ── Шкала прогресу ───────────────────────────────────────────────── */
 
-.vow + .vow {
+/* Рядок зі шкалою, яку гравець додав кнопкою «+»: присяга або стосунок. */
+.track-row + .track-row {
   margin-top: 0.85rem;
   padding-top: 0.85rem;
   border-top: 1px solid var(--border-color);
 }
 
-/* Питання перед видаленням присяги з прогресом — окремим рядком під шкалою,
+/* Питання перед видаленням шкали з прогресом — окремим рядком під нею,
    бо в рядку назви йому тісно поруч із полем і рангом. */
-.vow__confirm {
+.track-row__confirm {
   display: flex;
   align-items: center;
   flex-wrap: wrap;
@@ -771,7 +869,7 @@
   margin-top: 0.5rem;
 }
 
-.vow__confirm-text {
+.track-row__confirm-text {
   flex: 1;
   min-width: 10rem;
   font-size: 0.85rem;
@@ -1256,13 +1354,13 @@
       'attrs'
       'momentum'
       'stats'
-      'xp'
       'vows'
       'tracks'
       'bonds'
       'debil'
       'notes'
-      'log';
+      'log'
+      'xp';
   }
 
   .sheet-zone {
@@ -1287,6 +1385,14 @@
     width: 44px;
     height: 44px;
     font-size: 1.2rem;
+  }
+
+  /* «Редагувати» — другорядна кнопка, але дотик до неї такий самий, як до
+     будь-якого іншого: 23px високої смужки на телефоні не вистачало. */
+  .attribute-edit-toggle {
+    min-height: 40px;
+    padding: 0.35rem 0.9rem;
+    font-size: 0.8rem;
   }
 
   .scale-track {
@@ -1398,18 +1504,13 @@
     gap: 5px;
   }
 
-  .character-bar__select {
-    flex: 1;
-    min-width: 0;
+  .character-menu__toggle {
+    width: 40px;
+    height: 40px;
   }
 
-  .character-bar__actions {
-    flex-basis: 100%;
-    margin-left: 0;
-  }
-
+  .character-bar__item,
   .bar-button {
-    flex: 1;
     min-height: 40px;
   }
 

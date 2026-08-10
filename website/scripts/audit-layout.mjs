@@ -40,8 +40,10 @@ const SEED = `
     c.xp = Array.from({ length: 30 }, (_, i) => (i < 5 ? 1 : i < 8 ? 2 : 0));
     c.vows[0] = { id: 'v1', name: 'Знайти сестру', rank: 'formidable', ticks: 13 };
     c.vows[1] = { id: 'v2', name: 'Помститися за село дуже довгою назвою присяги', rank: 'extreme', ticks: 6 };
-    c.bondsTicks = 9;
-    c.bondsNotes = 'Ковалиха Інґрід, селище Кам’яний Брід';
+    c.bonds = [
+      { id: 'b1', name: 'Ковалиха Інґрід, селище Кам’яний Брід', ticks: 9 },
+      { id: 'b2', name: 'Морська відьма', ticks: 2 },
+    ];
     c.notes = 'Меч батька.';
     c.extraTracks = [
       { id: 't1', name: 'Зграя вовків', rank: 'dangerous', ticks: 10, kind: 'combat' },
@@ -207,12 +209,26 @@ try {
 
   console.log('\nTap targets at 390px');
   await load(390, 900, true);
+  // Дії над персонажем живуть у меню під бургером: поки воно закрите,
+  // ні виміряти їх, ні перевірити, чи меню вміщається у вьюпорт, неможливо.
+  await evaluate(`document.querySelector('.character-menu__toggle').click()`);
+  // Степери характеристик з'являються лише в режимі редагування, тож без
+  // натискання «Редагувати» їх у розмітці немає й міряти нічого.
+  await evaluate(`document.querySelector('.attribute-edit-toggle').click()`);
+  await wait(200);
+  const menuWidth = await evaluate('document.documentElement.scrollWidth');
+  check(
+    'the character menu fits the viewport',
+    menuWidth <= (await evaluate('innerWidth')),
+    `document ${menuWidth}`,
+  );
   const tooSmall = JSON.parse(await evaluate(TOUCH_PROBE));
   check('nothing smaller than 24px', tooSmall.length === 0, JSON.stringify(tooSmall));
 
   const sizes = JSON.parse(
     await evaluate(`
-      JSON.stringify(['.track-button', '.bar-button', '.stepper', '.scale-cell']
+      JSON.stringify(['.track-button', '.bar-button', '.stepper', '.scale-cell',
+        '.character-menu__toggle', '.character-bar__item', '.attribute-edit-toggle']
         .map(selector => {
           const el = document.querySelector('.character-sheet-page ' + selector);
           if (!el) return { selector, missing: true };
@@ -226,6 +242,9 @@ try {
   check('steppers are at least 44px tall', heightOf('.stepper') >= 44);
   check('track buttons are at least 44px tall', heightOf('.track-button') >= 44);
   check('bar buttons are at least 40px tall', heightOf('.bar-button') >= 40);
+  check('character rows are at least 40px tall', heightOf('.character-bar__item') >= 40);
+  check('the character menu button is at least 40px tall', heightOf('.character-menu__toggle') >= 40);
+  check('the attribute edit toggle is at least 40px tall', heightOf('.attribute-edit-toggle') >= 40);
 
   console.log('\nLight theme');
   for (const [width, mobile] of [

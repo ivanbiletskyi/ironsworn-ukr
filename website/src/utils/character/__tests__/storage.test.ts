@@ -19,7 +19,7 @@ import {
   upsertCharacter,
 } from '../storage';
 import { availableXp } from '../rules';
-import { DEFAULT_VOWS, STORE_VERSION, XP_CELLS } from '../types';
+import { DEFAULT_BONDS, DEFAULT_VOWS, STORE_VERSION, XP_CELLS } from '../types';
 
 describe('a new character', () => {
   it('follows character creation: stats +5, momentum +2', () => {
@@ -30,10 +30,11 @@ describe('a new character', () => {
     expect(character.attributes).toEqual({ edge: 0, heart: 0, iron: 0, shadow: 0, wits: 0 });
   });
 
-  it('has exactly 30 xp circles and a single vow', () => {
+  it('has exactly 30 xp circles, a single vow and a single bond', () => {
     const character = createCharacter();
     expect(character.xp).toHaveLength(XP_CELLS);
     expect(character.vows).toHaveLength(DEFAULT_VOWS);
+    expect(character.bonds).toHaveLength(DEFAULT_BONDS);
     expect(character.xp.every(cell => cell === 0)).toBe(true);
   });
 
@@ -56,12 +57,12 @@ describe('normalising damaged data', () => {
       stats: { health: -5 },
       momentum: 999,
       vows: [{ rank: 'nonsense', ticks: 999 }],
-      bondsTicks: -3,
+      bonds: [{ ticks: -3 }],
     });
     expect(character.attributes.edge).toBe(5);
     expect(character.stats.health).toBe(0);
     expect(character.vows[0].ticks).toBe(40);
-    expect(character.bondsTicks).toBe(0);
+    expect(character.bonds[0].ticks).toBe(0);
   });
 
   it('falls back to the default rank for an unknown one', () => {
@@ -81,6 +82,24 @@ describe('normalising damaged data', () => {
       vows: [{ name: 'Перша' }, { name: 'Друга' }, { name: 'Третя' }],
     });
     expect(character.vows.map(vow => vow.name)).toEqual(['Перша', 'Друга', 'Третя']);
+  });
+
+  it('keeps however many bonds were stored, and never leaves none', () => {
+    const character = normalizeCharacter({
+      bonds: [{ name: 'Кайл', ticks: 4 }, { name: 'Вейлґейв' }],
+    });
+    expect(character.bonds.map(bond => bond.name)).toEqual(['Кайл', 'Вейлґейв']);
+    expect(character.bonds[0].ticks).toBe(4);
+    expect(normalizeCharacter({ bonds: [] }).bonds).toHaveLength(1);
+  });
+
+  /** До v3 стосунки були однією шкалою: `bondsNotes` + `bondsTicks`. */
+  it('turns the single pre-v3 bond track into the first bond', () => {
+    const character = normalizeCharacter({ bondsNotes: 'Кайл, коваль', bondsTicks: 9 });
+    expect(character.bonds).toHaveLength(1);
+    expect(character.bonds[0].name).toBe('Кайл, коваль');
+    expect(character.bonds[0].ticks).toBe(9);
+    expect(character.bonds[0].id).toBeTruthy();
   });
 
   it('treats missing debilities as unmarked', () => {
@@ -188,6 +207,7 @@ describe('store operations', () => {
     expect(availableXp(copy)).toBe(1);
     expect(copy.id).not.toBe(original.id);
     expect(copy.vows[0].id).not.toBe(original.vows[0].id);
+    expect(copy.bonds[0].id).not.toBe(original.bonds[0].id);
     expect(copy.extraTracks[0].id).not.toBe('t1');
     expect(copy.extraTracks[0].ticks).toBe(8);
   });

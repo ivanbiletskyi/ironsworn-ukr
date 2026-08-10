@@ -26,12 +26,16 @@ export type XpCell = 0 | 1 | 2;
 
 export type TrackKind = 'combat' | 'journey' | 'other';
 
-export interface ProgressTrack {
+/** Шкала без рангу — саме такі стосунки: позначка завжди одна. */
+export interface Track {
   id: string;
   name: string;
-  rank: Rank;
   /** 0–40 позначок; повна клітина = 4 позначки */
   ticks: number;
+}
+
+export interface ProgressTrack extends Track {
+  rank: Rank;
 }
 
 export interface ExtraTrack extends ProgressTrack {
@@ -48,9 +52,8 @@ export interface Character {
   xp: XpCell[];
   /** щонайменше одна присяга; решту гравець додає кнопкою «+» */
   vows: ProgressTrack[];
-  /** шкала стосунків, 0–40 позначок; рангу не має */
-  bondsTicks: number;
-  bondsNotes: string;
+  /** щонайменше один стосунок; кожен має власну шкалу без рангу */
+  bonds: Track[];
   debilities: Record<DebilityKey, boolean>;
   /** блок «ЗАПИСИ» */
   notes: string;
@@ -60,13 +63,17 @@ export interface Character {
 }
 
 export interface CharacterStore {
-  version: 2;
+  version: 3;
   activeId: string | null;
   characters: Character[];
 }
 
-/** 2 — присяг більше не рівно чотири; міграцію див. у storage.ts. */
-export const STORE_VERSION = 2;
+/**
+ * 2 — присяг більше не рівно чотири.
+ * 3 — стосунки стали списком шкал замість однієї шкали з нотатками.
+ * Міграції див. у storage.ts.
+ */
+export const STORE_VERSION = 3;
 
 // ── Межі та константи правил ──────────────────────────────────────────
 
@@ -95,6 +102,9 @@ export const XP_CELLS = 30;
  * додає кнопкою — так само, як треки боїв і подорожей (рішення №16).
  */
 export const DEFAULT_VOWS = 1;
+
+/** Стосунки живуть за тим самим правилом, що й присяги (рішення №17). */
+export const DEFAULT_BONDS = 1;
 
 // ── Порядок відображення ──────────────────────────────────────────────
 

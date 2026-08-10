@@ -79,11 +79,24 @@ export const addVowButton = (root: HTMLElement) =>
   q(root, '.sheet-zone--vows .zone-add') as HTMLElement;
 export const removeVowButtons = (root: HTMLElement) =>
   qa(root, '.sheet-zone--vows .progress-track__remove');
-export const vowConfirm = (root: HTMLElement) => q(root, '.vow__confirm');
+export const vowConfirm = (root: HTMLElement) => q(root, '.sheet-zone--vows .track-row__confirm');
+/** Кнопки в підтвердженні: [0] — «Точно видалити», [1] — «Скасувати». */
+export const vowConfirmButtons = (root: HTMLElement) =>
+  qa(root, '.sheet-zone--vows .track-row__confirm .track-button');
 export const vowName = (root: HTMLElement, index: number) =>
   q(vows(root)[index], '.progress-track__name') as HTMLInputElement;
-export const bondTrack = (root: HTMLElement) =>
-  q(root, '.sheet-zone--bonds .progress-track') as HTMLElement;
+
+// Стосунки додають і прибирають так само, як присяги, тож і запити ті самі.
+export const bonds = (root: HTMLElement) => qa(root, '.sheet-zone--bonds .progress-track');
+export const addBondButton = (root: HTMLElement) =>
+  q(root, '.sheet-zone--bonds .zone-add') as HTMLElement;
+export const removeBondButtons = (root: HTMLElement) =>
+  qa(root, '.sheet-zone--bonds .progress-track__remove');
+export const bondConfirm = (root: HTMLElement) => q(root, '.sheet-zone--bonds .track-row__confirm');
+export const bondConfirmButtons = (root: HTMLElement) =>
+  qa(root, '.sheet-zone--bonds .track-row__confirm .track-button');
+export const bondName = (root: HTMLElement, index: number) =>
+  q(bonds(root)[index], '.progress-track__name') as HTMLInputElement;
 export const extraTracks = (root: HTMLElement) => qa(root, '.extra-track');
 
 export const trackBoxes = (track: HTMLElement) => qa(track, '.progress-box');
@@ -122,11 +135,40 @@ export const dice = (root: HTMLElement) =>
 export const burnButton = (root: HTMLElement) => q(root, '.burn-button');
 export const logRows = (root: HTMLElement) => qa(root, '.log-row');
 
-export const barButton = (root: HTMLElement, text: string) =>
-  qa(root, '.bar-button').find(button => button.textContent?.trim() === text);
+export const characterMenuToggle = (root: HTMLElement) =>
+  q(root, '.character-menu__toggle') as HTMLElement;
 
-export const characterOptions = (root: HTMLElement) =>
-  qa(root, '.character-bar__select option').map(option => option.textContent);
+/** Дії над персонажем живуть у меню під бургером, і меню закривається після
+    кожної з них — тож перед кожним звертанням його треба відкрити знову. */
+export const openCharacterMenu = (root: HTMLElement) => {
+  const toggle = characterMenuToggle(root);
+  if (toggle.getAttribute('aria-expanded') !== 'true') fireEvent.click(toggle);
+  return toggle;
+};
+
+export const barButton = (root: HTMLElement, text: string) => {
+  openCharacterMenu(root);
+  return qa(root, '.bar-button').find(button => button.textContent?.trim() === text);
+};
+
+/** Персонажі в меню, у порядку списку. */
+export const characterOptions = (root: HTMLElement) => {
+  openCharacterMenu(root);
+  return qa(root, '.character-bar__item').map(item => item.textContent);
+};
+
+export const activeCharacterOption = (root: HTMLElement) => {
+  openCharacterMenu(root);
+  return q(root, '.character-bar__item--active')?.textContent ?? null;
+};
+
+/** Перемикає аркуш на персонажа з таким підписом у меню. */
+export const pickCharacter = (root: HTMLElement, name: string) => {
+  openCharacterMenu(root);
+  const item = qa(root, '.character-bar__item').find(row => row.textContent?.trim() === name);
+  if (!item) throw new Error(`Персонажа «${name}» немає в меню`);
+  fireEvent.click(item);
+};
 
 // ── Interactions ──────────────────────────────────────────────────────
 

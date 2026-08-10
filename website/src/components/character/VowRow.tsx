@@ -1,12 +1,11 @@
 // Один рядок присяги. Присяг на аркуші рівно стільки, скільки гравець додав
 // кнопкою «+» у заголовку зони, тож кожен рядок вміє себе прибрати.
 
-import { useState } from 'react';
 import type { ProgressTrack, Rank } from '../../utils/character/types';
-import { isEmptyVow } from '../../utils/character/storage';
 import { markProgress, toggleBoxTick } from '../../utils/character/rules';
-import { confirmVowRemoval, UI } from '../../utils/character/labels';
+import { UI } from '../../utils/character/labels';
 import ProgressTrackRow from './ProgressTrackRow';
+import { useTrackRemoval } from './useTrackRemoval';
 
 const VowRow = ({
   vow,
@@ -25,16 +24,16 @@ const VowRow = ({
   onRemove: () => void;
   onRoll: () => void;
 }) => {
-  const [confirming, setConfirming] = useState(false);
-
-  const empty = isEmptyVow(vow);
-
-  // Порожня присяга — це щойно натиснутий «+»: прибираємо без питань.
-  // За назвою чи прогресом стоїть робота гравця, тож питаємо.
-  const handleRemove = () => (empty ? onRemove() : setConfirming(true));
+  const { action, confirm } = useTrackRemoval({
+    track: vow,
+    label,
+    removeLabel: UI.removeVow,
+    isOnly,
+    onRemove,
+  });
 
   return (
-    <div className="vow">
+    <div className="track-row">
       <ProgressTrackRow
         name={vow.name}
         rank={vow.rank}
@@ -49,41 +48,10 @@ const VowRow = ({
           onUpdate(current => ({ ...current, ticks: toggleBoxTick(current.ticks, box) }))
         }
         onRoll={onRoll}
-        action={
-          isOnly && empty ? undefined : (
-            <button
-              type="button"
-              className="progress-track__remove"
-              onClick={handleRemove}
-              aria-label={`${UI.removeVow}: ${label}`}
-              title={UI.removeVow}
-            >
-              ×
-            </button>
-          )
-        }
+        action={action}
       />
 
-      {/* Підтвердження вбудоване, як і у панелі персонажів: системне вікно
-          не стилізується і блокує сторінку. */}
-      {confirming && (
-        <div className="vow__confirm">
-          <span className="vow__confirm-text">{confirmVowRemoval(label)}</span>
-          <button
-            type="button"
-            className="track-button track-button--danger"
-            onClick={() => {
-              setConfirming(false);
-              onRemove();
-            }}
-          >
-            {UI.confirmRemove}
-          </button>
-          <button type="button" className="track-button" onClick={() => setConfirming(false)}>
-            {UI.cancel}
-          </button>
-        </div>
-      )}
+      {confirm}
     </div>
   );
 };

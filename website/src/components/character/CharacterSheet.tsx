@@ -4,19 +4,18 @@
 import { useCallback, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
-import type { AttrKey, ExtraTrack, ProgressTrack, TrackKind } from '../../utils/character/types';
-import { emptyVow, newId } from '../../utils/character/storage';
+import type {
+  AttrKey,
+  ExtraTrack,
+  ProgressTrack,
+  Track,
+  TrackKind,
+} from '../../utils/character/types';
+import { emptyBond, emptyVow, newId } from '../../utils/character/storage';
 import type { SheetRoll } from '../../utils/character/diceEngine';
 import { commitBurn, previewBurn, rollAction, rollProgress } from '../../utils/character/diceEngine';
 import { ATTR_LABELS, SHEET, UI } from '../../utils/character/labels';
-import {
-  clampAttribute,
-  clampStat,
-  markBondProgress,
-  nextXpState,
-  resetMomentum,
-  toggleBoxTick,
-} from '../../utils/character/rules';
+import { clampAttribute, clampStat, nextXpState, resetMomentum } from '../../utils/character/rules';
 import { useCharacterStore } from './useCharacterStore';
 import { useSheetLog } from './useSheetLog';
 import AttributeBoxes from './AttributeBoxes';
@@ -25,14 +24,15 @@ import StatTracks from './StatTracks';
 import DebilitiesBox from './DebilitiesBox';
 import RollToasts, { MAX_TOASTS } from './RollToasts';
 import RollLog from './RollLog';
-import ProgressTrackRow from './ProgressTrackRow';
 import VowRow from './VowRow';
+import BondRow from './BondRow';
 import XpTrack from './XpTrack';
 import CharacterBar from './CharacterBar';
 import ExtraTracksSection from './ExtraTracksSection';
 import './CharacterSheet.css';
 
 const vowLabel = (name: string, index: number) => name.trim() || `Присяга ${index + 1}`;
+const bondLabel = (name: string, index: number) => name.trim() || `Стосунок ${index + 1}`;
 
 /** Зона аркуша. `area` — ім'я з grid-template-areas. */
 const Zone = ({
@@ -144,6 +144,22 @@ const CharacterSheetInner = () => {
       return { ...current, vows: vows.length > 0 ? vows : [emptyVow()] };
     });
 
+  /** Стосунки живуть за тими самими правилами, що й присяги. */
+  const updateBond = (index: number, updater: (bond: Track) => Track) =>
+    updateCharacter(current => ({
+      ...current,
+      bonds: current.bonds.map((bond, i) => (i === index ? updater(bond) : bond)),
+    }));
+
+  const addBond = () =>
+    updateCharacter(current => ({ ...current, bonds: [...current.bonds, emptyBond()] }));
+
+  const removeBond = (id: string) =>
+    updateCharacter(current => {
+      const bonds = current.bonds.filter(bond => bond.id !== id);
+      return { ...current, bonds: bonds.length > 0 ? bonds : [emptyBond()] };
+    });
+
   const updateExtraTrack = (id: string, updater: (track: ExtraTrack) => ExtraTrack) =>
     updateCharacter(current => ({
       ...current,
@@ -161,19 +177,20 @@ const CharacterSheetInner = () => {
 
   return (
     <div className="character-sheet-page">
-      <CharacterBar
-        store={store}
-        character={character}
-        onSelect={selectCharacter}
-        onAdd={addCharacter}
-        onDuplicate={duplicateActive}
-        onRemove={removeCharacter}
-        onImport={importFromText}
-      />
-
       <div className="character-sheet">
         <section className="sheet-zone sheet-zone--name" style={{ gridArea: 'name' }}>
-          <h2 className="sheet-zone__title">{SHEET.character}</h2>
+          <div className="sheet-zone__head">
+            <h2 className="sheet-zone__title">{SHEET.character}</h2>
+            <CharacterBar
+              store={store}
+              character={character}
+              onSelect={selectCharacter}
+              onAdd={addCharacter}
+              onDuplicate={duplicateActive}
+              onRemove={removeCharacter}
+              onImport={importFromText}
+            />
+          </div>
           <input
             className="sheet-name-input"
             value={character.name}
@@ -268,27 +285,32 @@ const CharacterSheetInner = () => {
           />
         </Zone>
 
-        <Zone area="bonds" title={SHEET.bonds}>
-          <ProgressTrackRow
-            name={character.bondsNotes}
-            ticks={character.bondsTicks}
-            namePlaceholder={UI.bondsNotesPlaceholder}
-            onName={bondsNotes => patchCharacter({ bondsNotes })}
-            /* Рангу немає: за правилами стосунки завжди отримують одну позначку. */
-            onMark={() =>
-              updateCharacter(current => ({
-                ...current,
-                bondsTicks: markBondProgress(current.bondsTicks),
-              }))
-            }
-            onToggleBox={box =>
-              updateCharacter(current => ({
-                ...current,
-                bondsTicks: toggleBoxTick(current.bondsTicks, box),
-              }))
-            }
-            onRoll={() => handleProgressRoll(SHEET.bonds, character.bondsTicks)}
-          />
+        <Zone
+          area="bonds"
+          title={SHEET.bonds}
+          action={
+            <button
+              type="button"
+              className="zone-add"
+              onClick={addBond}
+              aria-label={UI.addBond}
+              title={UI.addBond}
+            >
+              +
+            </button>
+          }
+        >
+          {character.bonds.map((bond, index) => (
+            <BondRow
+              key={bond.id}
+              bond={bond}
+              label={bondLabel(bond.name, index)}
+              isOnly={character.bonds.length === 1}
+              onUpdate={updater => updateBond(index, updater)}
+              onRemove={() => removeBond(bond.id)}
+              onRoll={() => handleProgressRoll(bondLabel(bond.name, index), bond.ticks)}
+            />
+          ))}
         </Zone>
 
         <Zone area="debil" title={SHEET.debilities}>

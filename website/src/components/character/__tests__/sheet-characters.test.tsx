@@ -6,14 +6,18 @@ import { act, fireEvent, render } from '@testing-library/react';
 import CharacterSheet from '../CharacterSheet';
 import { createCharacter, serializeCharacter } from '../../../utils/character/storage';
 import {
+  activeCharacterOption,
   attributeSteppers,
   availableXpText,
   barButton,
+  characterMenuToggle,
   characterOptions,
   enterAttributeEditMode,
   extraTracks,
   markButton,
   nameInput,
+  openCharacterMenu,
+  pickCharacter,
   q,
   qa,
   seedCharacter,
@@ -95,6 +99,49 @@ describe('combat and journey tracks', () => {
   });
 });
 
+describe('menu of characters', () => {
+  it('keeps the actions behind the burger button', () => {
+    seedCharacter({ name: 'Ульріка' });
+    const { container } = renderSheet();
+    // Закритий аркуш показує лише бургер — жодного перемикача чи кнопки.
+    expect(q(container, '.character-bar')).toBeNull();
+    expect(characterMenuToggle(container).getAttribute('aria-expanded')).toBe('false');
+
+    fireEvent.click(characterMenuToggle(container));
+    expect(q(container, '.character-bar__item')).toBeTruthy();
+    expect(characterMenuToggle(container).getAttribute('aria-expanded')).toBe('true');
+
+    fireEvent.click(characterMenuToggle(container));
+    expect(q(container, '.character-bar')).toBeNull();
+  });
+
+  it('closes on Escape and after an action', () => {
+    seedCharacter({ name: 'Ульріка' });
+    const { container } = renderSheet();
+
+    openCharacterMenu(container);
+    fireEvent.keyDown(document, { key: 'Escape' });
+    expect(q(container, '.character-bar')).toBeNull();
+
+    fireEvent.click(barButton(container, 'Дублювати') as HTMLElement);
+    expect(q(container, '.character-bar')).toBeNull();
+    expect(nameInput(container).value).toBe('Ульріка (копія)');
+  });
+
+  it('forgets an unanswered delete question once closed', () => {
+    seedCharacter({ name: 'Ульріка' });
+    const { container } = renderSheet();
+
+    fireEvent.click(barButton(container, 'Видалити') as HTMLElement);
+    expect(barButton(container, 'Точно видалити')).toBeTruthy();
+
+    fireEvent.click(characterMenuToggle(container)); // закрили, не відповівши
+    openCharacterMenu(container);
+    expect(barButton(container, 'Точно видалити')).toBeUndefined();
+    expect(barButton(container, 'Видалити')).toBeTruthy();
+  });
+});
+
 describe('several characters', () => {
   it('creates a second character without touching the first', () => {
     seedCharacter({ name: 'Ульріка' });
@@ -118,11 +165,13 @@ describe('several characters', () => {
     fireEvent.click(barButton(container, 'Новий персонаж') as HTMLElement);
     type(nameInput(container), 'Бйорн');
     expect(characterOptions(container)).toEqual(['Ульріка', 'Бйорн']);
+    expect(activeCharacterOption(container)).toBe('Бйорн');
 
-    const dropdown = q(container, '.character-bar__select') as HTMLSelectElement;
-    fireEvent.change(dropdown, { target: { value: dropdown.options[0].value } });
+    pickCharacter(container, 'Ульріка');
+    expect(q(container, '.character-bar')).toBeNull(); // вибір закриває меню
     expect(nameInput(container).value).toBe('Ульріка');
     expect(availableXpText(container)).toBe('1');
+    expect(activeCharacterOption(container)).toBe('Ульріка');
   });
 
   it('duplicates the active character with its state', () => {
@@ -213,9 +262,12 @@ describe('export and import', () => {
 
 /**
  * Drives the hidden file input. The file is a stub rather than a real File so
- * the test does not depend on jsdom's Blob.text() implementation.
+ * the test does not depend on jsdom's Blob.text() implementation. The menu is
+ * opened first, as it is in the app: import starts from its «Імпорт» button,
+ * and a failure has to be explained inside the open menu.
  */
 async function importFile(container: HTMLElement, contents: string) {
+  openCharacterMenu(container);
   const input = q(container, 'input[type=file]') as HTMLInputElement;
   const file = { name: 'character.json', text: async () => contents } as unknown as File;
   Object.defineProperty(input, 'files', { value: [file], configurable: true });

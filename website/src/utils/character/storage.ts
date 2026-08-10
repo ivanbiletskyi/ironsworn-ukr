@@ -8,6 +8,7 @@ import type {
   ExtraTrack,
   ProgressTrack,
   Rank,
+  Track,
   TrackKind,
   XpCell,
 } from './types';
@@ -15,6 +16,7 @@ import {
   ATTR_KEYS,
   BASE_RESET_MOMENTUM,
   DEBILITY_KEYS,
+  DEFAULT_BONDS,
   DEFAULT_VOWS,
   MAX_ATTR,
   MAX_STAT,
@@ -48,9 +50,14 @@ export function emptyVow(): ProgressTrack {
   return { id: newId(), name: '', rank: 'dangerous', ticks: 0 };
 }
 
-/** Присяга без назви й без прогресу — той самий «порожній слот» аркуша. */
-export function isEmptyVow(vow: ProgressTrack): boolean {
-  return vow.name.trim() === '' && vow.ticks === 0;
+/** Стосунок рангу не має: за правилами його шкала завжди отримує 1 позначку. */
+export function emptyBond(): Track {
+  return { id: newId(), name: '', ticks: 0 };
+}
+
+/** Шкала без назви й без прогресу — той самий «порожній слот» аркуша. */
+export function isEmptyTrack(track: Track): boolean {
+  return track.name.trim() === '' && track.ticks === 0;
 }
 
 /** Новий персонаж за створенням персонажа: показники +5, імпульс +2. */
@@ -63,8 +70,7 @@ export function createCharacter(name = ''): Character {
     momentum: BASE_RESET_MOMENTUM,
     xp: Array<XpCell>(XP_CELLS).fill(0),
     vows: Array.from({ length: DEFAULT_VOWS }, emptyVow),
-    bondsTicks: 0,
-    bondsNotes: '',
+    bonds: Array.from({ length: DEFAULT_BONDS }, emptyBond),
     debilities: emptyDebilities(),
     notes: '',
     extraTracks: [],
@@ -77,6 +83,7 @@ export function duplicateCharacter(character: Character): Character {
   copy.id = newId();
   copy.name = copy.name ? `${copy.name} (копія)` : '';
   copy.vows = copy.vows.map(vow => ({ ...vow, id: newId() }));
+  copy.bonds = copy.bonds.map(bond => ({ ...bond, id: newId() }));
   copy.extraTracks = copy.extraTracks.map(track => ({ ...track, id: newId() }));
   copy.updatedAt = Date.now();
   return copy;
@@ -109,14 +116,18 @@ function xpCell(value: unknown): XpCell {
   return value === 1 || value === 2 ? value : 0;
 }
 
-function normalizeTrack(raw: unknown): ProgressTrack {
+function normalizeBond(raw: unknown): Track {
   const source = isRecord(raw) ? raw : {};
   return {
     id: str(source.id) || newId(),
     name: str(source.name),
-    rank: rank(source.rank),
     ticks: num(source.ticks, 0, 0, MAX_TICKS),
   };
+}
+
+function normalizeTrack(raw: unknown): ProgressTrack {
+  const source = isRecord(raw) ? raw : {};
+  return { ...normalizeBond(raw), rank: rank(source.rank) };
 }
 
 function normalizeExtraTrack(raw: unknown): ExtraTrack {
@@ -169,6 +180,15 @@ export function normalizeCharacter(raw: unknown): Character {
   const vowsRaw = Array.isArray(raw.vows) ? raw.vows : [];
   const vows = vowsRaw.length > 0 ? vowsRaw.map(normalizeTrack) : [emptyVow()];
 
+  // Стосунки — так само: щонайменше один рядок. До v3 їх була одна шкала
+  // (`bondsTicks` + `bondsNotes`); вона стає першим стосунком у списку, щоб
+  // прогрес нікуди не зник. Міграція за наявністю поля, а не за версією
+  // сховища: тоді й «голий» JSON, збережений вручну, читається правильно.
+  const bondsRaw = Array.isArray(raw.bonds)
+    ? raw.bonds
+    : [{ name: raw.bondsNotes, ticks: raw.bondsTicks }];
+  const bonds = bondsRaw.length > 0 ? bondsRaw.map(normalizeBond) : [emptyBond()];
+
   const extraTracks = Array.isArray(raw.extraTracks)
     ? raw.extraTracks.map(normalizeExtraTrack)
     : [];
@@ -181,8 +201,7 @@ export function normalizeCharacter(raw: unknown): Character {
     momentum,
     xp,
     vows,
-    bondsTicks: num(raw.bondsTicks, 0, 0, MAX_TICKS),
-    bondsNotes: str(raw.bondsNotes),
+    bonds,
     debilities,
     notes: str(raw.notes),
     extraTracks,
@@ -198,7 +217,7 @@ export function normalizeCharacter(raw: unknown): Character {
  */
 function migrateV1Vows(character: Character): Character {
   const vows = [...character.vows];
-  while (vows.length > 1 && isEmptyVow(vows[vows.length - 1])) vows.pop();
+  while (vows.length > 1 && isEmptyTrack(vows[vows.length - 1])) vows.pop();
   return { ...character, vows };
 }
 

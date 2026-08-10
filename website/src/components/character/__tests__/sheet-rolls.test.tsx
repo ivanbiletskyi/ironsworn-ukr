@@ -6,9 +6,13 @@ import { fireEvent, render, waitFor } from '@testing-library/react';
 import CharacterSheet from '../CharacterSheet';
 import { MAX_TOASTS } from '../RollToasts';
 import {
+  addBondButton,
   addVowButton,
   badges,
-  bondTrack,
+  bondConfirm,
+  bondConfirmButtons,
+  bondName,
+  bonds,
   burnButton,
   currentValue,
   d10,
@@ -21,6 +25,7 @@ import {
   progressRollButton,
   q,
   qa,
+  removeBondButtons,
   removeVowButtons,
   rollAttribute,
   rollCard,
@@ -35,6 +40,7 @@ import {
   trackTicks,
   type,
   vowConfirm,
+  vowConfirmButtons,
   vowName,
   vows,
 } from './helpers';
@@ -186,7 +192,7 @@ describe('progress tracks (§3.7)', () => {
     expect(trackTicks(vows(container)[0])).toEqual([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
     expect(trackCount(vows(container)[0])).toBe('0/10');
     expect(q(vows(container)[0], '.progress-track__rank')).toBeTruthy();
-    expect(q(bondTrack(container), '.progress-track__rank')).toBeNull();
+    expect(q(bonds(container)[0], '.progress-track__rank')).toBeNull();
   });
 
   it('marks progress by rank', () => {
@@ -227,11 +233,15 @@ describe('progress tracks (§3.7)', () => {
     expect(trackTicks(vows(container)[0])).toEqual([4, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   });
 
-  it('gives the bond track one tick at a time', () => {
+  it('gives every bond track one tick at a time', () => {
     seedCharacter();
     const { container } = renderSheet();
-    for (let i = 0; i < 4; i++) fireEvent.click(markButton(bondTrack(container)));
-    expect(trackCount(bondTrack(container))).toBe('1/10');
+    fireEvent.click(addBondButton(container));
+
+    for (let i = 0; i < 4; i++) fireEvent.click(markButton(bonds(container)[0]));
+    expect(trackCount(bonds(container)[0])).toBe('1/10');
+    // Шкали стосунків незалежні: позначки першого не течуть у другий.
+    expect(trackCount(bonds(container)[1])).toBe('0/10');
   });
 });
 
@@ -287,12 +297,12 @@ describe('vow slots', () => {
     expect(vows(container)).toHaveLength(2);
 
     // Скасування лишає присягу на місці.
-    fireEvent.click(qa(container, '.vow__confirm .track-button')[1]);
+    fireEvent.click(vowConfirmButtons(container)[1]);
     expect(vowConfirm(container)).toBeNull();
     expect(vows(container)).toHaveLength(2);
 
     fireEvent.click(removeVowButtons(container)[0]);
-    fireEvent.click(qa(container, '.vow__confirm .track-button')[0]);
+    fireEvent.click(vowConfirmButtons(container)[0]);
     expect(vows(container)).toHaveLength(1);
     expect(vowName(container, 0).value).toBe('');
   });
@@ -313,9 +323,77 @@ describe('vow slots', () => {
     type(vowName(container, 0), 'Знайти сестру');
 
     fireEvent.click(removeVowButtons(container)[0]);
-    fireEvent.click(qa(container, '.vow__confirm .track-button')[0]);
+    fireEvent.click(vowConfirmButtons(container)[0]);
     expect(vows(container)).toHaveLength(1);
     expect(vowName(container, 0).value).toBe('');
+  });
+});
+
+// Стосунки додають і прибирають тими самими правилами, що й присяги.
+describe('bond slots', () => {
+  it('starts with a single bond and hides its remove button while it is empty', () => {
+    seedCharacter();
+    const { container } = renderSheet();
+    expect(bonds(container)).toHaveLength(1);
+    expect(removeBondButtons(container)).toHaveLength(0);
+
+    type(bondName(container, 0), 'Кайл, коваль');
+    expect(removeBondButtons(container)).toHaveLength(1);
+  });
+
+  it('adds a bond from the zone header and keeps it across a remount', () => {
+    seedCharacter();
+    const first = renderSheet();
+    fireEvent.click(addBondButton(first.container));
+    type(bondName(first.container, 1), 'Спільнота Вейлґейв');
+    expect(bonds(first.container)).toHaveLength(2);
+    first.unmount();
+
+    const second = renderSheet();
+    expect(bonds(second.container)).toHaveLength(2);
+    expect(bondName(second.container, 1).value).toBe('Спільнота Вейлґейв');
+  });
+
+  it('drops an empty bond without asking', () => {
+    seedCharacter();
+    const { container } = renderSheet();
+    fireEvent.click(addBondButton(container));
+    type(bondName(container, 0), 'Кайл, коваль');
+
+    fireEvent.click(removeBondButtons(container)[1]);
+    expect(bondConfirm(container)).toBeNull();
+    expect(bonds(container)).toHaveLength(1);
+    expect(bondName(container, 0).value).toBe('Кайл, коваль');
+  });
+
+  it('asks before dropping a bond that has a name or progress', () => {
+    seedCharacter();
+    const { container } = renderSheet();
+    fireEvent.click(addBondButton(container));
+    type(bondName(container, 0), 'Кайл, коваль');
+
+    fireEvent.click(removeBondButtons(container)[0]);
+    expect(bondConfirm(container)?.textContent).toContain('Кайл, коваль');
+    expect(bonds(container)).toHaveLength(2);
+
+    // Скасування лишає стосунок на місці.
+    fireEvent.click(bondConfirmButtons(container)[1]);
+    expect(bondConfirm(container)).toBeNull();
+    expect(bonds(container)).toHaveLength(2);
+
+    fireEvent.click(removeBondButtons(container)[0]);
+    fireEvent.click(bondConfirmButtons(container)[0]);
+    expect(bonds(container)).toHaveLength(1);
+    expect(bondName(container, 0).value).toBe('');
+  });
+
+  it('asks about progress alone, even without a name', () => {
+    seedCharacter();
+    const { container } = renderSheet();
+    fireEvent.click(markButton(bonds(container)[0]));
+
+    fireEvent.click(removeBondButtons(container)[0]);
+    expect(bondConfirm(container)?.textContent).toContain('Стосунок 1');
   });
 });
 
@@ -345,6 +423,14 @@ describe('progress roll (§3.8)', () => {
     stubDice(d10(1), d10(1));
     fireEvent.click(progressRollButton(vows(container)[1]));
     expect(q(container, '.roll-card__label')?.textContent).toBe('Присяга 2');
+  });
+
+  it('labels an unnamed bond by its slot too', () => {
+    seedCharacter();
+    const { container } = renderSheet();
+    stubDice(d10(1), d10(1));
+    fireEvent.click(progressRollButton(bonds(container)[0]));
+    expect(q(container, '.roll-card__label')?.textContent).toBe('Стосунок 1');
   });
 
   it('picks up a vow name as it is typed', () => {

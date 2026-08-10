@@ -103,6 +103,8 @@ export const UI = {
   noCharacter: 'Персонажа ще не створено',
   addVow: 'Додати присягу',
   removeVow: 'Видалити присягу',
+  addBond: 'Додати стосунок',
+  removeBond: 'Видалити стосунок',
   addCombatTrack: '+ Бій',
   addJourneyTrack: '+ Подорож',
   addOtherTrack: '+ Інше',
@@ -110,6 +112,7 @@ export const UI = {
   xpAvailable: 'Доступно',
   xpEarned: 'Зароблено',
   xpSpent: 'Витрачено',
+  characterMenu: 'Меню персонажів',
   chooseCharacter: 'Обрати персонажа',
   unnamedCharacter: 'Без імені',
   confirmRemove: 'Точно видалити',
@@ -117,7 +120,7 @@ export const UI = {
   importFailed: 'Не вдалося прочитати файл',
   vowNamePlaceholder: 'Про що присяга?',
   trackNamePlaceholder: 'Назва треку',
-  bondsNotesPlaceholder: 'З ким у вас зв’язки?',
+  bondNamePlaceholder: 'З ким у вас зв’язок?',
   notesPlaceholder: 'Спорядження, союзники, зачіпки…',
 } as const;
 
@@ -135,8 +138,8 @@ export function debilityHint(count: number): string | null {
   return `−${count} через ${count} ${word}`;
 }
 
-/** Питання перед видаленням присяги, у якій уже є назва або прогрес. */
-export function confirmVowRemoval(label: string): string {
+/** Питання перед видаленням шкали, у якій уже є назва або прогрес. */
+export function confirmTrackRemoval(label: string): string {
   return `Видалити «${label}» разом із прогресом?`;
 }
 
