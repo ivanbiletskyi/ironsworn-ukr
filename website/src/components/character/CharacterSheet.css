@@ -160,6 +160,14 @@
   text-align: center;
 }
 
+/* «ІМПУЛЬС» і «ПОКАЗНИКИ» з повним розрідженням не вміщаються у вузьку рейку.
+   Зменшуємо кегль і розрідження, а не переносимо: перенос розриває слово
+   посередині («ПОКАЗНИК/И»). */
+.sheet-zone--rail .sheet-zone__title {
+  font-size: 0.65rem;
+  letter-spacing: 0.02em;
+}
+
 .sheet-zone--momentum {
   min-width: 6rem;
 }
@@ -1111,7 +1119,9 @@
     font-size: 0.78rem;
   }
 
+  /* Ціль дотику — весь рядок-підпис, а не сам чекбокс на 20px. */
   .debility {
+    min-height: 44px;
     padding: 0.4rem 0;
     font-size: 0.95rem;
   }
@@ -1119,6 +1129,12 @@
   .debility input {
     width: 1.25rem;
     height: 1.25rem;
+  }
+
+  .extra-track__remove,
+  .log-row__remove {
+    min-width: 40px;
+    min-height: 40px;
   }
 
   .roll-button,
@@ -1199,5 +1215,15 @@
 
   .extra-tracks__add .track-button {
     min-height: 40px;
+  }
+}
+
+/* ── Дуже вузькі екрани (iPhone SE тощо) ──────────────────────────── */
+
+@media (max-width: 380px) {
+  /* П'ять плиток у три колонки не лишають місця степерам по 44px,
+     тож на найвужчих екранах їх дві. Ціль дотику важливіша за ряд. */
+  .attribute-boxes {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }

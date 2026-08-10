@@ -24,7 +24,7 @@ interface OracleCardProps {
 
 function OracleCard({ oracle, lang, lastAtoms, onRoll, onReroll, onDelete }: OracleCardProps) {
   const [animating, setAnimating] = useState(false);
-  const [displayText, setDisplayText] = useState<string | null>(null);
+  const [tickerText, setTickerText] = useState<string | null>(null);
   const tickerRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -33,24 +33,20 @@ function OracleCard({ oracle, lang, lastAtoms, onRoll, onReroll, onDelete }: Ora
     const atoms = rollOracle(oracle, lang);
     onRoll(atoms);
 
-    const finalText = atoms.map(a => a.text).join(' / ');
-
-    if (prefersReduced) {
-      setDisplayText(finalText);
-      return;
-    }
+    // The result itself renders from `lastAtoms`, which `onRoll` has just
+    // updated; the ticker is only a flourish drawn over it while animating.
+    if (prefersReduced) return;
 
     setAnimating(true);
-    setDisplayText('...');
+    setTickerText('...');
 
     const fakeValues = ['Схема...', 'Битва...', 'Небезпека...', 'Таємниця...'];
     let count = 0;
     tickerRef.current = setInterval(() => {
-      setDisplayText(fakeValues[count % fakeValues.length]);
+      setTickerText(fakeValues[count % fakeValues.length]);
       count++;
       if (count >= 4) {
         clearInterval(tickerRef.current!);
-        setDisplayText(finalText);
         setAnimating(false);
       }
     }, 60);
@@ -60,13 +56,10 @@ function OracleCard({ oracle, lang, lastAtoms, onRoll, onReroll, onDelete }: Ora
     return () => { if (tickerRef.current) clearInterval(tickerRef.current); };
   }, []);
 
-  useEffect(() => {
-    if (!lastAtoms || lastAtoms.length === 0) {
-      setDisplayText(null);
-    } else {
-      setDisplayText(lastAtoms.map(a => a.text).join(' / '));
-    }
-  }, [lastAtoms]);
+  const resultText = lastAtoms && lastAtoms.length > 0
+    ? lastAtoms.map(a => a.text).join(' / ')
+    : null;
+  const displayText = animating ? tickerText : resultText;
 
   const title = oracle.title[lang];
   const description = oracle.description?.[lang];
@@ -106,7 +99,7 @@ function OracleCard({ oracle, lang, lastAtoms, onRoll, onReroll, onDelete }: Ora
         {hasResult && (
           <button
             className="oracle-reroll-btn"
-            onClick={() => { const atoms = rollOracle(oracle, lang); onReroll(atoms); setDisplayText(atoms.map(a => a.text).join(' / ')); }}
+            onClick={() => { onReroll(rollOracle(oracle, lang)); }}
             aria-label={`Reroll ${title}`}
             title={lang === 'uk' ? 'Перекинути' : 'Reroll'}
           >
@@ -116,7 +109,7 @@ function OracleCard({ oracle, lang, lastAtoms, onRoll, onReroll, onDelete }: Ora
         {hasResult && (
           <button
             className="oracle-delete-btn"
-            onClick={() => { onDelete(); setDisplayText(null); }}
+            onClick={() => { onDelete(); }}
             aria-label={`Delete ${title}`}
             title={lang === 'uk' ? 'Видалити з журналу' : 'Delete from log'}
           >
@@ -304,11 +297,15 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
   const [history, setHistory] = useState<RollResult[]>(() => loadHistory(currentLang));
   const [lastByOracle, setLastByOracle] = useState<Record<string, RollAtom[]>>({});
 
-  // Reload history when language changes
-  useEffect(() => {
+  // Reload history when the language changes. Adjusted during render rather than
+  // in an effect: an effect would let the save effect below run once with the
+  // previous language's history already keyed to the new language.
+  const [loadedLang, setLoadedLang] = useState(currentLang);
+  if (loadedLang !== currentLang) {
+    setLoadedLang(currentLang);
     setHistory(loadHistory(currentLang));
     setLastByOracle({});
-  }, [currentLang]);
+  }
 
   useEffect(() => {
     saveHistory(currentLang, history);
@@ -372,7 +369,11 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
       if (!entry) return h;
       const oracleId = entry.atoms[atomIndex]?.oracleId.split(':')[0];
       if (oracleId) {
-        setLastByOracle(prev => { const { [oracleId]: _, ...rest } = prev; return rest; });
+        setLastByOracle(prev => {
+          const next = { ...prev };
+          delete next[oracleId];
+          return next;
+        });
       }
       const remaining = entry.atoms.filter(a => a.oracleId.split(':')[0] !== oracleId);
       if (remaining.length === 0) return h.filter((_, i) => i !== entryIndex);
@@ -389,7 +390,11 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
       if (remaining.length === 0) return h.filter((_, i) => i !== idx);
       return h.map((e, i) => i === idx ? { ...e, atoms: remaining } : e);
     });
-    setLastByOracle(prev => { const { [oracleId]: _, ...rest } = prev; return rest; });
+    setLastByOracle(prev => {
+      const next = { ...prev };
+      delete next[oracleId];
+      return next;
+    });
   }, []);
 
   const handleReroll = useCallback((entryIndex: number, atomIndex: number) => {

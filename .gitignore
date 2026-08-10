@@ -1,5 +1,7 @@
 **/.DS_Store
 node_modules
+# this repo uses yarn; an npm lockfile here means someone ran the wrong tool
+package-lock.json
 __generated-html__
 website/public/*
 !website/public/.nojekyll
