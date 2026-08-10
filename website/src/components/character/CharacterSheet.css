@@ -103,7 +103,6 @@
   grid-template-areas:
     'name     name   xp     xp'
     'momentum attrs  attrs  stats'
-    'momentum roll   roll   stats'
     'momentum vows   vows   stats'
     'momentum notes  bonds  stats'
     'momentum notes  debil  stats'
@@ -546,6 +545,28 @@
   color: var(--text-secondary);
 }
 
+/* Кнопка «прибрати» — маленька й спокійна: свайп тут головний жест,
+   а «ОК» лишається для миші й для тих, хто свайпу не чекає. Стоїть у рядку
+   результату, праворуч від «точного влучання». */
+.roll-card__ok {
+  margin-left: auto;
+  padding: 0.2rem 0.6rem;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary);
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.roll-card__ok:hover {
+  color: var(--text-primary);
+  border-color: var(--highlight);
+}
+
 .roll-dice {
   display: flex;
   align-items: center;
@@ -617,8 +638,16 @@
   color: var(--text-muted);
 }
 
+/* Результат і «ОК» — один рядок: відступ тримає він, а не сам абзац. */
+.roll-card__outcome-row {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-top: 0.6rem;
+}
+
 .roll-outcome {
-  margin: 0.6rem 0 0;
+  margin: 0;
   font-size: 1.05rem;
   font-weight: 700;
   letter-spacing: 0.06em;
@@ -673,6 +702,55 @@
 
 .burn-button:hover {
   filter: brightness(1.12);
+}
+
+/* ── Стос карток-сповіщень ────────────────────────────────────────── */
+
+/* Правий верхній кут вьюпорта, як сповіщення в macOS. `top` відступає від
+   шапки сайту, щоб картка її не перекривала. z-index нижчий за мобільний
+   сайдбар (1000) — відкрите меню має лишатися зверху. */
+.roll-toasts {
+  position: fixed;
+  top: 5rem;
+  right: 1rem;
+  z-index: 900;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  width: min(22rem, calc(100vw - 2rem));
+  /* Прокрутки й обрізання тут навмисно немає: `overflow` різав би картку,
+     щойно її потягнули вбік. Висоту стосу натомість тримає MAX_TOASTS. */
+  pointer-events: none;
+}
+
+/* Зовнішній шар відповідає за появу, внутрішній — за жест. Інакше анімація
+   виїзду перебивала б transform свайпу: анімації в каскаді сильніші за
+   inline-стилі. */
+.roll-toast {
+  animation: toast-in 0.28s ease-out;
+}
+
+.roll-toast__card {
+  pointer-events: auto;
+  cursor: grab;
+  /* Вертикальна прокрутка стосу лишається браузеру, горизонталь — наш свайп. */
+  touch-action: pan-y;
+  transition: transform 0.2s ease-out, opacity 0.2s ease-out;
+}
+
+/* Під час жесту картка йде рівно за пальцем, без згладжування. */
+.roll-toast__card--dragging {
+  cursor: grabbing;
+  transition: none;
+}
+
+.roll-toast .roll-card {
+  box-shadow: 0 10px 28px rgba(0, 0, 0, 0.4);
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(110%); }
+  to   { opacity: 1; transform: none; }
 }
 
 /* ── Шкала прогресу ───────────────────────────────────────────────── */
@@ -1072,8 +1150,14 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .die {
+  .die,
+  .roll-toast {
     animation: none;
+  }
+
+  /* Свайп лишається робочим — зникає лише плавність. */
+  .roll-toast__card {
+    transition: none;
   }
 }
 
@@ -1129,7 +1213,6 @@
     grid-template-areas:
       'name     xp'
       'attrs    attrs'
-      'roll     roll'
       'momentum stats'
       'vows     vows'
       'bonds    debil'
@@ -1171,7 +1254,6 @@
     grid-template-areas:
       'name'
       'attrs'
-      'roll'
       'momentum'
       'stats'
       'xp'
@@ -1255,6 +1337,17 @@
 
   .roll-legend {
     gap: 2rem;
+  }
+
+  .roll-toasts {
+    top: 4.5rem;
+    right: 0.75rem;
+    width: min(22rem, calc(100vw - 1.5rem));
+  }
+
+  .roll-card__ok {
+    min-height: 40px;
+    padding: 0.35rem 0.9rem;
   }
 
   /* Журнал у стовпчик: у рядок ці колонки на телефоні не влазять. */

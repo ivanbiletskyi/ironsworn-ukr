@@ -1,5 +1,6 @@
-// Картка останнього кидка: граники, результат і пропозиція спалити імпульс.
+// Картка кидка: граники, результат і пропозиція спалити імпульс.
 // Апка рахує наслідок спалення, але не вирішує за гравця (рішення №5).
+// Картку показує стос сповіщень — див. RollToasts.tsx.
 
 import type { ActionRollResult, SheetRoll } from '../../utils/character/diceEngine';
 import { OUTCOME_LABELS, UI, formatScaleValue } from '../../utils/character/labels';
@@ -55,11 +56,14 @@ const RollResultCard = ({
   roll,
   burnPreview,
   onBurn,
+  onDismiss,
 }: {
   roll: SheetRoll;
   /** Наслідок спалення, або null, якщо воно нічого не дає. */
   burnPreview: ActionRollResult | null;
   onBurn: () => void;
+  /** Прибрати картку. Без нього кнопки «ОК» немає. */
+  onDismiss?: () => void;
 }) => (
   <div className={`roll-card roll-card--${roll.outcome}`}>
     <div className="roll-card__head">
@@ -93,9 +97,24 @@ const RollResultCard = ({
       </>
     )}
 
-    <p className="roll-outcome">
-      {OUTCOME_ICON[roll.outcome]} {OUTCOME_LABELS[roll.outcome]}
-    </p>
+    {/* «ОК» стоїть у рядку результату, праворуч: там, де погляд уже спинився,
+        прочитавши «точне влучання» чи «промах». */}
+    <div className="roll-card__outcome-row">
+      <p className="roll-outcome">
+        {OUTCOME_ICON[roll.outcome]} {OUTCOME_LABELS[roll.outcome]}
+      </p>
+      {onDismiss && (
+        <button
+          type="button"
+          className="roll-card__ok"
+          onClick={onDismiss}
+          title={UI.dismissRoll}
+          aria-label={`${UI.dismissRoll}: ${roll.label}`}
+        >
+          {UI.ok}
+        </button>
+      )}
+    </div>
 
     <div className="roll-notes">
       {roll.matched && <span className="roll-badge roll-badge--matched">{UI.matched}</span>}

@@ -103,6 +103,13 @@ export const availableXpText = (root: HTMLElement) =>
   q(root, '.xp-summary__available strong')?.textContent ?? null;
 
 export const rollCard = (root: HTMLElement) => q(root, '.roll-card');
+/** Стос карток-сповіщень, найновіша — перша. */
+export const rollCards = (root: HTMLElement) => qa(root, '.roll-card');
+export const rollCardLabels = (root: HTMLElement) =>
+  qa(root, '.roll-card__label').map(node => node.textContent);
+export const dismissRollButtons = (root: HTMLElement) => qa(root, '.roll-card__ok');
+/** Шар, що ловить жест: саме він, а не сама картка, їде за пальцем. */
+export const toastCards = (root: HTMLElement) => qa(root, '.roll-toast__card');
 export const outcomeText = (root: HTMLElement) =>
   q(root, '.roll-outcome')?.textContent?.replace(/^\S+\s/, '') ?? null;
 export const badges = (root: HTMLElement) =>
@@ -128,6 +135,13 @@ export const type = (field: HTMLElement, value: string) =>
 
 export const select = (field: HTMLElement, value: string) =>
   fireEvent.change(field, { target: { value } });
+
+/** Drags a toast sideways by `distance` px and lets go. */
+export function swipe(card: HTMLElement, distance: number) {
+  fireEvent.pointerDown(card, { pointerId: 1, clientX: 0 });
+  fireEvent.pointerMove(card, { pointerId: 1, clientX: distance });
+  fireEvent.pointerUp(card, { pointerId: 1, clientX: distance });
+}
 
 /** Opens the roll panel for an attribute and rolls, optionally with adds. */
 export function rollAttribute(root: HTMLElement, index: number, adds = 0) {

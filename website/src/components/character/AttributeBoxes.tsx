@@ -127,7 +127,17 @@ const AttributeBoxes = ({
               +
             </button>
           </span>
-          <button type="button" className="roll-button" onClick={() => onRoll(selected, adds)}>
+          <button
+            type="button"
+            className="roll-button"
+            onClick={() => {
+              onRoll(selected, adds);
+              // Кидок закриває панель: результат уже спливає карткою, а ряд,
+              // що лишився відкритим, лише зсовує аркуш і виглядає так, ніби
+              // кидок не відбувся.
+              setSelected(null);
+            }}
+          >
             🎲 {UI.roll}
           </button>
           <button

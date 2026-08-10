@@ -2,8 +2,9 @@
 // the roll log. Covers CHARACTER_SHEET_PLAN.md §3.1, §3.2, §3.5, §3.7, §3.8.
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { fireEvent, render } from '@testing-library/react';
+import { fireEvent, render, waitFor } from '@testing-library/react';
 import CharacterSheet from '../CharacterSheet';
+import { MAX_TOASTS } from '../RollToasts';
 import {
   addVowButton,
   badges,
@@ -13,6 +14,7 @@ import {
   d10,
   d6,
   dice,
+  dismissRollButtons,
   logRows,
   markButton,
   outcomeText,
@@ -22,9 +24,13 @@ import {
   removeVowButtons,
   rollAttribute,
   rollCard,
+  rollCardLabels,
+  rollCards,
   seedCharacter,
   select,
   stubDice,
+  swipe,
+  toastCards,
   trackCount,
   trackTicks,
   type,
@@ -58,6 +64,17 @@ describe('action roll (§3.1)', () => {
     expect(q(container, '.roll-math strong')?.textContent).toBe('7');
     expect(outcomeText(container)).toBe('Ледь влучаєте');
     expect(q(container, '.roll-card__label')?.textContent).toBe('Вістря');
+  });
+
+  it('closes the roll panel once the dice are thrown', () => {
+    seedCharacter({ momentum: 0 });
+    const { container } = renderSheet();
+
+    stubDice(d6(4), d10(2), d10(9));
+    rollAttribute(container, 0);
+
+    expect(q(container, '.roll-panel')).toBeNull();
+    expect(q(container, '.attribute-box--selected')).toBeNull();
   });
 
   it('includes adds from the roll panel and caps the score at 10', () => {
@@ -337,6 +354,82 @@ describe('progress roll (§3.8)', () => {
     stubDice(d10(1), d10(1));
     fireEvent.click(progressRollButton(vows(container)[0]));
     expect(q(container, '.roll-card__label')?.textContent).toBe('Помститися');
+  });
+});
+
+describe('roll toasts', () => {
+  /** Each roll uses its own attribute: clicking the same tile twice would just
+      close the roll panel again. */
+  const rollEach = (container: HTMLElement, count: number) => {
+    for (let index = 0; index < count; index++) {
+      vi.restoreAllMocks();
+      stubDice(d6(4), d10(2), d10(9));
+      rollAttribute(container, index);
+    }
+  };
+
+  it('stacks one card per roll, newest first', () => {
+    seedCharacter({ momentum: 0 });
+    const { container } = renderSheet();
+    rollEach(container, 2);
+
+    expect(rollCards(container)).toHaveLength(2);
+    expect(rollCardLabels(container)).toEqual(['Серце', 'Вістря']);
+  });
+
+  it('drops just the card whose ОК is pressed', async () => {
+    seedCharacter({ momentum: 0 });
+    const { container } = renderSheet();
+    rollEach(container, 2);
+
+    fireEvent.click(dismissRollButtons(container)[0]);
+    await waitFor(() => expect(rollCards(container)).toHaveLength(1));
+    expect(rollCardLabels(container)).toEqual(['Вістря']);
+    // Прибрана картка не чіпає журналу: там кидок лишається.
+    expect(logRows(container)).toHaveLength(2);
+  });
+
+  it('dismisses a card swiped far enough and keeps one only nudged', async () => {
+    seedCharacter({ momentum: 0 });
+    const { container } = renderSheet();
+    rollEach(container, 1);
+
+    swipe(toastCards(container)[0], 20);
+    expect(rollCards(container)).toHaveLength(1);
+
+    swipe(toastCards(container)[0], -160);
+    await waitFor(() => expect(rollCards(container)).toHaveLength(0));
+    expect(logRows(container)).toHaveLength(1);
+  });
+
+  // Стос обмежений, бо мусить лишати аркуш видимим; MAX_TOASTS ≤ 4, тож
+  // п'яти характеристик вистачає, щоб перебрати ліміт.
+  it('keeps the stack short, letting the oldest card go', () => {
+    seedCharacter({ momentum: 0 });
+    const { container } = renderSheet();
+    rollEach(container, MAX_TOASTS + 1);
+
+    expect(rollCards(container)).toHaveLength(MAX_TOASTS);
+    expect(rollCardLabels(container)[MAX_TOASTS - 1]).not.toBe('Вістря');
+    expect(logRows(container)).toHaveLength(MAX_TOASTS + 1);
+  });
+
+  it('offers the burn on the newest card only', () => {
+    seedCharacter({ attributes: { edge: 0, heart: 0, iron: 0, shadow: 0, wits: 0 }, momentum: 6 });
+    const { container } = renderSheet();
+    // Приклад із правил: значення дії 4 проти 5 і 8 — промах, який спалення
+    // рятує. Обидва кидки однакові, тож пропозиція мала б бути на кожному.
+    stubDice(d6(4), d10(5), d10(8));
+    rollAttribute(container, 0);
+    expect(burnButton(container)).toBeTruthy();
+
+    vi.restoreAllMocks();
+    stubDice(d6(4), d10(5), d10(8));
+    rollAttribute(container, 1);
+
+    const cards = rollCards(container);
+    expect(q(cards[0], '.burn-button')).toBeTruthy();
+    expect(q(cards[1], '.burn-button')).toBeNull();
   });
 });
 

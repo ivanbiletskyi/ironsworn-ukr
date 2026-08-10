@@ -1,7 +1,7 @@
 // Аркуш персонажа: маршрут, розкладка зон і зведення всіх дій докупи.
 // Правила та розкладку описано в CHARACTER_SHEET_PLAN.md.
 
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import type { AttrKey, ExtraTrack, ProgressTrack, TrackKind } from '../../utils/character/types';
@@ -23,7 +23,7 @@ import AttributeBoxes from './AttributeBoxes';
 import MomentumTrack from './MomentumTrack';
 import StatTracks from './StatTracks';
 import DebilitiesBox from './DebilitiesBox';
-import RollResultCard from './RollResultCard';
+import RollToasts, { MAX_TOASTS } from './RollToasts';
 import RollLog from './RollLog';
 import ProgressTrackRow from './ProgressTrackRow';
 import VowRow from './VowRow';
@@ -81,24 +81,34 @@ const CharacterSheetInner = () => {
   } = useCharacterStore();
   const { log, push, remove, clear } = useSheetLog();
 
-  // Картка живе лише в межах сесії. Якби вона бралася з журналу, після
-  // перезавантаження гравцеві пропонували б спалити імпульс на кидку,
-  // зробленому минулого разу.
-  const [lastRoll, setLastRoll] = useState<SheetRoll | null>(null);
+  // Картки-сповіщення живуть лише в межах сесії. Якби вони бралися з журналу,
+  // після перезавантаження гравцеві пропонували б спалити імпульс на кидку,
+  // зробленому минулого разу. Найновіша — перша.
+  const [toasts, setToasts] = useState<SheetRoll[]>([]);
+
+  const dismissToast = useCallback(
+    (id: string) => setToasts(current => current.filter(roll => roll.id !== id)),
+    [],
+  );
 
   if (!character) return <p className="sheet-empty">{UI.noCharacter}</p>;
 
-  const handleRoll = (attribute: AttrKey, adds: number) => {
-    const roll = rollAction(
-      ATTR_LABELS[attribute],
-      character.attributes[attribute],
-      adds,
-      character.momentum,
-    );
-    setLastRoll(roll);
+  const showRoll = (roll: SheetRoll) => {
+    setToasts(current => [roll, ...current].slice(0, MAX_TOASTS));
     push(roll);
   };
 
+  const handleRoll = (attribute: AttrKey, adds: number) =>
+    showRoll(
+      rollAction(
+        ATTR_LABELS[attribute],
+        character.attributes[attribute],
+        adds,
+        character.momentum,
+      ),
+    );
+
+  const lastRoll = toasts[0];
   const burnPreview =
     lastRoll?.kind === 'action' ? previewBurn(lastRoll, character.momentum) : null;
 
@@ -106,16 +116,15 @@ const CharacterSheetInner = () => {
     if (lastRoll?.kind !== 'action') return;
     const burned = commitBurn(lastRoll, character.momentum);
     if (!burned) return;
-    setLastRoll(burned);
+    // Спалення переписує саме ту картку, на якій його запропонували: два
+    // сповіщення про один кидок нічого не додають. У журналі записи окремі.
+    setToasts(current => [burned, ...current.slice(1)]);
     push(burned);
     patchCharacter({ momentum: resetMomentum(character) });
   };
 
-  const handleProgressRoll = (label: string, ticks: number) => {
-    const roll = rollProgress(label, ticks);
-    setLastRoll(roll);
-    push(roll);
-  };
+  const handleProgressRoll = (label: string, ticks: number) =>
+    showRoll(rollProgress(label, ticks));
 
   /** Присяга змінюється завжди від актуального стану, а не від пропса. */
   const updateVow = (index: number, updater: (vow: ProgressTrack) => ProgressTrack) =>
@@ -201,19 +210,6 @@ const CharacterSheetInner = () => {
             onRoll={handleRoll}
           />
         </Zone>
-
-        {lastRoll && (
-          <Zone area="roll">
-            {/* key змушує картку перемонтуватись, щоб анімація граників
-                програлася на кожному кидку, а не лише на першому. */}
-            <RollResultCard
-              key={lastRoll.id}
-              roll={lastRoll}
-              burnPreview={burnPreview}
-              onBurn={handleBurn}
-            />
-          </Zone>
-        )}
 
         <Zone area="momentum" title={SHEET.momentum} vertical>
           <MomentumTrack
@@ -326,6 +322,14 @@ const CharacterSheetInner = () => {
           <RollLog log={log} onRemove={remove} onClear={clear} />
         </Zone>
       </div>
+
+      {/* Поза сіткою: стос висить над сторінкою, а не займає в ній зону. */}
+      <RollToasts
+        rolls={toasts}
+        burnPreview={burnPreview}
+        onBurn={handleBurn}
+        onDismiss={dismissToast}
+      />
     </div>
   );
 };

@@ -92,6 +92,8 @@ export const UI = {
   matched: 'Дубль граників',
   actionDieCanceled: 'Негативний імпульс скасував граник дії',
   capped: 'Значення дії обмежено до 10',
+  ok: 'ОК',
+  dismissRoll: 'Прибрати картку',
   emptyLog: 'Кидків ще не було',
   clearLog: 'Очистити журнал',
   rollWith: 'Кидок:',
