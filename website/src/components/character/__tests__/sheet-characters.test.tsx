@@ -10,6 +10,7 @@ import {
   availableXpText,
   barButton,
   characterOptions,
+  enterAttributeEditMode,
   extraTracks,
   markButton,
   nameInput,
@@ -99,6 +100,7 @@ describe('several characters', () => {
     seedCharacter({ name: 'Ульріка' });
     const { container } = renderSheet();
     fireEvent.click(xpCells(container)[0]);
+    enterAttributeEditMode(container);
     fireEvent.click(attributeSteppers(container, 0)[1]);
 
     fireEvent.click(barButton(container, 'Новий персонаж') as HTMLElement);

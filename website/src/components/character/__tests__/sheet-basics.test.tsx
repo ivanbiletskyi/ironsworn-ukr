@@ -10,6 +10,7 @@ import {
   attributeValue,
   currentValue,
   debilityBoxes,
+  enterAttributeEditMode,
   momentumCells,
   momentumReadouts,
   nameInput,
@@ -176,6 +177,7 @@ describe('attributes', () => {
   it('steps a value up without losing clicks that land in one React batch', () => {
     const { container } = renderSheet();
     expect(attributeValue(container, 0).textContent).toBe('0');
+    enterAttributeEditMode(container);
     expect(attributeSteppers(container, 0)[0].hasAttribute('disabled')).toBe(true);
 
     const plus = attributeSteppers(container, 0)[1];
@@ -187,6 +189,7 @@ describe('attributes', () => {
 
   it('keeps attributes independent', () => {
     const { container } = renderSheet();
+    enterAttributeEditMode(container);
     fireEvent.click(attributeSteppers(container, 0)[1]);
     fireEvent.click(attributeSteppers(container, 1)[1]);
     fireEvent.click(attributeSteppers(container, 1)[1]);
@@ -201,6 +204,7 @@ describe('attributes', () => {
 
   it('stops at 5', () => {
     const { container } = renderSheet();
+    enterAttributeEditMode(container);
     const plus = attributeSteppers(container, 0)[1];
     for (let i = 0; i < 8; i++) fireEvent.click(plus);
     expect(attributeValue(container, 0).textContent).toBe('+5');

@@ -96,6 +96,8 @@ export const UI = {
   clearLog: 'Очистити журнал',
   rollWith: 'Кидок:',
   closeRollPanel: 'Закрити',
+  editAttributes: 'Редагувати',
+  doneEditingAttributes: 'Готово',
   noCharacter: 'Персонажа ще не створено',
   addCombatTrack: '+ Бій',
   addJourneyTrack: '+ Подорож',

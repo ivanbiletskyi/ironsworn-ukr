@@ -24,6 +24,7 @@ const AttributeBoxes = ({
 }) => {
   const [selected, setSelected] = useState<AttrKey | null>(null);
   const [adds, setAdds] = useState(0);
+  const [editMode, setEditMode] = useState(false);
 
   useEffect(() => {
     if (!selected) return;
@@ -41,6 +42,16 @@ const AttributeBoxes = ({
 
   return (
     <div className="attribute-section">
+      <div className="attribute-section__header">
+        <button
+          type="button"
+          className={`attribute-edit-toggle${editMode ? ' attribute-edit-toggle--active' : ''}`}
+          onClick={() => setEditMode(current => !current)}
+          aria-pressed={editMode}
+        >
+          {editMode ? `✓ ${UI.doneEditingAttributes}` : `✎ ${UI.editAttributes}`}
+        </button>
+      </div>
       <div className="attribute-boxes">
         {ATTR_KEYS.map(attribute => {
           const value = character.attributes[attribute];
@@ -59,26 +70,28 @@ const AttributeBoxes = ({
               >
                 {formatScaleValue(value)}
               </button>
-              <div className="attribute-box__steppers">
-                <button
-                  type="button"
-                  className="stepper"
-                  onClick={() => onStep(attribute, -1)}
-                  disabled={value <= MIN_ATTR}
-                  aria-label={`${ATTR_LABELS[attribute]}: зменшити`}
-                >
-                  −
-                </button>
-                <button
-                  type="button"
-                  className="stepper"
-                  onClick={() => onStep(attribute, 1)}
-                  disabled={value >= MAX_ATTR}
-                  aria-label={`${ATTR_LABELS[attribute]}: збільшити`}
-                >
-                  +
-                </button>
-              </div>
+              {editMode && (
+                <div className="attribute-box__steppers">
+                  <button
+                    type="button"
+                    className="stepper"
+                    onClick={() => onStep(attribute, -1)}
+                    disabled={value <= MIN_ATTR}
+                    aria-label={`${ATTR_LABELS[attribute]}: зменшити`}
+                  >
+                    −
+                  </button>
+                  <button
+                    type="button"
+                    className="stepper"
+                    onClick={() => onStep(attribute, 1)}
+                    disabled={value >= MAX_ATTR}
+                    aria-label={`${ATTR_LABELS[attribute]}: збільшити`}
+                  >
+                    +
+                  </button>
+                </div>
+              )}
             </div>
           );
         })}

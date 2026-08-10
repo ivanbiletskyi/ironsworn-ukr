@@ -69,6 +69,10 @@ export const attributeValue = (root: HTMLElement, index: number) =>
 export const attributeSteppers = (root: HTMLElement, index: number) =>
   qa(attributeBoxes(root)[index], '.stepper');
 
+/** Steppers are hidden until edit mode is toggled on. */
+export const enterAttributeEditMode = (root: HTMLElement) =>
+  fireEvent.click(q(root, '.attribute-edit-toggle') as HTMLElement);
+
 export const vows = (root: HTMLElement) => qa(root, '.sheet-zone--vows .progress-track');
 export const bondTrack = (root: HTMLElement) =>
   q(root, '.sheet-zone--bonds .progress-track') as HTMLElement;

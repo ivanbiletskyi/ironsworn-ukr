@@ -312,6 +312,34 @@
 
 /* ── Характеристики ───────────────────────────────────────────────── */
 
+.attribute-section__header {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 0.35rem;
+}
+
+.attribute-edit-toggle {
+  padding: 0.25rem 0.6rem;
+  font-family: inherit;
+  font-size: 0.7rem;
+  color: var(--text-secondary);
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.attribute-edit-toggle:hover {
+  color: var(--text-primary);
+  border-color: var(--highlight);
+}
+
+.attribute-edit-toggle--active {
+  color: var(--highlight);
+  border-color: var(--highlight);
+}
+
 .attribute-boxes {
   display: grid;
   grid-template-columns: repeat(5, minmax(0, 1fr));
