@@ -2,6 +2,7 @@
 // Один компонент на присяги, стосунки й треки боїв — різниця лише в наявності
 // рангу (шкала стосунків рангу не має і завжди отримує одну позначку).
 
+import type { ReactNode } from 'react';
 import type { Rank } from '../../utils/character/types';
 import { RANKS, TICKS_PER_BOX, TRACK_BOXES } from '../../utils/character/types';
 import { boxesFilled, ticksInBox } from '../../utils/character/rules';
@@ -52,6 +53,7 @@ const ProgressTrackRow = ({
   onMark,
   onToggleBox,
   onRoll,
+  action,
 }: {
   name: string;
   /** Відсутній для шкали стосунків — вона рангу не має. */
@@ -63,6 +65,8 @@ const ProgressTrackRow = ({
   onMark: () => void;
   onToggleBox: (boxIndex: number) => void;
   onRoll: () => void;
+  /** Кнопка в кінці рядка назви — наприклад, видалення присяги. */
+  action?: ReactNode;
 }) => (
   <div className="progress-track">
     <div className="progress-track__head">
@@ -87,6 +91,7 @@ const ProgressTrackRow = ({
           ))}
         </select>
       )}
+      {action}
     </div>
 
     <div className="progress-track__body">

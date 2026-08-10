@@ -35,7 +35,7 @@ describe('mounting', () => {
 
     const stored = storedCharacter();
     expect(stored.xp).toHaveLength(30);
-    expect(stored.vows).toHaveLength(4);
+    expect(stored.vows).toHaveLength(1);
   });
 
   it('loads the stored character instead of creating another', () => {

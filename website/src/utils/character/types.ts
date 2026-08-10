@@ -46,7 +46,7 @@ export interface Character {
   momentum: number;
   /** рівно XP_CELLS елементів */
   xp: XpCell[];
-  /** рівно VOW_SLOTS елементів — як на паперовому аркуші */
+  /** щонайменше одна присяга; решту гравець додає кнопкою «+» */
   vows: ProgressTrack[];
   /** шкала стосунків, 0–40 позначок; рангу не має */
   bondsTicks: number;
@@ -60,12 +60,13 @@ export interface Character {
 }
 
 export interface CharacterStore {
-  version: 1;
+  version: 2;
   activeId: string | null;
   characters: Character[];
 }
 
-export const STORE_VERSION = 1;
+/** 2 — присяг більше не рівно чотири; міграцію див. у storage.ts. */
+export const STORE_VERSION = 2;
 
 // ── Межі та константи правил ──────────────────────────────────────────
 
@@ -87,7 +88,13 @@ export const TRACK_BOXES = 10;
 export const MAX_TICKS = TICKS_PER_BOX * TRACK_BOXES;
 
 export const XP_CELLS = 30;
-export const VOW_SLOTS = 4;
+
+/**
+ * Паперовий аркуш має чотири слоти присяг, але на екрані порожні слоти лише
+ * займають місце. Тож новий персонаж отримує одну присягу, а решту гравець
+ * додає кнопкою — так само, як треки боїв і подорожей (рішення №16).
+ */
+export const DEFAULT_VOWS = 1;
 
 // ── Порядок відображення ──────────────────────────────────────────────
 

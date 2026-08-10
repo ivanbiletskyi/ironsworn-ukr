@@ -132,6 +132,40 @@
   color: var(--text-secondary);
 }
 
+/* Заголовок зони з кнопкою праворуч (наприклад, «+» у присягах). */
+.sheet-zone__head {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.sheet-zone__head .sheet-zone__title {
+  margin-bottom: 0;
+}
+
+.zone-add {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.6rem;
+  height: 1.6rem;
+  margin-left: auto;
+  font-family: inherit;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--text-secondary);
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.zone-add:hover {
+  color: var(--text-primary);
+  border-color: var(--highlight);
+}
+
 .sheet-zone__body {
   flex: 1;
   min-width: 0;
@@ -643,10 +677,27 @@
 
 /* ── Шкала прогресу ───────────────────────────────────────────────── */
 
-.progress-track + .progress-track {
+.vow + .vow {
   margin-top: 0.85rem;
   padding-top: 0.85rem;
   border-top: 1px solid var(--border-color);
+}
+
+/* Питання перед видаленням присяги з прогресом — окремим рядком під шкалою,
+   бо в рядку назви йому тісно поруч із полем і рангом. */
+.vow__confirm {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.5rem;
+}
+
+.vow__confirm-text {
+  flex: 1;
+  min-width: 10rem;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
 }
 
 .progress-track__head {
@@ -674,6 +725,22 @@
 
 .progress-track__name::placeholder {
   color: var(--text-muted);
+}
+
+.progress-track__remove {
+  display: flex;
+  align-items: center;
+  padding: 0 0.4rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.progress-track__remove:hover {
+  color: var(--danger);
 }
 
 .progress-track__rank {
@@ -770,6 +837,12 @@
 
 .track-button--roll {
   color: var(--highlight);
+}
+
+.track-button--danger,
+.track-button--danger:hover {
+  color: var(--danger);
+  border-color: var(--danger);
 }
 
 /* ── Досвід ───────────────────────────────────────────────────────── */
@@ -1160,9 +1233,15 @@
   }
 
   .extra-track__remove,
+  .progress-track__remove,
   .log-row__remove {
     min-width: 40px;
     min-height: 40px;
+  }
+
+  .zone-add {
+    width: 40px;
+    height: 40px;
   }
 
   .roll-button,

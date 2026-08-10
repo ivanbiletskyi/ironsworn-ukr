@@ -5,6 +5,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render } from '@testing-library/react';
 import CharacterSheet from '../CharacterSheet';
 import {
+  addVowButton,
   badges,
   bondTrack,
   burnButton,
@@ -18,6 +19,7 @@ import {
   progressRollButton,
   q,
   qa,
+  removeVowButtons,
   rollAttribute,
   rollCard,
   seedCharacter,
@@ -26,6 +28,8 @@ import {
   trackCount,
   trackTicks,
   type,
+  vowConfirm,
+  vowName,
   vows,
 } from './helpers';
 
@@ -158,10 +162,10 @@ describe('burning momentum (§3.2)', () => {
 });
 
 describe('progress tracks (§3.7)', () => {
-  it('starts with four empty vow tracks, only one of which carries a rank', () => {
+  it('starts with a single empty vow track, and only it carries a rank', () => {
     seedCharacter();
     const { container } = renderSheet();
-    expect(vows(container)).toHaveLength(4);
+    expect(vows(container)).toHaveLength(1);
     expect(trackTicks(vows(container)[0])).toEqual([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
     expect(trackCount(vows(container)[0])).toBe('0/10');
     expect(q(vows(container)[0], '.progress-track__rank')).toBeTruthy();
@@ -171,6 +175,8 @@ describe('progress tracks (§3.7)', () => {
   it('marks progress by rank', () => {
     seedCharacter();
     const { container } = renderSheet();
+    fireEvent.click(addVowButton(container));
+    fireEvent.click(addVowButton(container));
 
     fireEvent.click(markButton(vows(container)[0])); // dangerous — 2 boxes
     expect(trackTicks(vows(container)[0])).toEqual([4, 4, 0, 0, 0, 0, 0, 0, 0, 0]);
@@ -192,16 +198,16 @@ describe('progress tracks (§3.7)', () => {
   it('adds a tick on click, jumps ahead, and clears a full box', () => {
     seedCharacter();
     const { container } = renderSheet();
-    const boxes = () => qa(vows(container)[3], '.progress-box');
+    const boxes = () => qa(vows(container)[0], '.progress-box');
 
     fireEvent.click(boxes()[0]);
-    expect(trackTicks(vows(container)[3])[0]).toBe(1);
+    expect(trackTicks(vows(container)[0])[0]).toBe(1);
 
     fireEvent.click(boxes()[4]);
-    expect(trackTicks(vows(container)[3])).toEqual([4, 4, 4, 4, 1, 0, 0, 0, 0, 0]);
+    expect(trackTicks(vows(container)[0])).toEqual([4, 4, 4, 4, 1, 0, 0, 0, 0, 0]);
 
     fireEvent.click(boxes()[1]); // full box — erases it and everything after
-    expect(trackTicks(vows(container)[3])).toEqual([4, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    expect(trackTicks(vows(container)[0])).toEqual([4, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   });
 
   it('gives the bond track one tick at a time', () => {
@@ -212,16 +218,95 @@ describe('progress tracks (§3.7)', () => {
   });
 });
 
+describe('vow slots', () => {
+  it('hides the remove button on a lone empty vow, since there is nothing to undo', () => {
+    seedCharacter();
+    const { container } = renderSheet();
+    expect(removeVowButtons(container)).toHaveLength(0);
+
+    type(vowName(container, 0), 'Знайти сестру');
+    expect(removeVowButtons(container)).toHaveLength(1);
+
+    type(vowName(container, 0), '');
+    expect(removeVowButtons(container)).toHaveLength(0);
+
+    fireEvent.click(addVowButton(container));
+    expect(removeVowButtons(container)).toHaveLength(2);
+  });
+
+  it('adds a vow from the zone header and keeps it across a remount', () => {
+    seedCharacter();
+    const first = renderSheet();
+    fireEvent.click(addVowButton(first.container));
+    type(vowName(first.container, 1), 'Помститися');
+    expect(vows(first.container)).toHaveLength(2);
+    first.unmount();
+
+    const second = renderSheet();
+    expect(vows(second.container)).toHaveLength(2);
+    expect(vowName(second.container, 1).value).toBe('Помститися');
+  });
+
+  it('drops an empty vow without asking', () => {
+    seedCharacter();
+    const { container } = renderSheet();
+    fireEvent.click(addVowButton(container));
+    type(vowName(container, 0), 'Знайти сестру');
+
+    fireEvent.click(removeVowButtons(container)[1]);
+    expect(vowConfirm(container)).toBeNull();
+    expect(vows(container)).toHaveLength(1);
+    expect(vowName(container, 0).value).toBe('Знайти сестру');
+  });
+
+  it('asks before dropping a vow that has a name or progress', () => {
+    seedCharacter();
+    const { container } = renderSheet();
+    fireEvent.click(addVowButton(container));
+    type(vowName(container, 0), 'Знайти сестру');
+
+    fireEvent.click(removeVowButtons(container)[0]);
+    expect(vowConfirm(container)?.textContent).toContain('Знайти сестру');
+    expect(vows(container)).toHaveLength(2);
+
+    // Скасування лишає присягу на місці.
+    fireEvent.click(qa(container, '.vow__confirm .track-button')[1]);
+    expect(vowConfirm(container)).toBeNull();
+    expect(vows(container)).toHaveLength(2);
+
+    fireEvent.click(removeVowButtons(container)[0]);
+    fireEvent.click(qa(container, '.vow__confirm .track-button')[0]);
+    expect(vows(container)).toHaveLength(1);
+    expect(vowName(container, 0).value).toBe('');
+  });
+
+  it('asks about progress alone, even without a name', () => {
+    seedCharacter();
+    const { container } = renderSheet();
+    fireEvent.click(markButton(vows(container)[0]));
+
+    fireEvent.click(removeVowButtons(container)[0]);
+    expect(vowConfirm(container)?.textContent).toContain('Присяга 1');
+  });
+
+  // Зона присяг ніколи не буває порожньою: на місці останньої лишається чиста.
+  it('replaces the last vow with an empty one instead of leaving none', () => {
+    seedCharacter();
+    const { container } = renderSheet();
+    type(vowName(container, 0), 'Знайти сестру');
+
+    fireEvent.click(removeVowButtons(container)[0]);
+    fireEvent.click(qa(container, '.vow__confirm .track-button')[0]);
+    expect(vows(container)).toHaveLength(1);
+    expect(vowName(container, 0).value).toBe('');
+  });
+});
+
 describe('progress roll (§3.8)', () => {
   it('counts filled boxes, rolls no action die and cannot burn momentum', () => {
     seedCharacter({
       momentum: 8,
-      vows: [
-        { id: 'v1', name: 'Знайти сестру', rank: 'formidable', ticks: 20 },
-        { id: 'v2', name: '', rank: 'dangerous', ticks: 0 },
-        { id: 'v3', name: '', rank: 'dangerous', ticks: 0 },
-        { id: 'v4', name: '', rank: 'dangerous', ticks: 0 },
-      ],
+      vows: [{ id: 'v1', name: 'Знайти сестру', rank: 'formidable', ticks: 20 }],
     });
     const { container } = renderSheet();
 
@@ -239,6 +324,7 @@ describe('progress roll (§3.8)', () => {
   it('labels an unnamed vow by its slot', () => {
     seedCharacter();
     const { container } = renderSheet();
+    fireEvent.click(addVowButton(container));
     stubDice(d10(1), d10(1));
     fireEvent.click(progressRollButton(vows(container)[1]));
     expect(q(container, '.roll-card__label')?.textContent).toBe('Присяга 2');
@@ -247,7 +333,7 @@ describe('progress roll (§3.8)', () => {
   it('picks up a vow name as it is typed', () => {
     seedCharacter();
     const { container } = renderSheet();
-    type(q(vows(container)[0], '.progress-track__name') as HTMLElement, 'Помститися');
+    type(vowName(container, 0), 'Помститися');
     stubDice(d10(1), d10(1));
     fireEvent.click(progressRollButton(vows(container)[0]));
     expect(q(container, '.roll-card__label')?.textContent).toBe('Помститися');

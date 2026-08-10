@@ -99,6 +99,8 @@ export const UI = {
   editAttributes: 'Редагувати',
   doneEditingAttributes: 'Готово',
   noCharacter: 'Персонажа ще не створено',
+  addVow: 'Додати присягу',
+  removeVow: 'Видалити присягу',
   addCombatTrack: '+ Бій',
   addJourneyTrack: '+ Подорож',
   addOtherTrack: '+ Інше',
@@ -129,6 +131,11 @@ export function debilityHint(count: number): string | null {
   if (count === 0) return null;
   const word = count === 1 ? 'слабкість' : count < 5 ? 'слабкості' : 'слабкостей';
   return `−${count} через ${count} ${word}`;
+}
+
+/** Питання перед видаленням присяги, у якій уже є назва або прогрес. */
+export function confirmVowRemoval(label: string): string {
+  return `Видалити «${label}» разом із прогресом?`;
 }
 
 /** Підказка, чому показник не можна підвищити. */

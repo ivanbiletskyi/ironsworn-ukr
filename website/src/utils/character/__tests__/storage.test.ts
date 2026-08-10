@@ -19,7 +19,7 @@ import {
   upsertCharacter,
 } from '../storage';
 import { availableXp } from '../rules';
-import { VOW_SLOTS, XP_CELLS } from '../types';
+import { DEFAULT_VOWS, STORE_VERSION, XP_CELLS } from '../types';
 
 describe('a new character', () => {
   it('follows character creation: stats +5, momentum +2', () => {
@@ -30,10 +30,10 @@ describe('a new character', () => {
     expect(character.attributes).toEqual({ edge: 0, heart: 0, iron: 0, shadow: 0, wits: 0 });
   });
 
-  it('has exactly 30 xp circles and 4 vow slots', () => {
+  it('has exactly 30 xp circles and a single vow', () => {
     const character = createCharacter();
     expect(character.xp).toHaveLength(XP_CELLS);
-    expect(character.vows).toHaveLength(VOW_SLOTS);
+    expect(character.vows).toHaveLength(DEFAULT_VOWS);
     expect(character.xp.every(cell => cell === 0)).toBe(true);
   });
 
@@ -68,12 +68,19 @@ describe('normalising damaged data', () => {
     expect(normalizeCharacter({ vows: [{ rank: 'nonsense' }] }).vows[0].rank).toBe('dangerous');
   });
 
-  it('pads xp circles and vow slots to the expected count', () => {
+  it('pads xp circles and never leaves a character without a vow', () => {
     const character = normalizeCharacter({ xp: [7, 1], vows: [] });
     expect(character.xp).toHaveLength(XP_CELLS);
     expect(character.xp[0]).toBe(0); // 7 is not a valid cell state
     expect(character.xp[1]).toBe(1);
-    expect(character.vows).toHaveLength(VOW_SLOTS);
+    expect(character.vows).toHaveLength(1);
+  });
+
+  it('keeps however many vows were stored', () => {
+    const character = normalizeCharacter({
+      vows: [{ name: 'Перша' }, { name: 'Друга' }, { name: 'Третя' }],
+    });
+    expect(character.vows.map(vow => vow.name)).toEqual(['Перша', 'Друга', 'Третя']);
   });
 
   it('treats missing debilities as unmarked', () => {
@@ -197,7 +204,7 @@ describe('localStorage', () => {
     saveStore(upsertCharacter(emptyStore(), character));
 
     const loaded = loadStore();
-    expect(loaded.version).toBe(1);
+    expect(loaded.version).toBe(STORE_VERSION);
     expect(loaded.characters).toHaveLength(1);
     expect(loaded.characters[0].name).toBe('Ульріка');
     expect(loaded.activeId).toBe(character.id);
@@ -223,6 +230,61 @@ describe('localStorage', () => {
     expect(loaded.characters).toHaveLength(1);
     expect(loaded.characters[0].name).toBe('Good');
     expect(loaded.activeId).toBe(loaded.characters[0].id);
+  });
+
+  it('drops the empty tail slots left by the four-vow v1 layout', () => {
+    const v1Vows = [
+      { id: 'v1', name: 'Знайти сестру', rank: 'formidable', ticks: 13 },
+      { id: 'v2', name: '', rank: 'dangerous', ticks: 0 },
+      { id: 'v3', name: '', rank: 'dangerous', ticks: 0 },
+      { id: 'v4', name: '', rank: 'dangerous', ticks: 0 },
+    ];
+    localStorage.setItem(
+      'ironsworn-characters-v1',
+      JSON.stringify({ version: 1, characters: [{ name: 'Ульріка', vows: v1Vows }] }),
+    );
+
+    const vows = loadStore().characters[0].vows;
+    expect(vows).toHaveLength(1);
+    expect(vows[0].name).toBe('Знайти сестру');
+  });
+
+  it('keeps an empty v1 slot that sits between filled ones', () => {
+    localStorage.setItem(
+      'ironsworn-characters-v1',
+      JSON.stringify({
+        version: 1,
+        characters: [
+          {
+            name: 'Ульріка',
+            vows: [
+              { name: '', rank: 'dangerous', ticks: 0 },
+              { name: 'Друга', rank: 'dangerous', ticks: 0 },
+              { name: '', rank: 'dangerous', ticks: 0 },
+            ],
+          },
+        ],
+      }),
+    );
+
+    expect(loadStore().characters[0].vows.map(vow => vow.name)).toEqual(['', 'Друга']);
+  });
+
+  it('leaves an empty vow added under v2 alone', () => {
+    localStorage.setItem(
+      'ironsworn-characters-v1',
+      JSON.stringify({
+        version: STORE_VERSION,
+        characters: [
+          {
+            name: 'Ульріка',
+            vows: [{ name: 'Перша', rank: 'dangerous', ticks: 0 }, { name: '' }],
+          },
+        ],
+      }),
+    );
+
+    expect(loadStore().characters[0].vows).toHaveLength(2);
   });
 
   it('trims the roll log to 100 entries, keeping the newest', () => {

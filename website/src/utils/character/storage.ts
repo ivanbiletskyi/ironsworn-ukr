@@ -15,6 +15,7 @@ import {
   ATTR_KEYS,
   BASE_RESET_MOMENTUM,
   DEBILITY_KEYS,
+  DEFAULT_VOWS,
   MAX_ATTR,
   MAX_STAT,
   MAX_TICKS,
@@ -24,7 +25,6 @@ import {
   RANKS,
   STAT_KEYS,
   STORE_VERSION,
-  VOW_SLOTS,
   XP_CELLS,
 } from './types';
 import type { SheetRoll } from './diceEngine';
@@ -44,8 +44,13 @@ function emptyDebilities(): Record<DebilityKey, boolean> {
   return Object.fromEntries(DEBILITY_KEYS.map(k => [k, false])) as Record<DebilityKey, boolean>;
 }
 
-function emptyVow(): ProgressTrack {
+export function emptyVow(): ProgressTrack {
   return { id: newId(), name: '', rank: 'dangerous', ticks: 0 };
+}
+
+/** Присяга без назви й без прогресу — той самий «порожній слот» аркуша. */
+export function isEmptyVow(vow: ProgressTrack): boolean {
+  return vow.name.trim() === '' && vow.ticks === 0;
 }
 
 /** Новий персонаж за створенням персонажа: показники +5, імпульс +2. */
@@ -57,7 +62,7 @@ export function createCharacter(name = ''): Character {
     stats: { health: MAX_STAT, spirit: MAX_STAT, supply: MAX_STAT },
     momentum: BASE_RESET_MOMENTUM,
     xp: Array<XpCell>(XP_CELLS).fill(0),
-    vows: Array.from({ length: VOW_SLOTS }, emptyVow),
+    vows: Array.from({ length: DEFAULT_VOWS }, emptyVow),
     bondsTicks: 0,
     bondsNotes: '',
     debilities: emptyDebilities(),
@@ -159,10 +164,10 @@ export function normalizeCharacter(raw: unknown): Character {
   const xpRaw = Array.isArray(raw.xp) ? raw.xp : [];
   const xp = Array.from({ length: XP_CELLS }, (_, i) => xpCell(xpRaw[i]));
 
+  // Присяг може бути скільки завгодно, але жодної — не може: аркуш без
+  // жодного рядка присяги не дав би куди її записати.
   const vowsRaw = Array.isArray(raw.vows) ? raw.vows : [];
-  const vows = Array.from({ length: VOW_SLOTS }, (_, i) =>
-    i < vowsRaw.length ? normalizeTrack(vowsRaw[i]) : emptyVow(),
-  );
+  const vows = vowsRaw.length > 0 ? vowsRaw.map(normalizeTrack) : [emptyVow()];
 
   const extraTracks = Array.isArray(raw.extraTracks)
     ? raw.extraTracks.map(normalizeExtraTrack)
@@ -185,13 +190,31 @@ export function normalizeCharacter(raw: unknown): Character {
   };
 }
 
+/**
+ * Міграція v1 → v2. У v1 присяг було рівно чотири, тож у кожного збереження
+ * лежать порожні слоти з хвоста; у v2 присяги додають кнопкою, і ці слоти
+ * перетворилися б на три порожні рядки назавжди. Хвіст зрізаємо, лишаючи
+ * щонайменше одну присягу; заповнені слоти між присягами не чіпаємо.
+ */
+function migrateV1Vows(character: Character): Character {
+  const vows = [...character.vows];
+  while (vows.length > 1 && isEmptyVow(vows[vows.length - 1])) vows.pop();
+  return { ...character, vows };
+}
+
+function storeVersion(raw: Record<string, unknown>): number {
+  return typeof raw.version === 'number' ? raw.version : STORE_VERSION;
+}
+
 function normalizeStore(raw: unknown): CharacterStore {
   if (!isRecord(raw)) return emptyStore();
 
+  const fromV1 = storeVersion(raw) < 2;
   const characters = Array.isArray(raw.characters)
     ? raw.characters.flatMap(item => {
         try {
-          return [normalizeCharacter(item)];
+          const character = normalizeCharacter(item);
+          return [fromV1 ? migrateV1Vows(character) : character];
         } catch {
           return [];
         }
@@ -296,7 +319,8 @@ export function parseCharacterFile(text: string): Character {
         `Файл створено новішою версією аркуша (${version}). Оновіть сторінку й спробуйте ще раз.`,
       );
     }
-    return normalizeCharacter(parsed.character);
+    const character = normalizeCharacter(parsed.character);
+    return storeVersion(parsed) < 2 ? migrateV1Vows(character) : character;
   }
 
   return normalizeCharacter(parsed);

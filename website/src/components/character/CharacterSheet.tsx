@@ -5,7 +5,7 @@ import { useState } from 'react';
 import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import type { AttrKey, ExtraTrack, ProgressTrack, TrackKind } from '../../utils/character/types';
-import { newId } from '../../utils/character/storage';
+import { emptyVow, newId } from '../../utils/character/storage';
 import type { SheetRoll } from '../../utils/character/diceEngine';
 import { commitBurn, previewBurn, rollAction, rollProgress } from '../../utils/character/diceEngine';
 import { ATTR_LABELS, SHEET, UI } from '../../utils/character/labels';
@@ -13,7 +13,6 @@ import {
   clampAttribute,
   clampStat,
   markBondProgress,
-  markProgress,
   nextXpState,
   resetMomentum,
   toggleBoxTick,
@@ -27,6 +26,7 @@ import DebilitiesBox from './DebilitiesBox';
 import RollResultCard from './RollResultCard';
 import RollLog from './RollLog';
 import ProgressTrackRow from './ProgressTrackRow';
+import VowRow from './VowRow';
 import XpTrack from './XpTrack';
 import CharacterBar from './CharacterBar';
 import ExtraTracksSection from './ExtraTracksSection';
@@ -39,11 +39,14 @@ const Zone = ({
   area,
   title,
   vertical = false,
+  action,
   children,
 }: {
   area: string;
   title?: string;
   vertical?: boolean;
+  /** Кнопка праворуч від заголовка зони. */
+  action?: ReactNode;
   children?: ReactNode;
 }) => (
   <section
@@ -51,7 +54,15 @@ const Zone = ({
     style={{ gridArea: area }}
     aria-label={title}
   >
-    {title && <h2 className="sheet-zone__title">{title}</h2>}
+    {title &&
+      (action ? (
+        <div className="sheet-zone__head">
+          <h2 className="sheet-zone__title">{title}</h2>
+          {action}
+        </div>
+      ) : (
+        <h2 className="sheet-zone__title">{title}</h2>
+      ))}
     <div className="sheet-zone__body">{children ?? <span className="sheet-placeholder" />}</div>
   </section>
 );
@@ -112,6 +123,17 @@ const CharacterSheetInner = () => {
       ...current,
       vows: current.vows.map((vow, i) => (i === index ? updater(vow) : vow)),
     }));
+
+  const addVow = () =>
+    updateCharacter(current => ({ ...current, vows: [...current.vows, emptyVow()] }));
+
+  /** Прибрати можна будь-яку присягу, але один рядок лишається завжди:
+      видалена остання присяга поступається місцем порожній. */
+  const removeVow = (id: string) =>
+    updateCharacter(current => {
+      const vows = current.vows.filter(vow => vow.id !== id);
+      return { ...current, vows: vows.length > 0 ? vows : [emptyVow()] };
+    });
 
   const updateExtraTrack = (id: string, updater: (track: ExtraTrack) => ExtraTrack) =>
     updateCharacter(current => ({
@@ -212,28 +234,29 @@ const CharacterSheetInner = () => {
           />
         </Zone>
 
-        <Zone area="vows" title={SHEET.vows}>
+        <Zone
+          area="vows"
+          title={SHEET.vows}
+          action={
+            <button
+              type="button"
+              className="zone-add"
+              onClick={addVow}
+              aria-label={UI.addVow}
+              title={UI.addVow}
+            >
+              +
+            </button>
+          }
+        >
           {character.vows.map((vow, index) => (
-            <ProgressTrackRow
+            <VowRow
               key={vow.id}
-              name={vow.name}
-              rank={vow.rank}
-              ticks={vow.ticks}
-              namePlaceholder={UI.vowNamePlaceholder}
-              onName={name => updateVow(index, current => ({ ...current, name }))}
-              onRank={rank => updateVow(index, current => ({ ...current, rank }))}
-              onMark={() =>
-                updateVow(index, current => ({
-                  ...current,
-                  ticks: markProgress(current.ticks, current.rank),
-                }))
-              }
-              onToggleBox={box =>
-                updateVow(index, current => ({
-                  ...current,
-                  ticks: toggleBoxTick(current.ticks, box),
-                }))
-              }
+              vow={vow}
+              label={vowLabel(vow.name, index)}
+              isOnly={character.vows.length === 1}
+              onUpdate={updater => updateVow(index, updater)}
+              onRemove={() => removeVow(vow.id)}
               onRoll={() => handleProgressRoll(vowLabel(vow.name, index), vow.ticks)}
             />
           ))}

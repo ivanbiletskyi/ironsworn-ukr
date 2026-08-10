@@ -5,6 +5,7 @@
 import { fireEvent } from '@testing-library/react';
 import { vi } from 'vitest';
 import type { Character } from '../../../utils/character/types';
+import { STORE_VERSION } from '../../../utils/character/types';
 import { createCharacter } from '../../../utils/character/storage';
 
 export const q = (root: HTMLElement, selector: string) =>
@@ -19,7 +20,7 @@ export function seedCharacter(patch: Partial<Character> = {}) {
   const character = { ...createCharacter('Ульріка'), ...patch };
   localStorage.setItem(
     'ironsworn-characters-v1',
-    JSON.stringify({ version: 1, activeId: character.id, characters: [character] }),
+    JSON.stringify({ version: STORE_VERSION, activeId: character.id, characters: [character] }),
   );
   return character;
 }
@@ -74,6 +75,13 @@ export const enterAttributeEditMode = (root: HTMLElement) =>
   fireEvent.click(q(root, '.attribute-edit-toggle') as HTMLElement);
 
 export const vows = (root: HTMLElement) => qa(root, '.sheet-zone--vows .progress-track');
+export const addVowButton = (root: HTMLElement) =>
+  q(root, '.sheet-zone--vows .zone-add') as HTMLElement;
+export const removeVowButtons = (root: HTMLElement) =>
+  qa(root, '.sheet-zone--vows .progress-track__remove');
+export const vowConfirm = (root: HTMLElement) => q(root, '.vow__confirm');
+export const vowName = (root: HTMLElement, index: number) =>
+  q(vows(root)[index], '.progress-track__name') as HTMLInputElement;
 export const bondTrack = (root: HTMLElement) =>
   q(root, '.sheet-zone--bonds .progress-track') as HTMLElement;
 export const extraTracks = (root: HTMLElement) => qa(root, '.extra-track');
