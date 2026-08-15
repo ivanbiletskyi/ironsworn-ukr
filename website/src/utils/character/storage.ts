@@ -33,6 +33,7 @@ import type { SheetRoll } from './diceEngine';
 
 const STORE_KEY = 'ironsworn-characters-v1';
 const LOG_KEY = 'ironsworn-sheet-log-v1';
+const TOMBSTONE_KEY = 'ironsworn-character-tombstones-v1';
 export const MAX_SHEET_LOG = 100;
 
 export function newId(): string {
@@ -284,6 +285,39 @@ export function saveSheetLog(log: SheetRoll[]): void {
   } catch {
     // те саме
   }
+}
+
+/**
+ * Надгробки видалених персонажів (id → час видалення). Лежать окремо від
+ * сховища: вони потрібні лише синхронізації (див. sync.ts) і не мають
+ * потрапляти ні в експорт персонажа, ні в міграції аркуша.
+ */
+export function loadTombstones(): Record<string, number> {
+  try {
+    const rawText = localStorage.getItem(TOMBSTONE_KEY);
+    const parsed = rawText ? JSON.parse(rawText) : {};
+    if (!isRecord(parsed)) return {};
+    const tombstones: Record<string, number> = {};
+    for (const [id, at] of Object.entries(parsed)) {
+      if (typeof at === 'number' && Number.isFinite(at)) tombstones[id] = at;
+    }
+    return tombstones;
+  } catch {
+    return {};
+  }
+}
+
+export function saveTombstones(tombstones: Record<string, number>): void {
+  try {
+    localStorage.setItem(TOMBSTONE_KEY, JSON.stringify(tombstones));
+  } catch {
+    // те саме
+  }
+}
+
+/** Позначає персонажа видаленим, щоб синхронізація його не воскресила. */
+export function recordTombstone(id: string, at = Date.now()): void {
+  saveTombstones({ ...loadTombstones(), [id]: at });
 }
 
 // ── Операції над сховищем ─────────────────────────────────────────────

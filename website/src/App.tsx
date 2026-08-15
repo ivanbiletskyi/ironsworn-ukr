@@ -5,6 +5,7 @@ import MarkdownRenderer from './components/MarkdownRenderer';
 import Search from './components/Search';
 import OracleGenerators from './components/OracleGenerators';
 import CharacterSheet from './components/character/CharacterSheet';
+import AuthProvider from './components/auth/AuthProvider';
 import { CHAPTERS, UK_TITLES } from './utils/chapters';
 import './App.css';
 
@@ -254,13 +255,17 @@ const LayoutParamsWrapper = () => {
 function App() {
   const basename = import.meta.env.PROD ? '/ironsworn-ukr' : '/';
 
+  // Провайдер стоїть над роутером: кнопка входу живе в шапці, а вона
+  // спільна для всіх сторінок.
   return (
-    <Router basename={basename}>
-      <Routes>
-        <Route path="/" element={<Navigate to="/uk" replace />} />
-        <Route path="/:lang/*" element={<LayoutParamsWrapper />} />
-      </Routes>
-    </Router>
+    <AuthProvider>
+      <Router basename={basename}>
+        <Routes>
+          <Route path="/" element={<Navigate to="/uk" replace />} />
+          <Route path="/:lang/*" element={<LayoutParamsWrapper />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
   );
 }
 

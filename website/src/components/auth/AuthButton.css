@@ -1,0 +1,226 @@
+/* Кнопка входу в шапці та меню синхронізації. */
+
+.auth {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.auth-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.7rem;
+  background: transparent;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  color: var(--text-secondary);
+  font: inherit;
+  font-size: 0.85rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: border-color 0.15s, color 0.15s;
+}
+
+.auth-btn:hover:not(:disabled) {
+  border-color: var(--highlight);
+  color: var(--text-primary);
+}
+
+.auth-btn:disabled {
+  cursor: progress;
+  opacity: 0.6;
+}
+
+.auth-btn--loading {
+  cursor: default;
+  opacity: 0.5;
+}
+
+.auth-google {
+  width: 1.05rem;
+  height: 1.05rem;
+  flex-shrink: 0;
+}
+
+/* Увійшли — лишається сам аватар, тож кільце навколо нього зайве. */
+.auth-btn--user {
+  position: relative;
+  padding: 0;
+  border: none;
+  border-radius: 50%;
+}
+
+.auth-avatar {
+  width: 2rem;
+  height: 2rem;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1px solid var(--border-color);
+  display: block;
+}
+
+.auth-avatar--letter {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--accent-bg);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.auth-btn--user:hover .auth-avatar {
+  border-color: var(--highlight);
+}
+
+/* Стан синхронізації — крапка на аватарі: у шапці немає місця на слова,
+   а знати, чи доїхали зміни, треба з будь-якої сторінки. */
+.auth-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: var(--text-muted);
+  flex-shrink: 0;
+}
+
+.auth-btn--user .auth-dot {
+  position: absolute;
+  right: -1px;
+  bottom: -1px;
+  box-shadow: 0 0 0 2px var(--secondary-bg);
+}
+
+.auth-btn--synced .auth-dot,
+.auth-menu__status--synced .auth-dot {
+  background: var(--success);
+}
+
+.auth-btn--connecting .auth-dot,
+.auth-btn--saving .auth-dot,
+.auth-menu__status--connecting .auth-dot,
+.auth-menu__status--saving .auth-dot {
+  background: var(--warning);
+}
+
+.auth-btn--error .auth-dot,
+.auth-menu__status--error .auth-dot {
+  background: var(--danger);
+}
+
+/* ── Меню ─────────────────────────────────────────────────────────── */
+
+.auth-menu {
+  position: absolute;
+  top: calc(100% + 0.6rem);
+  right: 0;
+  z-index: 200;
+  width: max-content;
+  min-width: 15rem;
+  max-width: min(20rem, calc(100vw - 2rem));
+  padding: 0.85rem;
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: 0 12px 28px rgba(0, 0, 0, 0.35);
+  text-align: left;
+}
+
+.auth-menu__who {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  color: var(--text-primary);
+  font-size: 0.9rem;
+  word-break: break-word;
+}
+
+.auth-menu__email {
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.auth-menu__status {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  margin: 0.7rem 0 0;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+}
+
+.auth-menu__hint {
+  margin: 0.5rem 0 0;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  line-height: 1.35;
+}
+
+.auth-menu__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.8rem;
+}
+
+.auth-menu__button {
+  flex: 1 1 auto;
+  padding: 0.4rem 0.7rem;
+  background: var(--accent-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  color: var(--text-primary);
+  font: inherit;
+  font-size: 0.8rem;
+  cursor: pointer;
+}
+
+.auth-menu__button:hover:not(:disabled) {
+  border-color: var(--highlight);
+}
+
+.auth-menu__button:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.auth-menu__button--danger {
+  color: var(--danger);
+}
+
+.auth-error {
+  margin: 0.6rem 0 0;
+  color: var(--danger);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
+/* Помилка входу поза меню: меню тоді ще нема, а сказати щось треба. */
+.auth-error--floating {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  right: 0;
+  z-index: 200;
+  width: max-content;
+  max-width: min(18rem, calc(100vw - 2rem));
+  margin: 0;
+  padding: 0.5rem 0.7rem;
+  background: var(--secondary-bg);
+  border: 1px solid var(--danger);
+  border-radius: 6px;
+}
+
+@media (max-width: 900px) {
+  /* У шапці на телефоні кнопок і так більше, ніж місця. */
+  .auth-btn__text {
+    display: none;
+  }
+
+  .auth-btn {
+    padding: 0.35rem;
+  }
+
+  .auth-avatar {
+    width: 1.8rem;
+    height: 1.8rem;
+  }
+}

@@ -1,0 +1,23 @@
+rules_version = '2';
+
+// Правила безпеки Firestore для синхронізації аркуша персонажа.
+//
+// Конфіг Firebase у клієнті не є секретом — він у бандлі кожного відвідувача.
+// Єдине, що справді розділяє дані, — це правила нижче: користувач бачить і
+// пише тільки під власним uid.
+//
+// Скопіювати в консоль: Firebase Console → Firestore Database → Rules.
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    match /users/{uid}/{document=**} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+    }
+
+    // Усе інше закрито.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

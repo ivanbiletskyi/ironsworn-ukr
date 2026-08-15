@@ -1,5 +1,6 @@
 import React from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import AuthButton from './auth/AuthButton';
 
 interface NavigationProps {
   currentLang: string;
@@ -86,13 +87,14 @@ const Navigation: React.FC<NavigationProps> = ({ currentLang, onToggleSidebar, i
             >
               EN
             </button>
-            <button 
+            <button
               className={`lang-btn ${currentLang === 'uk' ? 'active' : ''}`}
               onClick={() => handleLanguageSwitch('uk')}
             >
               UK
             </button>
           </div>
+          <AuthButton currentLang={currentLang} />
         </div>
       </div>
     </header>
