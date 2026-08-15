@@ -2,13 +2,18 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { ORACLES, COMBO_PRESETS } from '../utils/oracles/index';
 import type { Oracle, Lang } from '../utils/oracles/index';
 import {
+  HISTORY_META_KEY,
+  MAX_HISTORY,
   rollOracle,
   rollCombo,
   loadHistory,
+  newResultId,
   saveHistory,
   formatResultForClipboard,
 } from '../utils/oracleEngine';
 import type { RollResult, RollAtom } from '../utils/oracleEngine';
+import { recordLogCleared, recordLogRemoval } from '../utils/sync/logs';
+import { notifyLocalChange, subscribeOracleHistory } from '../utils/sync/engine';
 import './OracleGenerators.css';
 
 // ─── OracleCard ──────────────────────────────────────────────────────────────
@@ -203,15 +208,18 @@ function RollLog({ history, lang, onClear, onReroll, onDeleteEntry, onDeleteAtom
       ) : (
         <ul className="roll-log-list">
           {history.map((result, ri) => (
-            <li key={result.timestamp + ri} className="roll-log-entry">
+            // Ключ за id, а не за часом: після злиття з іншим пристроєм
+            // записи можуть стати в іншому порядку, і React не має
+            // переплутати рядки між собою.
+            <li key={result.id} className="roll-log-entry">
               <div className="roll-log-entry-header">
                 <span className="roll-log-time">{formatTime(result.timestamp)}</span>
                 <button
                   className="roll-log-copy"
-                  onClick={() => copyText(formatResultForClipboard(result), String(result.timestamp))}
+                  onClick={() => copyText(formatResultForClipboard(result), result.id)}
                   title={lang === 'uk' ? 'Скопіювати' : 'Copy'}
                 >
-                  {copied === String(result.timestamp) ? '✓' : '📋'}
+                  {copied === result.id ? '✓' : '📋'}
                 </button>
                 <button
                   className="roll-log-delete-entry"
@@ -309,10 +317,21 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
 
   useEffect(() => {
     saveHistory(currentLang, history);
+    notifyLocalChange();
   }, [history, currentLang]);
 
+  // Кидки з іншого пристрою двигун уже поклав у localStorage — лишається
+  // показати їх. Мову звіряємо: журнали двох мов не змішуються.
+  useEffect(
+    () =>
+      subscribeOracleHistory((lang, next) => {
+        if (lang === currentLang) setHistory(next);
+      }),
+    [currentLang],
+  );
+
   const pushResult = useCallback((result: RollResult) => {
-    setHistory(h => [result, ...h].slice(0, 100));
+    setHistory(h => [result, ...h].slice(0, MAX_HISTORY));
     // Group atoms by their base oracle id so each card shows only its own result
     const byOracle: Record<string, RollAtom[]> = {};
     result.atoms.forEach(atom => {
@@ -323,7 +342,7 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
   }, []);
 
   const handleCardRoll = useCallback((atoms: RollAtom[]) => {
-    pushResult({ atoms, timestamp: Date.now() });
+    pushResult({ id: newResultId(), atoms, timestamp: Date.now() });
   }, [pushResult]);
 
   const handleCardReroll = useCallback((atoms: RollAtom[]) => {
@@ -331,7 +350,9 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
     if (!oracleId) return;
     setHistory(h => {
       const idx = h.findIndex(e => e.atoms.some(a => a.oracleId.split(':')[0] === oracleId));
-      if (idx === -1) return [{ atoms, timestamp: Date.now() }, ...h].slice(0, 100);
+      if (idx === -1) {
+        return [{ id: newResultId(), atoms, timestamp: Date.now() }, ...h].slice(0, MAX_HISTORY);
+      }
       const entry = h[idx];
       // Find the position of the first atom belonging to this oracle and replace in-place
       const firstPos = entry.atoms.findIndex(a => a.oracleId.split(':')[0] === oracleId);
@@ -341,61 +362,84 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
         ...atoms,
         ...withoutOld.slice(firstPos),
       ];
-      return h.map((e, i) => i === idx ? { ...e, atoms: replacedAtoms } : e);
+      // `updatedAt`, а не `timestamp`: журнал показує час самого кидка, а
+      // синхронізації потрібен час правки, щоб розв'язати конфлікт.
+      return h.map((e, i) => i === idx ? { ...e, atoms: replacedAtoms, updatedAt: Date.now() } : e);
     });
     const byOracle: Record<string, RollAtom[]> = {};
     atoms.forEach(a => { (byOracle[a.oracleId.split(':')[0]] ??= []).push(a); });
     setLastByOracle(prev => ({ ...prev, ...byOracle }));
   }, []);
 
+  /** Надгробок ставимо одразу: без нього найближча синхронізація
+      повернула б запис з іншого пристрою. */
+  const forget = useCallback(
+    (entry: RollResult) => recordLogRemoval(HISTORY_META_KEY(currentLang), entry.id),
+    [currentLang],
+  );
+
   const handleDeleteEntry = useCallback((entryIndex: number) => {
-    setHistory(h => {
-      const entry = h[entryIndex];
-      if (entry) {
-        const removedIds = new Set(entry.atoms.map(a => a.oracleId.split(':')[0]));
-        setLastByOracle(prev => {
-          const next = { ...prev };
-          removedIds.forEach(id => { delete next[id]; });
-          return next;
-        });
-      }
-      return h.filter((_, i) => i !== entryIndex);
+    const entry = history[entryIndex];
+    if (!entry) return;
+    forget(entry);
+    const removedIds = new Set(entry.atoms.map(a => a.oracleId.split(':')[0]));
+    setLastByOracle(prev => {
+      const next = { ...prev };
+      removedIds.forEach(id => { delete next[id]; });
+      return next;
     });
-  }, []);
+    setHistory(h => h.filter((_, i) => i !== entryIndex));
+  }, [history, forget]);
 
   const handleDeleteAtom = useCallback((entryIndex: number, atomIndex: number) => {
-    setHistory(h => {
-      const entry = h[entryIndex];
-      if (!entry) return h;
-      const oracleId = entry.atoms[atomIndex]?.oracleId.split(':')[0];
-      if (oracleId) {
-        setLastByOracle(prev => {
-          const next = { ...prev };
-          delete next[oracleId];
-          return next;
-        });
-      }
-      const remaining = entry.atoms.filter(a => a.oracleId.split(':')[0] !== oracleId);
-      if (remaining.length === 0) return h.filter((_, i) => i !== entryIndex);
-      return h.map((e, i) => i === entryIndex ? { ...e, atoms: remaining } : e);
-    });
-  }, []);
+    const entry = history[entryIndex];
+    if (!entry) return;
+    const oracleId = entry.atoms[atomIndex]?.oracleId.split(':')[0];
+    if (oracleId) {
+      setLastByOracle(prev => {
+        const next = { ...prev };
+        delete next[oracleId];
+        return next;
+      });
+    }
+    const remaining = entry.atoms.filter(a => a.oracleId.split(':')[0] !== oracleId);
+    if (remaining.length === 0) {
+      forget(entry);
+      setHistory(h => h.filter((_, i) => i !== entryIndex));
+      return;
+    }
+    setHistory(h =>
+      h.map((e, i) => i === entryIndex ? { ...e, atoms: remaining, updatedAt: Date.now() } : e),
+    );
+  }, [history, forget]);
 
   const handleCardDelete = useCallback((oracleId: string) => {
-    setHistory(h => {
-      const idx = h.findIndex(e => e.atoms.some(a => a.oracleId.split(':')[0] === oracleId));
-      if (idx === -1) return h;
-      const entry = h[idx];
+    const idx = history.findIndex(e => e.atoms.some(a => a.oracleId.split(':')[0] === oracleId));
+    if (idx !== -1) {
+      const entry = history[idx];
       const remaining = entry.atoms.filter(a => a.oracleId.split(':')[0] !== oracleId);
-      if (remaining.length === 0) return h.filter((_, i) => i !== idx);
-      return h.map((e, i) => i === idx ? { ...e, atoms: remaining } : e);
-    });
+      if (remaining.length === 0) {
+        forget(entry);
+        setHistory(h => h.filter((_, i) => i !== idx));
+      } else {
+        setHistory(h =>
+          h.map((e, i) => i === idx ? { ...e, atoms: remaining, updatedAt: Date.now() } : e),
+        );
+      }
+    }
     setLastByOracle(prev => {
       const next = { ...prev };
       delete next[oracleId];
       return next;
     });
-  }, []);
+  }, [history, forget]);
+
+  /** Одна позначка часу замість сотні надгробків — і вона ж скасовує їх усі. */
+  const handleClear = useCallback(() => {
+    recordLogCleared(HISTORY_META_KEY(currentLang));
+    setHistory([]);
+    setLastByOracle({});
+  }, [currentLang]);
 
   const handleReroll = useCallback((entryIndex: number, atomIndex: number) => {
     const entry = history[entryIndex];
@@ -411,7 +455,13 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
       ...newAtoms,
       ...entry.atoms.slice(atomIndex + 1),
     ];
-    const newEntry: RollResult = { ...entry, atoms: updatedAtoms, timestamp: Date.now() };
+    const now = Date.now();
+    const newEntry: RollResult = {
+      ...entry,
+      atoms: updatedAtoms,
+      timestamp: now,
+      updatedAt: now,
+    };
     setHistory(h => h.map((e, i) => i === entryIndex ? newEntry : e));
     const byOracle: Record<string, RollAtom[]> = {};
     newAtoms.forEach(a => { (byOracle[a.oracleId.split(':')[0]] ??= []).push(a); });
@@ -422,14 +472,11 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
       if (e.target instanceof HTMLInputElement || e.target instanceof HTMLTextAreaElement) return;
-      if (e.key === 'c' || e.key === 'C') {
-        setHistory([]);
-        setLastByOracle({});
-      }
+      if (e.key === 'c' || e.key === 'C') handleClear();
     };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [handleClear]);
 
   return (
     <div className="oracle-page">
@@ -461,7 +508,7 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
         <RollLog
           history={history}
           lang={currentLang}
-          onClear={() => { setHistory([]); setLastByOracle({}); }}
+          onClear={handleClear}
           onReroll={handleReroll}
           onDeleteEntry={handleDeleteEntry}
           onDeleteAtom={handleDeleteAtom}

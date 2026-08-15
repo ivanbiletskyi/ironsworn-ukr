@@ -1,7 +1,7 @@
 // Кнопка входу в шапці сайту та меню синхронізації під нею.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
-import type { SyncState } from '../../utils/character/syncEngine';
+import type { SyncState } from '../../utils/sync/engine';
 import { useAuth } from './authContext';
 import './AuthButton.css';
 

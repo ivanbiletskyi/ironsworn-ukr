@@ -13,12 +13,12 @@ import {
   importCharacter,
   loadStore,
   parseCharacterFile,
-  recordTombstone,
+  recordCharacterTombstone,
   removeCharacter as removeFromStore,
   saveStore,
   upsertCharacter,
 } from '../../utils/character/storage';
-import { pushLocal, subscribeStore } from '../../utils/character/syncEngine';
+import { notifyLocalChange, subscribeStore } from '../../utils/sync/engine';
 
 const SAVE_DELAY = 500;
 
@@ -45,7 +45,7 @@ export function useCharacterStore() {
     if (!dirty.current) return;
     const timer = setTimeout(() => {
       saveStore(store);
-      pushLocal(store);
+      notifyLocalChange();
       dirty.current = false;
     }, SAVE_DELAY);
     return () => clearTimeout(timer);
@@ -56,7 +56,7 @@ export function useCharacterStore() {
     const flush = () => {
       if (!dirty.current) return;
       saveStore(latest.current);
-      pushLocal(latest.current);
+      notifyLocalChange();
       dirty.current = false;
     };
     window.addEventListener('pagehide', flush);
@@ -132,7 +132,7 @@ export function useCharacterStore() {
     (id: string) => {
       // Надгробок ставимо до зміни стану: без нього найближча
       // синхронізація повернула б персонажа з іншого пристрою.
-      recordTombstone(id);
+      recordCharacterTombstone(id);
       const next = removeFromStore(latest.current, id);
       // Аркуш без жодного персонажа — глухий кут, тож одразу заводимо новий.
       if (next.characters.length === 0) {

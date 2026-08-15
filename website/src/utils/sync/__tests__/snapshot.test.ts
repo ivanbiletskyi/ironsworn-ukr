@@ -1,18 +1,20 @@
 // Merging character sheets across devices.
 
 import { describe, expect, it } from 'vitest';
-import type { Character } from '../types';
-import { createCharacter } from '../storage';
+import type { Character } from '../../character/types';
+import { createCharacter } from '../../character/storage';
+import type { SyncSnapshot } from '../snapshot';
 import {
   SYNC_FORMAT_VERSION,
-  TOMBSTONE_TTL,
   emptySnapshot,
   isBlankCharacter,
   mergeSnapshots,
   parseSyncDocument,
   sameSnapshot,
   serializeSnapshot,
-} from '../sync';
+} from '../snapshot';
+import type { Tombstones } from '../tombstones';
+import { TOMBSTONE_TTL } from '../tombstones';
 
 const NOW = 1_700_000_000_000;
 
@@ -30,6 +32,11 @@ function character(name: string, updatedAt = NOW): Character {
 
 function blank(name: string, updatedAt = NOW): Character {
   return { ...character(name, updatedAt), name: '' };
+}
+
+/** A snapshot carrying only characters; the logs have their own tests. */
+function snap(characters: Character[], tombstones: Tombstones = {}): SyncSnapshot {
+  return { ...emptySnapshot(), characters, tombstones };
 }
 
 describe('a blank character', () => {
@@ -54,11 +61,7 @@ describe('a blank character', () => {
 
 describe('merging two devices', () => {
   it('keeps characters that exist only on one side', () => {
-    const merged = mergeSnapshots(
-      { characters: [character('a')], tombstones: {} },
-      { characters: [character('b')], tombstones: {} },
-      { now: NOW },
-    );
+    const merged = mergeSnapshots(snap([character('a')]), snap([character('b')]), { now: NOW });
     expect(merged.characters.map(c => c.id)).toEqual(['id-a', 'id-b']);
   });
 
@@ -66,28 +69,18 @@ describe('merging two devices', () => {
     const older = { ...character('a', NOW - 1000), notes: 'старе' };
     const newer = { ...character('a', NOW), notes: 'нове' };
 
-    expect(
-      mergeSnapshots(
-        { characters: [older], tombstones: {} },
-        { characters: [newer], tombstones: {} },
-        { now: NOW },
-      ).characters[0].notes,
-    ).toBe('нове');
+    expect(mergeSnapshots(snap([older]), snap([newer]), { now: NOW }).characters[0].notes)
+      .toBe('нове');
 
     // Той самий висновок незалежно від того, який бік локальний.
-    expect(
-      mergeSnapshots(
-        { characters: [newer], tombstones: {} },
-        { characters: [older], tombstones: {} },
-        { now: NOW },
-      ).characters[0].notes,
-    ).toBe('нове');
+    expect(mergeSnapshots(snap([newer]), snap([older]), { now: NOW }).characters[0].notes)
+      .toBe('нове');
   });
 
   it('keeps the local order so the picker does not jump around', () => {
     const merged = mergeSnapshots(
-      { characters: [character('b'), character('a')], tombstones: {} },
-      { characters: [character('a'), character('b')], tombstones: {} },
+      snap([character('b'), character('a')]),
+      snap([character('a'), character('b')]),
       { now: NOW },
     );
     expect(merged.characters.map(c => c.id)).toEqual(['id-b', 'id-a']);
@@ -97,8 +90,8 @@ describe('merging two devices', () => {
 describe('deletion', () => {
   it('does not come back from the other device', () => {
     const merged = mergeSnapshots(
-      { characters: [], tombstones: { 'id-a': NOW } },
-      { characters: [character('a', NOW - 5000)], tombstones: {} },
+      snap([], { 'id-a': NOW }),
+      snap([character('a', NOW - 5000)]),
       { now: NOW },
     );
     expect(merged.characters).toHaveLength(0);
@@ -107,8 +100,8 @@ describe('deletion', () => {
 
   it('is undone by an edit made after it', () => {
     const merged = mergeSnapshots(
-      { characters: [], tombstones: { 'id-a': NOW - 5000 } },
-      { characters: [character('a', NOW)], tombstones: {} },
+      snap([], { 'id-a': NOW - 5000 }),
+      snap([character('a', NOW)]),
       { now: NOW },
     );
     expect(merged.characters.map(c => c.id)).toEqual(['id-a']);
@@ -117,8 +110,8 @@ describe('deletion', () => {
 
   it('forgets tombstones once they are older than the retention window', () => {
     const merged = mergeSnapshots(
-      { characters: [], tombstones: { 'id-a': NOW - TOMBSTONE_TTL - 1 } },
-      { characters: [], tombstones: {} },
+      snap([], { 'id-a': NOW - TOMBSTONE_TTL - 1 }),
+      snap([]),
       { now: NOW },
     );
     expect(merged.tombstones).toEqual({});
@@ -127,55 +120,47 @@ describe('deletion', () => {
 
 describe('blank characters on first sync', () => {
   it('are dropped when the account already has real ones', () => {
-    const merged = mergeSnapshots(
-      { characters: [createCharacter()], tombstones: {} },
-      { characters: [character('a')], tombstones: {} },
-      { pruneBlanks: true, now: NOW },
-    );
+    const merged = mergeSnapshots(snap([createCharacter()]), snap([character('a')]), {
+      pruneBlanks: true,
+      now: NOW,
+    });
     expect(merged.characters.map(c => c.id)).toEqual(['id-a']);
   });
 
   it('collapse to a single one when everything is blank', () => {
-    const merged = mergeSnapshots(
-      { characters: [blank('a', NOW)], tombstones: {} },
-      { characters: [blank('b', NOW - 1000)], tombstones: {} },
-      { pruneBlanks: true, now: NOW },
-    );
+    const merged = mergeSnapshots(snap([blank('a', NOW)]), snap([blank('b', NOW - 1000)]), {
+      pruneBlanks: true,
+      now: NOW,
+    });
     // Порожні всі, тож лишається найстарший — і обидва пристрої мають
     // дійти того самого висновку, інакше вони перезаписували б один одного.
     expect(merged.characters.map(c => c.id)).toEqual(['id-b']);
   });
 
   it('survive an ordinary merge, because a just-created sheet is blank too', () => {
-    const merged = mergeSnapshots(
-      { characters: [createCharacter()], tombstones: {} },
-      { characters: [character('a')], tombstones: {} },
-      { now: NOW },
-    );
+    const merged = mergeSnapshots(snap([createCharacter()]), snap([character('a')]), { now: NOW });
     expect(merged.characters).toHaveLength(2);
   });
 });
 
 describe('comparing snapshots', () => {
   it('ignores order', () => {
-    const a = { characters: [character('a'), character('b')], tombstones: {} };
-    const b = { characters: [character('b'), character('a')], tombstones: {} };
-    expect(sameSnapshot(a, b)).toBe(true);
+    expect(
+      sameSnapshot(snap([character('a'), character('b')]), snap([character('b'), character('a')])),
+    ).toBe(true);
   });
 
   it('notices content, membership and tombstone changes', () => {
-    const base = { characters: [character('a')], tombstones: {} };
-    expect(sameSnapshot(base, { characters: [{ ...character('a'), notes: 'x' }], tombstones: {} }))
-      .toBe(false);
-    expect(sameSnapshot(base, { characters: [], tombstones: {} })).toBe(false);
-    expect(sameSnapshot(base, { characters: [character('a')], tombstones: { x: NOW } }))
-      .toBe(false);
+    const base = snap([character('a')]);
+    expect(sameSnapshot(base, snap([{ ...character('a'), notes: 'x' }]))).toBe(false);
+    expect(sameSnapshot(base, snap([]))).toBe(false);
+    expect(sameSnapshot(base, snap([character('a')], { x: NOW }))).toBe(false);
   });
 });
 
 describe('the Firestore document', () => {
   it('round-trips a snapshot', () => {
-    const snapshot = { characters: [character('a')], tombstones: { 'id-b': NOW } };
+    const snapshot = snap([character('a')], { 'id-b': NOW });
     const parsed = parseSyncDocument({
       version: SYNC_FORMAT_VERSION,
       payload: serializeSnapshot(snapshot),

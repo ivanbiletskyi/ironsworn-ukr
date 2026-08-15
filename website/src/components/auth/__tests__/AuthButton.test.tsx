@@ -5,7 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import AuthProvider from '../AuthProvider';
 import AuthButton from '../AuthButton';
-import { setSyncUser } from '../../../utils/character/syncEngine';
+import { setSyncUser } from '../../../utils/sync/engine';
 
 interface FakeUser {
   uid: string;

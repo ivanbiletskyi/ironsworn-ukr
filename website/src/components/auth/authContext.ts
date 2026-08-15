@@ -3,7 +3,7 @@
 // щоразу, коли міняється хук.
 
 import { createContext, useContext } from 'react';
-import type { SyncState } from '../../utils/character/syncEngine';
+import type { SyncState } from '../../utils/sync/engine';
 
 export interface AuthUser {
   uid: string;

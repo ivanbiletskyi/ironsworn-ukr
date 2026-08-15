@@ -1,26 +1,30 @@
-// Злиття персонажів між пристроями — чиста логіка без Firebase і без DOM.
-// Мережеву частину див. у syncEngine.ts.
+// Що саме синхронізується між пристроями і як зводяться розбіжності —
+// чиста логіка без Firebase і без DOM. Мережеву частину див. в engine.ts.
 //
-// Модель конфлікту навмисно проста: персонаж — неподільна одиниця, виграє
-// той бік, чий `updatedAt` новіший. Аркуш заповнює одна людина, тож
-// одночасне редагування того самого персонажа з двох пристроїв — рідкість,
-// а посимвольне злиття нотаток коштувало б незрівнянно дорожче.
+// Модель конфлікту навмисно проста: персонаж чи запис журналу — неподільна
+// одиниця, виграє той бік, чий час новіший. Аркуш заповнює одна людина, тож
+// одночасне редагування того самого з двох пристроїв — рідкість, а
+// посимвольне злиття нотаток коштувало б незрівнянно дорожче.
 
-import type { Character } from './types';
+import type { Character } from '../character/types';
 import {
   ATTR_KEYS,
   BASE_RESET_MOMENTUM,
   DEBILITY_KEYS,
   MAX_STAT,
   STAT_KEYS,
-} from './types';
-import { normalizeCharacter } from './storage';
+} from '../character/types';
+import { MAX_SHEET_LOG, normalizeCharacter, normalizeSheetRoll } from '../character/storage';
+import type { SheetRoll } from '../character/diceEngine';
+import type { Lang } from '../oracles/oracle-types';
+import type { RollResult } from '../oracleEngine';
+import { MAX_HISTORY, normalizeResult, resultClock } from '../oracleEngine';
+import type { Tombstones } from './tombstones';
+import { mergeTombstones, parseTombstones, sameTombstones } from './tombstones';
+import type { LogShape, LogSnapshot } from './logs';
+import { emptyLog, mergeLogs, parseLog, sameLog } from './logs';
 
-/** Надгробки старші за цей вік уже нікого не воскресять — час їх забути. */
-export const TOMBSTONE_TTL = 90 * 24 * 60 * 60 * 1000;
-
-/** id видаленого персонажа → час видалення (мс). */
-export type Tombstones = Record<string, number>;
+export const LANGS: readonly Lang[] = ['uk', 'en'];
 
 export interface SyncSnapshot {
   characters: Character[];
@@ -29,10 +33,44 @@ export interface SyncSnapshot {
    * ще має персонажа, і найближче злиття повернуло б його назад.
    */
   tombstones: Tombstones;
+  /** Журнал кидків аркуша. */
+  sheetLog: LogSnapshot<SheetRoll>;
+  /** Історія оракулів — своя на кожну мову, як і в localStorage. */
+  oracleHistory: Record<Lang, LogSnapshot<RollResult>>;
 }
 
 /** Версія формату документа у Firestore; читаємо все, що не новіше. */
 export const SYNC_FORMAT_VERSION = 1;
+
+// Записи журналу кидків незмінні: спалення імпульсу додає окремий рядок,
+// а не переписує старий. Тож час створення слугує і часом правки.
+export const SHEET_LOG_SHAPE: LogShape<SheetRoll> = {
+  id: entry => entry.id,
+  clock: entry => entry.timestamp,
+  order: entry => entry.timestamp,
+  max: MAX_SHEET_LOG,
+};
+
+// Запис оракула перекидають і чистять від рядків, тож час правки окремий.
+export const ORACLE_LOG_SHAPE: LogShape<RollResult> = {
+  id: entry => entry.id,
+  clock: resultClock,
+  order: entry => entry.timestamp,
+  max: MAX_HISTORY,
+};
+
+export function emptyOracleHistory(): Record<Lang, LogSnapshot<RollResult>> {
+  return { uk: emptyLog<RollResult>(), en: emptyLog<RollResult>() };
+}
+
+export function emptySnapshot(): SyncSnapshot {
+  return {
+    characters: [],
+    tombstones: {},
+    sheetLog: emptyLog<SheetRoll>(),
+    oracleHistory: emptyOracleHistory(),
+  };
+}
 
 // ── Порожній персонаж ─────────────────────────────────────────────────
 
@@ -59,16 +97,6 @@ export function isBlankCharacter(character: Character): boolean {
 
 // ── Злиття ────────────────────────────────────────────────────────────
 
-function mergeTombstones(a: Tombstones, b: Tombstones, now: number): Tombstones {
-  const merged: Tombstones = {};
-  for (const [id, at] of [...Object.entries(a), ...Object.entries(b)]) {
-    if (typeof at !== 'number' || !Number.isFinite(at)) continue;
-    if (now - at > TOMBSTONE_TTL) continue;
-    merged[id] = Math.max(merged[id] ?? 0, at);
-  }
-  return merged;
-}
-
 /**
  * Порядок для випадку «усі персонажі порожні»: обидва пристрої мають
  * дійти того самого висновку, інакше вони нескінченно перезаписуватимуть
@@ -78,13 +106,12 @@ function olderFirst(a: Character, b: Character): number {
   return a.updatedAt - b.updatedAt || (a.id < b.id ? -1 : 1);
 }
 
-export function mergeSnapshots(
+function mergeCharacters(
   local: SyncSnapshot,
   remote: SyncSnapshot,
-  options: { pruneBlanks?: boolean; now?: number } = {},
-): SyncSnapshot {
-  const now = options.now ?? Date.now();
-  const tombstones = mergeTombstones(local.tombstones, remote.tombstones, now);
+  options: { pruneBlanks?: boolean; now: number },
+): { characters: Character[]; tombstones: Tombstones } {
+  const tombstones = mergeTombstones(local.tombstones, remote.tombstones, options.now);
 
   const byId = new Map<string, Character>();
   for (const character of [...local.characters, ...remote.characters]) {
@@ -124,23 +151,55 @@ function pruneBlankCharacters(characters: Character[]): Character[] {
   const filled = characters.filter(character => !isBlankCharacter(character));
   if (filled.length > 0) return filled;
   // Порожні всі — лишаємо рівно одного, бо аркуш без персонажа неможливий.
-  const blanks = [...characters].sort(olderFirst);
-  return blanks.slice(0, 1);
+  return [...characters].sort(olderFirst).slice(0, 1);
+}
+
+export function mergeSnapshots(
+  local: SyncSnapshot,
+  remote: SyncSnapshot,
+  options: { pruneBlanks?: boolean; now?: number } = {},
+): SyncSnapshot {
+  const now = options.now ?? Date.now();
+  const { characters, tombstones } = mergeCharacters(local, remote, {
+    pruneBlanks: options.pruneBlanks,
+    now,
+  });
+
+  const oracleHistory = emptyOracleHistory();
+  for (const lang of LANGS) {
+    oracleHistory[lang] = mergeLogs(
+      local.oracleHistory[lang],
+      remote.oracleHistory[lang],
+      ORACLE_LOG_SHAPE,
+      now,
+    );
+  }
+
+  return {
+    characters,
+    tombstones,
+    sheetLog: mergeLogs(local.sheetLog, remote.sheetLog, SHEET_LOG_SHAPE, now),
+    oracleHistory,
+  };
 }
 
 /** Порівняння без огляду на порядок: різний порядок — не привід писати. */
-export function sameSnapshot(a: SyncSnapshot, b: SyncSnapshot): boolean {
-  if (a.characters.length !== b.characters.length) return false;
-
-  const byId = new Map(b.characters.map(character => [character.id, character]));
-  for (const character of a.characters) {
+export function sameCharacterList(a: Character[], b: Character[]): boolean {
+  if (a.length !== b.length) return false;
+  const byId = new Map(b.map(character => [character.id, character]));
+  return a.every(character => {
     const other = byId.get(character.id);
-    if (!other || JSON.stringify(character) !== JSON.stringify(other)) return false;
-  }
+    return !!other && JSON.stringify(character) === JSON.stringify(other);
+  });
+}
 
-  const aTombs = Object.keys(a.tombstones);
-  if (aTombs.length !== Object.keys(b.tombstones).length) return false;
-  return aTombs.every(id => a.tombstones[id] === b.tombstones[id]);
+export function sameSnapshot(a: SyncSnapshot, b: SyncSnapshot): boolean {
+  if (!sameCharacterList(a.characters, b.characters)) return false;
+  if (!sameTombstones(a.tombstones, b.tombstones)) return false;
+  if (!sameLog(a.sheetLog, b.sheetLog, SHEET_LOG_SHAPE)) return false;
+  return LANGS.every(lang =>
+    sameLog(a.oracleHistory[lang], b.oracleHistory[lang], ORACLE_LOG_SHAPE),
+  );
 }
 
 // ── Формат документа Firestore ────────────────────────────────────────
@@ -156,6 +215,8 @@ export function serializeSnapshot(snapshot: SyncSnapshot): string {
   return JSON.stringify({
     characters: snapshot.characters,
     tombstones: snapshot.tombstones,
+    sheetLog: snapshot.sheetLog,
+    oracleHistory: snapshot.oracleHistory,
   });
 }
 
@@ -163,14 +224,10 @@ function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
-export function emptySnapshot(): SyncSnapshot {
-  return { characters: [], tombstones: {} };
-}
-
 /**
- * Читає документ із хмари. Усе, що не піддається розбору, стає порожнім
- * знімком: злиття з порожнім нічого не псує, а падіння в цьому місці
- * лишило б гравця без аркуша.
+ * Читає документ із хмари. Усе, що не піддається розбору, стає порожнім:
+ * злиття з порожнім нічого не псує, а падіння в цьому місці лишило б
+ * гравця без аркуша.
  */
 export function parseSyncDocument(raw: unknown): SyncSnapshot {
   if (!isRecord(raw) || typeof raw.payload !== 'string') return emptySnapshot();
@@ -199,12 +256,16 @@ export function parseSyncDocument(raw: unknown): SyncSnapshot {
       })
     : [];
 
-  const tombstones: Tombstones = {};
-  if (isRecord(parsed.tombstones)) {
-    for (const [id, at] of Object.entries(parsed.tombstones)) {
-      if (typeof at === 'number' && Number.isFinite(at)) tombstones[id] = at;
-    }
+  const oracleRaw = isRecord(parsed.oracleHistory) ? parsed.oracleHistory : {};
+  const oracleHistory = emptyOracleHistory();
+  for (const lang of LANGS) {
+    oracleHistory[lang] = parseLog(oracleRaw[lang], normalizeResult);
   }
 
-  return { characters, tombstones };
+  return {
+    characters,
+    tombstones: parseTombstones(parsed.tombstones),
+    sheetLog: parseLog(parsed.sheetLog, normalizeSheetRoll),
+    oracleHistory,
+  };
 }

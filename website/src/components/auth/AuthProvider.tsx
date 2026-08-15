@@ -5,8 +5,8 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
 import type { User } from 'firebase/auth';
 import { getFirebase } from '../../utils/firebase/client';
-import type { SyncState } from '../../utils/character/syncEngine';
-import { getSyncState, setSyncUser, subscribeSyncState, syncNow } from '../../utils/character/syncEngine';
+import type { SyncState } from '../../utils/sync/engine';
+import { getSyncState, setSyncUser, subscribeSyncState, syncNow } from '../../utils/sync/engine';
 import type { AuthUser, AuthValue } from './authContext';
 import { AuthContext } from './authContext';
 

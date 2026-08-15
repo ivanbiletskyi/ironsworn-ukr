@@ -1,27 +1,47 @@
-// Синхронізація персонажів через Firestore.
+// Синхронізація аркуша через Firestore.
 //
 // Живе поза React навмисно: кнопка входу стоїть у шапці всього сайту, а
-// аркуш змонтований лише на /uk/character. Якби двигун був хуком аркуша,
-// вхід зі сторінки правил нічого б не підтягнув, і гравець побачив би
-// своїх персонажів тільки після переходу на аркуш.
+// аркуш і оракули змонтовані лише на своїх сторінках. Якби двигун був
+// хуком аркуша, вхід зі сторінки правил нічого б не підтягнув.
 //
-// Один документ на користувача: users/{uid}/sheets/characters.
-// Всередині — той самий JSON, що й у localStorage (див. sync.ts).
+// Один документ на користувача — users/{uid}/sheets/characters. Персонажі
+// й обидва журнали лежать разом: Firestore рахує записи документами, а
+// злиття однією операцією простіше тримати послідовним.
 
-import type { CharacterStore } from './types';
-import { STORE_VERSION } from './types';
-import { createCharacter, loadStore, loadTombstones, saveStore, saveTombstones } from './storage';
-import type { SyncSnapshot } from './sync';
+import type { CharacterStore } from '../character/types';
+import { STORE_VERSION } from '../character/types';
+import type { SheetRoll } from '../character/diceEngine';
 import {
+  SHEET_LOG_META_KEY,
+  createCharacter,
+  loadCharacterTombstones,
+  loadSheetLog,
+  loadStore,
+  saveCharacterTombstones,
+  saveSheetLog,
+  saveStore,
+} from '../character/storage';
+import type { Lang } from '../oracles/oracle-types';
+import type { RollResult } from '../oracleEngine';
+import { HISTORY_META_KEY, loadHistory, saveHistory } from '../oracleEngine';
+import { getFirebase } from '../firebase/client';
+import type { SyncSnapshot } from './snapshot';
+import {
+  LANGS,
+  ORACLE_LOG_SHAPE,
+  SHEET_LOG_SHAPE,
   SYNC_FORMAT_VERSION,
+  emptyOracleHistory,
   emptySnapshot,
   isBlankCharacter,
   mergeSnapshots,
   parseSyncDocument,
+  sameCharacterList,
   sameSnapshot,
   serializeSnapshot,
-} from './sync';
-import { getFirebase } from '../firebase/client';
+} from './snapshot';
+import { loadLogMeta, sameLog, saveLogMeta } from './logs';
+import { sameTombstones } from './tombstones';
 
 export type SyncStatus = 'off' | 'connecting' | 'synced' | 'saving' | 'error';
 
@@ -41,6 +61,8 @@ const MAX_PAYLOAD = 900_000;
 let state: SyncState = { status: 'off', lastSyncedAt: null, error: null };
 const stateListeners = new Set<(state: SyncState) => void>();
 const storeListeners = new Set<(store: CharacterStore) => void>();
+const sheetLogListeners = new Set<(log: SheetRoll[]) => void>();
+const oracleListeners = new Set<(lang: Lang, history: RollResult[]) => void>();
 
 let uid: string | null = null;
 /** Зростає на кожній зміні користувача: асинхронні хвости старого входу
@@ -50,7 +72,6 @@ let unsubscribeDoc: (() => void) | null = null;
 /** Останній відомий стан хмари — щоб не писати те, що там уже лежить. */
 let remote: SyncSnapshot | null = null;
 let pushTimer: ReturnType<typeof setTimeout> | null = null;
-let pendingStore: CharacterStore | null = null;
 let flushing = false;
 let pushAgain = false;
 
@@ -66,10 +87,22 @@ export function subscribeSyncState(listener: (state: SyncState) => void): () => 
   return () => stateListeners.delete(listener);
 }
 
-/** Спрацьовує, коли з хмари приїхали зміни й локальне сховище оновлено. */
+/** Спрацьовує, коли з хмари приїхали зміни й localStorage уже оновлено. */
 export function subscribeStore(listener: (store: CharacterStore) => void): () => void {
   storeListeners.add(listener);
   return () => storeListeners.delete(listener);
+}
+
+export function subscribeSheetLog(listener: (log: SheetRoll[]) => void): () => void {
+  sheetLogListeners.add(listener);
+  return () => sheetLogListeners.delete(listener);
+}
+
+export function subscribeOracleHistory(
+  listener: (lang: Lang, history: RollResult[]) => void,
+): () => void {
+  oracleListeners.add(listener);
+  return () => oracleListeners.delete(listener);
 }
 
 function setState(patch: Partial<SyncState>): void {
@@ -93,8 +126,29 @@ function describe(cause: unknown): string {
 
 // ── Локальний бік ─────────────────────────────────────────────────────
 
-function localSnapshot(store: CharacterStore): SyncSnapshot {
-  return { characters: store.characters, tombstones: loadTombstones() };
+/**
+ * Двигун щоразу перечитує localStorage, а не тримає власну копію: усі три
+ * джерела (аркуш, журнал кидків, оракули) зберігаються самі й лише потім
+ * повідомляють сюди, тож на диску завжди найсвіжіше.
+ */
+function readLocal(): { store: CharacterStore; snapshot: SyncSnapshot } {
+  const store = loadStore();
+  const sheetMeta = loadLogMeta(SHEET_LOG_META_KEY);
+  const oracleHistory = emptyOracleHistory();
+  for (const lang of LANGS) {
+    const meta = loadLogMeta(HISTORY_META_KEY(lang));
+    oracleHistory[lang] = { entries: loadHistory(lang), ...meta };
+  }
+
+  return {
+    store,
+    snapshot: {
+      characters: store.characters,
+      tombstones: loadCharacterTombstones(),
+      sheetLog: { entries: loadSheetLog(), ...sheetMeta },
+      oracleHistory,
+    },
+  };
 }
 
 /**
@@ -104,8 +158,8 @@ function localSnapshot(store: CharacterStore): SyncSnapshot {
  */
 function outgoing(snapshot: SyncSnapshot): SyncSnapshot {
   return {
+    ...snapshot,
     characters: snapshot.characters.filter(character => !isBlankCharacter(character)),
-    tombstones: snapshot.tombstones,
   };
 }
 
@@ -127,8 +181,7 @@ function applyRemote(raw: unknown, pruneBlanks: boolean): void {
 
   remote = incoming;
 
-  const store = pendingStore ?? loadStore();
-  const local = localSnapshot(store);
+  const { store, snapshot: local } = readLocal();
   const merged = mergeSnapshots(local, incoming, { pruneBlanks });
 
   // Видалення останнього персонажа на іншому пристрої не має лишати цей
@@ -138,7 +191,20 @@ function applyRemote(raw: unknown, pruneBlanks: boolean): void {
     merged.characters = [createCharacter()];
   }
 
-  if (!sameSnapshot(merged, local)) {
+  writeLocal(store, local, merged);
+
+  setState({ status: 'synced', lastSyncedAt: Date.now(), error: null });
+
+  // Хмара могла не знати частини локальних змін — відсилаємо їх одразу.
+  if (!sameSnapshot(outgoing(merged), incoming)) schedulePush(0);
+}
+
+/** Кладе на диск лише те, що справді змінилося, і будить відповідний екран. */
+function writeLocal(store: CharacterStore, local: SyncSnapshot, merged: SyncSnapshot): void {
+  if (
+    !sameCharacterList(merged.characters, local.characters) ||
+    !sameTombstones(merged.tombstones, local.tombstones)
+  ) {
     // Активним лишається той самий персонаж, поки він існує: підміняти
     // відкриту картку через зміну на іншому пристрої — це найгірше, що
     // синхронізація може зробити посеред гри.
@@ -148,15 +214,28 @@ function applyRemote(raw: unknown, pruneBlanks: boolean): void {
     const next: CharacterStore = { version: STORE_VERSION, activeId, characters: merged.characters };
 
     saveStore(next);
-    saveTombstones(merged.tombstones);
-    pendingStore = next;
+    saveCharacterTombstones(merged.tombstones);
     for (const listener of storeListeners) listener(next);
   }
 
-  setState({ status: 'synced', lastSyncedAt: Date.now(), error: null });
+  if (!sameLog(merged.sheetLog, local.sheetLog, SHEET_LOG_SHAPE)) {
+    saveSheetLog(merged.sheetLog.entries);
+    saveLogMeta(SHEET_LOG_META_KEY, {
+      tombstones: merged.sheetLog.tombstones,
+      clearedAt: merged.sheetLog.clearedAt,
+    });
+    for (const listener of sheetLogListeners) listener(merged.sheetLog.entries);
+  }
 
-  // Хмара могла не знати частини локальних змін — відсилаємо їх одразу.
-  if (!sameSnapshot(outgoing(merged), incoming)) schedulePush(0);
+  for (const lang of LANGS) {
+    if (sameLog(merged.oracleHistory[lang], local.oracleHistory[lang], ORACLE_LOG_SHAPE)) continue;
+    saveHistory(lang, merged.oracleHistory[lang].entries);
+    saveLogMeta(HISTORY_META_KEY(lang), {
+      tombstones: merged.oracleHistory[lang].tombstones,
+      clearedAt: merged.oracleHistory[lang].clearedAt,
+    });
+    for (const listener of oracleListeners) listener(lang, merged.oracleHistory[lang].entries);
+  }
 }
 
 // ── Відправлення змін ─────────────────────────────────────────────────
@@ -181,8 +260,7 @@ async function flushPush(): Promise<void> {
   const token = session;
   const userId = uid;
 
-  const local = localSnapshot(pendingStore ?? loadStore());
-  const payload = outgoing(local);
+  const payload = outgoing(readLocal().snapshot);
   if (remote && sameSnapshot(payload, remote)) {
     setState({ status: 'synced', lastSyncedAt: Date.now(), error: null });
     return;
@@ -192,7 +270,7 @@ async function flushPush(): Promise<void> {
   if (text.length > MAX_PAYLOAD) {
     setState({
       status: 'error',
-      error: 'Аркуш завеликий для синхронізації. Видаліть зайвих персонажів або скоротіть записи.',
+      error: 'Аркуш завеликий для синхронізації. Видаліть зайвих персонажів або очистіть журнали.',
     });
     return;
   }
@@ -228,9 +306,11 @@ async function flushPush(): Promise<void> {
 
 // ── Публічний API ─────────────────────────────────────────────────────
 
-/** Викликає аркуш після кожного локального збереження. */
-export function pushLocal(store: CharacterStore): void {
-  pendingStore = store;
+/**
+ * Викликає кожен екран після того, як зберіг своє в localStorage.
+ * Що саме змінилося, двигун з'ясує сам — перечитавши диск.
+ */
+export function notifyLocalChange(): void {
   if (!uid) return;
   schedulePush();
 }
