@@ -6,18 +6,22 @@ import type { ReactNode } from 'react';
 import { Navigate } from 'react-router-dom';
 import type {
   AttrKey,
+  CharacterProfile,
   ExtraTrack,
   ProgressTrack,
   Track,
   TrackKind,
 } from '../../utils/character/types';
 import { emptyBond, emptyVow, newId } from '../../utils/character/storage';
+import type { Profile } from '../../utils/profiles';
+import { emptyCharacterProfile, resolveProfiles } from '../../utils/character/profiles';
 import type { SheetRoll } from '../../utils/character/diceEngine';
 import { commitBurn, previewBurn, rollAction, rollProgress } from '../../utils/character/diceEngine';
 import { ATTR_LABELS, SHEET, UI } from '../../utils/character/labels';
 import { clampAttribute, clampStat, nextXpState, resetMomentum } from '../../utils/character/rules';
 import { useCharacterStore } from './useCharacterStore';
 import { useSheetLog } from './useSheetLog';
+import { useIsNarrow } from './useIsNarrow';
 import AttributeBoxes from './AttributeBoxes';
 import MomentumTrack from './MomentumTrack';
 import StatTracks from './StatTracks';
@@ -29,6 +33,9 @@ import BondRow from './BondRow';
 import XpTrack from './XpTrack';
 import CharacterBar from './CharacterBar';
 import ExtraTracksSection from './ExtraTracksSection';
+import ProfilesZone from './ProfilesZone';
+import ProfilesFooter from './ProfilesFooter';
+import ProfilePicker from './ProfilePicker';
 import './CharacterSheet.css';
 
 const vowLabel = (name: string, index: number) => name.trim() || `Присяга ${index + 1}`;
@@ -80,11 +87,17 @@ const CharacterSheetInner = () => {
     importFromText,
   } = useCharacterStore();
   const { log, push, remove, clear } = useSheetLog();
+  const narrow = useIsNarrow();
 
   // Картки-сповіщення живуть лише в межах сесії. Якби вони бралися з журналу,
   // після перезавантаження гравцеві пропонували б спалити імпульс на кидку,
   // зробленому минулого разу. Найновіша — перша.
   const [toasts, setToasts] = useState<SheetRoll[]>([]);
+
+  // Яка карта піднята й чи відкрите вікно вибору — стан екрана, не персонажа:
+  // після перезавантаження рука лежить закритою.
+  const [raisedProfileId, setRaisedProfileId] = useState<string | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
 
   const dismissToast = useCallback(
     (id: string) => setToasts(current => current.filter(roll => roll.id !== id)),
@@ -174,6 +187,48 @@ const CharacterSheetInner = () => {
         { id: newId(), name: '', rank: 'dangerous', ticks: 0, kind },
       ],
     }));
+
+  // ── Профілі ─────────────────────────────────────────────────────────
+  // Каталог у стан не копіюється: у персонажі лежить лише ключ картки
+  // та робота гравця над нею (PROFILES_PLAN.md §4.2).
+  const profiles = resolveProfiles(character.profiles);
+
+  /** Доданий профіль стає останнім у руці й одразу піднятим (§6.1). */
+  const addProfile = (profile: Profile) => {
+    const entry = emptyCharacterProfile(profile);
+    updateCharacter(current => ({ ...current, profiles: [...current.profiles, entry] }));
+    setRaisedProfileId(entry.id);
+    setPickerOpen(false);
+  };
+
+  const updateProfile = (
+    id: string,
+    updater: (entry: CharacterProfile) => CharacterProfile,
+  ) =>
+    updateCharacter(current => ({
+      ...current,
+      profiles: current.profiles.map(entry => (entry.id === id ? updater(entry) : entry)),
+    }));
+
+  const removeProfile = (id: string) => {
+    updateCharacter(current => ({
+      ...current,
+      profiles: current.profiles.filter(entry => entry.id !== id),
+    }));
+    setRaisedProfileId(current => (current === id ? null : current));
+  };
+
+  const addProfileButton = (
+    <button
+      type="button"
+      className="zone-add"
+      onClick={() => setPickerOpen(true)}
+      aria-label={UI.addProfile}
+      title={UI.addProfile}
+    >
+      +
+    </button>
+  );
 
   return (
     <div className="character-sheet-page">
@@ -325,6 +380,19 @@ const CharacterSheetInner = () => {
           />
         </Zone>
 
+        {/* На телефоні зони немає — замість неї приклеєний футер (рішення №5). */}
+        {!narrow && (
+          <Zone area="profiles" title={SHEET.profiles} action={addProfileButton}>
+            <ProfilesZone
+              entries={profiles}
+              raisedId={raisedProfileId}
+              onRaise={setRaisedProfileId}
+              onUpdate={updateProfile}
+              onRemove={removeProfile}
+            />
+          </Zone>
+        )}
+
         <Zone area="tracks" title={SHEET.tracks}>
           <ExtraTracksSection
             character={character}
@@ -352,6 +420,23 @@ const CharacterSheetInner = () => {
         onBurn={handleBurn}
         onDismiss={dismissToast}
       />
+
+      {narrow && (
+        <ProfilesFooter
+          entries={profiles}
+          onAdd={() => setPickerOpen(true)}
+          onUpdate={updateProfile}
+          onRemove={removeProfile}
+        />
+      )}
+
+      {pickerOpen && (
+        <ProfilePicker
+          taken={character.profiles.map(entry => entry.profileId)}
+          onAdd={addProfile}
+          onClose={() => setPickerOpen(false)}
+        />
+      )}
     </div>
   );
 };

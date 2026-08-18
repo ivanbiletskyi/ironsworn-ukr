@@ -5,6 +5,7 @@
 
 import type { AttrKey, DebilityGroup, DebilityKey, Rank, StatKey, TrackKind } from './types';
 import type { Outcome } from './diceEngine';
+import type { ProfileType } from '../profiles';
 
 export const ATTR_LABELS: Record<AttrKey, string> = {
   edge: 'Вістря',
@@ -61,6 +62,27 @@ export const TRACK_KIND_LABELS: Record<TrackKind, string> = {
   other: 'Інше',
 };
 
+/**
+ * Тип профілю — як надруковано в шапці картки набору. Свідомий виняток із §2:
+ * гравець тримає в руках картку з написом «ШЛЯХ», і називати її в апці
+ * «активом» — створювати розбіжність там, де її найлегше помітити
+ * (PROFILES_PLAN.md рішення №21).
+ */
+export const PROFILE_TYPE_LABELS: Record<ProfileType, string> = {
+  companion: 'Супутник',
+  path: 'Шлях',
+  talent: 'Бойовий талант',
+  ritual: 'Ритуал',
+};
+
+/** Заголовки груп у вікні вибору — множина. */
+export const PROFILE_GROUP_LABELS: Record<ProfileType, string> = {
+  companion: 'Супутники',
+  path: 'Шляхи',
+  talent: 'Бойові таланти',
+  ritual: 'Ритуали',
+};
+
 /** Заголовки зон аркуша — як на паперовому аркуші, великими літерами. */
 export const SHEET = {
   character: 'Персонаж',
@@ -73,6 +95,7 @@ export const SHEET = {
   bonds: 'Стосунки',
   debilities: 'Слабкості',
   stats: 'Показники',
+  profiles: 'Профілі',
   tracks: 'Треки',
   log: 'Журнал кидків',
 } as const;
@@ -122,6 +145,26 @@ export const UI = {
   trackNamePlaceholder: 'Назва треку',
   bondNamePlaceholder: 'З ким у вас зв’язок?',
   notesPlaceholder: 'Спорядження, союзники, зачіпки…',
+
+  // ── Профілі ─────────────────────────────────────────────────────────
+  addProfile: 'Додати профіль',
+  removeProfile: 'Видалити профіль',
+  noProfiles: 'Профілів ще немає',
+  /** Зв'язок із главою правил, щоб термін «актив» не загубився (§2). */
+  profilesRulesHint: 'У правилах їх названо активами',
+  profilesRulesLink: 'див. главу «Активи»',
+  profileSearchPlaceholder: 'Пошук за назвою чи текстом навички',
+  profileNothingFound: 'Нічого не знайдено',
+  profilesAllAdded: 'Усі профілі набору вже в руці',
+  abilityOpen: 'відкрито',
+  abilityLocked: 'не відкрито',
+  addToHand: '+ Додати',
+  back: 'Назад',
+  openProfiles: 'Показати профілі',
+  closeProfiles: 'Сховати профілі',
+  raiseProfile: 'Підняти карту',
+  lowerProfile: 'Опустити карту',
+  profileScale: 'Шкала картки',
 } as const;
 
 /** Значення шкали зі знаком: «+3», «0», «−2» (справжній мінус, не дефіс). */
@@ -141,6 +184,16 @@ export function debilityHint(count: number): string | null {
 /** Питання перед видаленням шкали, у якій уже є назва або прогрес. */
 export function confirmTrackRemoval(label: string): string {
   return `Видалити «${label}» разом із прогресом?`;
+}
+
+/** Те саме для картки, у якій є робота гравця: відмітки, поля, шкала. */
+export function confirmProfileRemoval(label: string): string {
+  return `Видалити «${label}» разом із відмітками?`;
+}
+
+/** Підпис корінця карти для читача екрана: «2 з 3 навичок відкрито». */
+export function markCountHint(marked: number, total: number): string {
+  return `${marked} з ${total} навичок відкрито`;
 }
 
 /** Підказка, чому показник не можна підвищити. */

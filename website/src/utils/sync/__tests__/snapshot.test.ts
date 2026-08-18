@@ -57,6 +57,30 @@ describe('a blank character', () => {
     withProgress.bonds[0] = { ...withProgress.bonds[0], ticks: 1 };
     expect(isBlankCharacter(withProgress)).toBe(false);
   });
+
+  /** Інакше перше злиття після входу зжувало б персонажа з рукою профілів. */
+  it('stops being blank once a profile is in the hand', () => {
+    const withProfile = createCharacter();
+    withProfile.profiles = [
+      { id: 'p1', profileId: 'companion-pes', marked: [], fields: {}, trackIndex: null },
+    ];
+    expect(isBlankCharacter(withProfile)).toBe(false);
+  });
+
+  it('does not prune a character that has only a profile', () => {
+    const withProfile: Character = {
+      ...character('withProfile'),
+      name: '',
+      profiles: [
+        { id: 'p1', profileId: 'path-maska', marked: ['1'], fields: {}, trackIndex: null },
+      ],
+    };
+    const merged = mergeSnapshots(snap([withProfile]), snap([blank('empty')]), {
+      pruneBlanks: true,
+      now: NOW,
+    });
+    expect(merged.characters.map(c => c.id)).toEqual(['id-withProfile']);
+  });
 });
 
 describe('merging two devices', () => {

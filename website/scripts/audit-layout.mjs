@@ -49,6 +49,16 @@ const SEED = `
       { id: 't1', name: 'Зграя вовків', rank: 'dangerous', ticks: 10, kind: 'combat' },
       { id: 't2', name: 'Через Крижані Пустки', rank: 'formidable', ticks: 5, kind: 'journey' },
     ];
+    // П'ять профілів, підібраних під найгірші випадки картки: супутник із
+    // вписаним ім'ям і вибраною шкалою, найдовший шлях, ритуал із вкладеним
+    // списком, талант зі шкалою словами й довга назва в корінці.
+    c.profiles = [
+      { id: 'pr1', profileId: 'companion-pes', marked: ['2', '3'], fields: { name: 'Баск' }, trackIndex: 2 },
+      { id: 'pr2', profileId: 'path-poviazanyi', marked: [], fields: {}, trackIndex: null },
+      { id: 'pr3', profileId: 'ritual-vartove-kolo', marked: ['1'], fields: {}, trackIndex: null },
+      { id: 'pr4', profileId: 'talent-bronenosets', marked: [], fields: {}, trackIndex: 1 },
+      { id: 'pr5', profileId: 'path-myslyvets-za-nazhyvoiu', marked: [], fields: {}, trackIndex: null },
+    ];
     localStorage.setItem('ironsworn-characters-v1', JSON.stringify(store));
     return true;
   })()
@@ -246,6 +256,103 @@ try {
   check('the character menu button is at least 40px tall', heightOf('.character-menu__toggle') >= 40);
   check('the attribute edit toggle is at least 40px tall', heightOf('.attribute-edit-toggle') >= 40);
 
+  // Корінці й закритий футер нічого не переповнюють — переповнює вміст, який
+  // з'являється лише після кліку: піднята карта, шухляда, фулскрін, вікно
+  // вибору. Тож кожен із цих станів відкриваємо й міряємо окремо.
+  console.log('\nProfiles: opened states');
+  const overflowCheck = async name => {
+    const documentWidth = await evaluate('document.documentElement.scrollWidth');
+    const viewport = await evaluate('innerWidth');
+    const overflowing = JSON.parse(await evaluate(OVERFLOW_PROBE));
+    check(
+      name,
+      documentWidth <= viewport && overflowing.length === 0,
+      `document ${documentWidth}/${viewport}, overflowing ${JSON.stringify(overflowing)}`,
+    );
+  };
+  const click = async selector => {
+    const hit = await evaluate(`
+      (() => {
+        const el = document.querySelector(${JSON.stringify(selector)});
+        if (!el) return false;
+        el.click();
+        return true;
+      })()
+    `);
+    await wait(250);
+    return hit;
+  };
+
+  for (const width of [768, 1200, 1500]) {
+    await load(width, 1000, false);
+    check(`${width}px renders the profiles zone`, await click('.profile-spine'));
+    await overflowCheck(`${width}px with a card raised`);
+    // Найдовша картка прокручується всередині себе, а не розтягує зону.
+    const raised = JSON.parse(
+      await evaluate(`
+        (() => {
+          const el = document.querySelector('.profile-card--raised');
+          if (!el) return 'null';
+          return JSON.stringify({ height: Math.round(el.getBoundingClientRect().height),
+            scrollable: getComputedStyle(el).overflowY });
+        })()
+      `),
+    );
+    check(
+      `${width}px keeps the raised card inside the zone`,
+      raised && raised.scrollable === 'auto' && raised.height <= 1000,
+      JSON.stringify(raised),
+    );
+
+    await click('.sheet-zone--profiles .zone-add');
+    await overflowCheck(`${width}px with the picker open`);
+  }
+
+  console.log('\nProfiles on a phone (390px)');
+  await load(390, 900, true);
+  check('the zone is replaced by a sticky footer', await click('.profiles-footer__toggle'));
+  await overflowCheck('the drawer fits the viewport');
+
+  // Футер накривав би журнал кидків, якби сторінка не лишала під собою його висоту.
+  const clearance = JSON.parse(
+    await evaluate(`
+      JSON.stringify({
+        padding: Math.round(parseFloat(
+          getComputedStyle(document.querySelector('.character-sheet-page')).paddingBottom)),
+        footer: Math.round(
+          document.querySelector('.profiles-footer__bar').getBoundingClientRect().height),
+      })
+    `),
+  );
+  check(
+    'the page leaves room for the footer',
+    clearance.padding >= clearance.footer,
+    JSON.stringify(clearance),
+  );
+
+  check('a card opens fullscreen', await click('.profile-spine'));
+  await overflowCheck('the fullscreen card fits the viewport');
+
+  const profileTargets = JSON.parse(
+    await evaluate(`
+      JSON.stringify(['.profile-mark', '.profile-track__cell', '.profile-field__input',
+        '.profiles-footer__toggle', '.profile-modal__close']
+        .map(selector => {
+          const el = document.querySelector(selector);
+          if (!el) return { selector, missing: true };
+          const rect = el.getBoundingClientRect();
+          return { selector, height: Math.round(rect.height), width: Math.round(rect.width) };
+        }))
+    `),
+  );
+  for (const target of profileTargets) {
+    check(
+      `${target.selector} is a real tap target`,
+      !target.missing && target.height >= 40 && target.width >= 24,
+      JSON.stringify(target),
+    );
+  }
+
   console.log('\nLight theme');
   for (const [width, mobile] of [
     [1500, false],
@@ -279,6 +386,15 @@ try {
     })()
   `);
   check('dice animation is switched off', animation === 'none', animation);
+
+  const spineMotion = await evaluate(`
+    (() => {
+      const el = document.querySelector('.profile-spine');
+      if (!el) return 'no spine rendered';
+      return getComputedStyle(el).transitionDuration;
+    })()
+  `);
+  check('the card lift is switched off', spineMotion === '0s', spineMotion);
 
   socket.close();
 } catch (error) {

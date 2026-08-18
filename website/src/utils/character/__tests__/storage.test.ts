@@ -121,6 +121,100 @@ describe('normalising damaged data', () => {
   });
 });
 
+describe('normalising profiles (§4.3)', () => {
+  /** Каталог — джерело істини, тож ключ вирішує, чи запис узагалі існує. */
+  it('drops a profile whose key is not in the catalogue and keeps the rest', () => {
+    const character = normalizeCharacter({
+      profiles: [
+        { profileId: 'companion-pes' },
+        { profileId: 'нема-такого' },
+        { profileId: 'path-maska' },
+        'garbage',
+      ],
+    });
+    expect(character.profiles.map(p => p.profileId)).toEqual([
+      'companion-pes',
+      'path-maska',
+    ]);
+  });
+
+  it('gives a v3 save without profiles an empty hand', () => {
+    expect(normalizeCharacter({ name: 'Ульріка' }).profiles).toEqual([]);
+    expect(normalizeCharacter({ profiles: 'not an array' }).profiles).toEqual([]);
+  });
+
+  it('cleans marks of impossible paths and duplicates', () => {
+    // «Пес» має рівно три кружечки: '2', '3', '4'.
+    const profile = normalizeCharacter({
+      profiles: [{ profileId: 'companion-pes', marked: ['2', '2', '0', '9', 7, '4'] }],
+    }).profiles[0];
+    expect(profile.marked).toEqual(['2', '4']);
+  });
+
+  it('keeps nested mark paths', () => {
+    const profile = normalizeCharacter({
+      profiles: [{ profileId: 'path-maska', marked: ['1', '1.2', '1.9'] }],
+    }).profiles[0];
+    expect(profile.marked).toEqual(['1', '1.2']);
+  });
+
+  it('clamps the scale to the cells the card has, and nulls it when it has none', () => {
+    const clamped = normalizeCharacter({
+      profiles: [{ profileId: 'companion-pes', trackIndex: 99 }],
+    }).profiles[0];
+    // Здоров'я пса — 0…+4, тобто п'ять клітинок.
+    expect(clamped.trackIndex).toBe(4);
+
+    const negative = normalizeCharacter({
+      profiles: [{ profileId: 'companion-pes', trackIndex: -3 }],
+    }).profiles[0];
+    expect(negative.trackIndex).toBe(0);
+
+    // «Маска» шкали не має.
+    const noTrack = normalizeCharacter({
+      profiles: [{ profileId: 'path-maska', trackIndex: 2 }],
+    }).profiles[0];
+    expect(noTrack.trackIndex).toBeNull();
+  });
+
+  it('keeps only the fields the catalogue declares', () => {
+    const profile = normalizeCharacter({
+      profiles: [
+        { profileId: 'companion-pes', fields: { name: 'Баск', craft: 'ковальство', name2: 7 } },
+      ],
+    }).profiles[0];
+    expect(profile.fields).toEqual({ name: 'Баск' });
+  });
+
+  it('issues an id when the save has none', () => {
+    const profile = normalizeCharacter({ profiles: [{ profileId: 'companion-pes' }] }).profiles[0];
+    expect(profile.id).toBeTruthy();
+  });
+
+  it('re-issues profile ids in a copy', () => {
+    const original = createCharacter('Ульріка');
+    original.profiles = [
+      { id: 'p1', profileId: 'companion-pes', marked: ['2'], fields: { name: 'Баск' }, trackIndex: 2 },
+    ];
+
+    const copy = duplicateCharacter(original);
+    expect(copy.profiles[0].id).not.toBe('p1');
+    expect(copy.profiles[0].profileId).toBe('companion-pes');
+    expect(copy.profiles[0].marked).toEqual(['2']);
+    expect(copy.profiles[0].fields).toEqual({ name: 'Баск' });
+    expect(copy.profiles[0].trackIndex).toBe(2);
+  });
+
+  it('survives an export round trip', () => {
+    const original = createCharacter('Ульріка');
+    original.profiles = [
+      { id: 'p1', profileId: 'path-maska', marked: ['1', '1.2'], fields: {}, trackIndex: null },
+    ];
+    const restored = parseCharacterFile(serializeCharacter(original));
+    expect(restored.profiles[0].marked).toEqual(['1', '1.2']);
+  });
+});
+
 describe('export and import', () => {
   it('survives a full round trip', () => {
     const original = createCharacter('Ульріка');

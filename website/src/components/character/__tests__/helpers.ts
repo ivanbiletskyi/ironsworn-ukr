@@ -99,6 +99,79 @@ export const bondName = (root: HTMLElement, index: number) =>
   q(bonds(root)[index], '.progress-track__name') as HTMLInputElement;
 export const extraTracks = (root: HTMLElement) => qa(root, '.extra-track');
 
+// ── Профілі ───────────────────────────────────────────────────────────
+
+export const profilesZone = (root: HTMLElement) => q(root, '.sheet-zone--profiles');
+export const addProfileButton = (root: HTMLElement) =>
+  q(root, '.sheet-zone--profiles .zone-add') as HTMLElement;
+export const profileSpines = (root: HTMLElement) => qa(root, '.profile-spine');
+export const spineLabels = (root: HTMLElement) =>
+  profileSpines(root).map(spine => q(spine, '.profile-spine__name')?.textContent ?? '');
+export const raisedCard = (root: HTMLElement) => q(root, '.profile-card--raised');
+export const fullCard = (root: HTMLElement) => q(root, '.profile-modal--card .profile-card');
+
+/** Рядки навичок піднятої (або будь-якої видимої) картки. */
+export const cardMarks = (card: HTMLElement) => qa(card, '.profile-mark');
+export const markStates = (card: HTMLElement) =>
+  cardMarks(card).map(mark => mark.getAttribute('aria-checked'));
+export const cardField = (card: HTMLElement, label: string) =>
+  qa(card, '.profile-field__input').find(
+    input => input.getAttribute('aria-label') === label,
+  ) as HTMLInputElement;
+export const cardTrackCells = (card: HTMLElement) => qa(card, '.profile-track__cell');
+export const currentTrackCell = (card: HTMLElement) =>
+  q(card, '.profile-track__cell--current')?.textContent ?? null;
+export const cardRemoveButton = (card: HTMLElement) =>
+  q(card, '.profile-card__remove') as HTMLElement;
+export const cardConfirm = (root: HTMLElement) => q(root, '.track-row__confirm');
+export const cardConfirmButtons = (root: HTMLElement) =>
+  qa(root, '.track-row__confirm .track-button');
+
+// Вікно вибору
+export const picker = (root: HTMLElement) => q(root, '.profile-modal');
+export const pickerSearch = (root: HTMLElement) => q(root, '.profile-search') as HTMLInputElement;
+export const pickerTiles = (root: HTMLElement) => qa(root, '.profile-tile');
+export const pickerTileNames = (root: HTMLElement) =>
+  pickerTiles(root).map(tile => q(tile, '.profile-tile__name')?.textContent ?? '');
+export const pickerGroupTitles = (root: HTMLElement) =>
+  qa(root, '.profile-group__title').map(node => node.textContent);
+export const addToHandButton = (root: HTMLElement) =>
+  q(root, '.profile-modal__actions .roll-button') as HTMLElement;
+
+/** «+» → плитку з такою назвою → «+ Додати». Найкоротший шлях до руки. */
+export const addProfileByName = (root: HTMLElement, name: string) => {
+  fireEvent.click(addProfileButton(root));
+  const tile = pickerTiles(root).find(
+    item => q(item, '.profile-tile__name')?.textContent === name,
+  );
+  if (!tile) throw new Error(`Профілю «${name}» немає у вікні вибору`);
+  fireEvent.click(tile);
+  fireEvent.click(addToHandButton(root));
+};
+
+// Мобільний футер
+export const footerToggle = (root: HTMLElement) =>
+  q(root, '.profiles-footer__toggle') as HTMLElement;
+export const drawer = (root: HTMLElement) => q(root, '.profiles-drawer');
+export const modalClose = (root: HTMLElement) => q(root, '.profile-modal__close') as HTMLElement;
+
+/**
+ * Вдає телефон: `useIsNarrow` питає `matchMedia`, а в jsdom той завжди
+ * віддає `matches: false`, тож без підміни тести бачать десктопну зону.
+ */
+export function stubNarrowViewport() {
+  vi.stubGlobal('matchMedia', (media: string) => ({
+    matches: media === '(max-width: 700px)',
+    media,
+    onchange: null,
+    addEventListener: () => {},
+    removeEventListener: () => {},
+    addListener: () => {},
+    removeListener: () => {},
+    dispatchEvent: () => false,
+  }));
+}
+
 export const trackBoxes = (track: HTMLElement) => qa(track, '.progress-box');
 
 /** A box draws one line per tick, so counting lines counts ticks. */

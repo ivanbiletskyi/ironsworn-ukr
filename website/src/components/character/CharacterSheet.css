@@ -197,6 +197,7 @@
     'momentum vows   vows   stats'
     'momentum notes  bonds  stats'
     'momentum notes  debil  stats'
+    'profiles profiles profiles profiles'
     'tracks   tracks tracks tracks'
     'log      log    log    log';
 }
@@ -1247,18 +1248,6 @@
   cursor: pointer;
 }
 
-@media (prefers-reduced-motion: reduce) {
-  .die,
-  .roll-toast {
-    animation: none;
-  }
-
-  /* Свайп лишається робочим — зникає лише плавність. */
-  .roll-toast__card {
-    transition: none;
-  }
-}
-
 /* ── Слабкості ────────────────────────────────────────────────────── */
 
 .debilities {
@@ -1299,6 +1288,712 @@
   cursor: pointer;
 }
 
+/* ── Профілі: рука карт ───────────────────────────────────────────── */
+
+/* Метафора — рука карт, а не акордеон: корінці лежать віялом, а клік підіймає
+   карту в межах зони, лишаючи аркуш видним (PROFILES_PLAN.md рішення №1–3). */
+
+.profiles-empty {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.profiles-empty__text {
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* Термін «профіль» узято з набору, тож зона мусить сама показати місток
+   до глави правил, де ті самі картки названо активами (§2). */
+.profiles-empty__hint {
+  margin: 0;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.profiles-empty__hint a {
+  color: var(--highlight);
+}
+
+.profiles-zone {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+/* Поки нічого не піднято, віяло займає всю зону; з піднятою картою воно
+   відходить праворуч і стає вузькою смугою корінців. */
+.profiles-zone:not(.profiles-zone--raised) .profile-hand {
+  flex: 1;
+}
+
+.profiles-zone--raised {
+  flex-wrap: wrap;
+}
+
+.profiles-zone--raised .profile-hand {
+  flex: 1 1 12rem;
+}
+
+/* Віяло. Накладання не фіксоване — воно рівно таке, якого вимагає доступна
+   ширина: поки карти вміщаються, вони лежать поруч і читаються цілком; далі
+   заходять одна на одну, але не глибше за `--max-overlap`. Прокрутка вбік —
+   останній клапан, коли карт більше, ніж вміщає навіть найглибше накладання. */
+.profile-hand {
+  --max-overlap: 3.6rem;
+  --card-width: 6.5rem;
+  display: flex;
+  align-items: flex-end;
+  margin: 0;
+  /* Місце під підняття карти під курсором — інакше прокрутка його зрізала б. */
+  padding: 1.25rem 0 0.35rem;
+  list-style: none;
+  overflow-x: auto;
+  scrollbar-width: thin;
+}
+
+/* Повернута карта виступає за свій бокс — і це виступання слот тримає власним
+   відступом. Інакше воно рахувалося б горизонтальним переповненням руки
+   (`yarn audit:layout` це й ловить), хоч насправді карта нікуди не зникає. */
+.profile-hand__slot {
+  --tilt-room: 14px;
+  --slot-width: calc(var(--card-width) + 2 * var(--tilt-room));
+  flex: 0 0 auto;
+  min-width: 0;
+  padding: 0 var(--tilt-room);
+}
+
+/* Віяло стоїть посередині зони, а не тулиться до лівого краю. Саме автополями,
+   а не `justify-content: center`: центрування зрізало б початок руки, щойно
+   карт стане більше, ніж вміщає зона, і прокрутка до першої стала б неможливою. */
+.profile-hand__slot:first-child {
+  margin-left: auto;
+}
+
+.profile-hand__slot:last-child {
+  margin-right: auto;
+}
+
+/**
+ * Середина — це «скільки місця бракує, поділити на проміжки»: рівно те
+ * накладання, якого вимагає ширина руки (100% тут — саме вона). Верхня межа
+ * лишає карти на 6px одну від одної, коли місця вдосталь; нижня не дає
+ * накладанню сховати назву глибше, ніж на `--max-overlap`.
+ *
+ * Відступ під поворот входить в обидві межі, бо він стоїть між самими картами.
+ */
+.profile-hand__slot + .profile-hand__slot {
+  margin-left: clamp(
+    calc(-1 * (var(--max-overlap) + 2 * var(--tilt-room))),
+    calc((100% - var(--count) * var(--slot-width)) / max(var(--count) - 1, 1)),
+    calc(6px - 2 * var(--tilt-room))
+  );
+}
+
+/* Корінець карти: тип, підпис, кружечки. Поворот — від середини руки, тож
+   крайні карти відходять убік, як у справжньому віялі. */
+.profile-spine {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: var(--card-width);
+  min-height: 5.5rem;
+  padding: 0.4rem 0.45rem;
+  font-family: inherit;
+  text-align: left;
+  color: var(--text-primary);
+  background: var(--primary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  box-shadow: -3px 2px 8px rgba(0, 0, 0, 0.35);
+  cursor: pointer;
+  /* Поворот від середини руки: крайні карти відходять убік, як у справжньому
+     віялі. Кут обмежено, бо на дванадцяти картах він виріс би до 11° — і карта
+     виступала б за `--tilt-room`, а віяло перетворилося б на розкидані карти. */
+  transform: rotate(clamp(-4deg, (var(--i) - (var(--count) - 1) / 2) * 2deg, 4deg));
+  transform-origin: bottom center;
+  transition: transform 0.18s ease, border-color 0.18s ease;
+}
+
+/* Під курсором карта піднімається поверх сусідів і випрямляється — саме так
+   її й витягують із руки. z-index лишається в межах зони. */
+.profile-spine:hover,
+.profile-spine:focus-visible {
+  z-index: 2;
+  border-color: var(--highlight);
+  transform: translateY(-10px) rotate(0deg);
+}
+
+.profile-hand__slot:hover,
+.profile-hand__slot:focus-within {
+  position: relative;
+  z-index: 2;
+}
+
+.profile-spine--raised {
+  z-index: 1;
+  color: var(--highlight);
+  border-color: var(--highlight);
+  transform: translateY(-6px) rotate(0deg);
+}
+
+.profile-spine__type {
+  font-size: 0.55rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.profile-spine__name {
+  font-size: 0.78rem;
+  font-weight: 600;
+  line-height: 1.15;
+  /* Довга назва переноситься, а не обрізається: «Мисливець за наживою»
+     обрізаний до «Мислив…» у віялі не розпізнати. */
+  overflow-wrap: anywhere;
+}
+
+/* Вписане ім'я стає підписом карти, а назва профілю йде другим рядком (§6.3). */
+.profile-spine__origin {
+  font-size: 0.62rem;
+  color: var(--text-muted);
+}
+
+/* Кружечків буває й дванадцять («Пов'язаний»), тож вони переносяться:
+   у рядок вони вилізли б за корінець карти. */
+.profile-spine__marks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-top: auto;
+  padding-top: 0.25rem;
+}
+
+.profile-dot {
+  width: 7px;
+  height: 7px;
+  border: 1px solid var(--text-muted);
+  border-radius: 50%;
+}
+
+.profile-dot--filled {
+  background: var(--highlight);
+  border-color: var(--highlight);
+}
+
+/* ── Профілі: картка ──────────────────────────────────────────────── */
+
+.profile-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.7rem 0.85rem;
+  background: var(--primary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+}
+
+/* Піднята карта не розтягує зону: найдовші картки («Пов'язаний», «Вартове
+   коло») прокручуються всередині себе (§12). */
+.profile-card--raised {
+  flex: 0 0 auto;
+  width: min(22rem, 100%);
+  max-height: 32rem;
+  overflow-y: auto;
+  border-color: var(--highlight);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.profile-card--preview,
+.profile-card--full {
+  width: 100%;
+}
+
+.profile-card__head {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.profile-type {
+  flex: 0 0 auto;
+  padding: 0.1rem 0.45rem;
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  border: 1px solid;
+  border-radius: 10px;
+}
+
+/* Кольори типів — ті самі, що вже носять мітки треків: нових значень
+   у палітру аркуша профілі не вводять. */
+.profile-type--companion { color: var(--success); border-color: var(--success); }
+.profile-type--path { color: var(--highlight); border-color: var(--highlight); }
+.profile-type--talent { color: var(--danger); border-color: var(--danger); }
+.profile-type--ritual { color: var(--warning); border-color: var(--warning); }
+
+.profile-card__name {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.2;
+  color: var(--text-primary);
+}
+
+.profile-card__origin {
+  font-size: 0.72rem;
+  font-weight: 400;
+  color: var(--text-muted);
+}
+
+.profile-card__remove,
+.profile-card__close {
+  margin-left: auto;
+  padding: 0 0.4rem;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.profile-card__remove:hover {
+  color: var(--danger);
+}
+
+.profile-card__close {
+  margin-left: 0;
+}
+
+.profile-card__close:hover {
+  color: var(--highlight);
+}
+
+.profile-card__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+/* ── Профілі: блоки картки ────────────────────────────────────────── */
+
+.profile-blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+}
+
+/* Вкладені списки відступають від батьківського блока, як на папері. */
+.profile-block .profile-blocks {
+  margin-top: 0.35rem;
+  padding-left: 1.1rem;
+  border-left: 1px solid var(--border-color);
+}
+
+.profile-line {
+  margin: 0;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* Навичка з кружечком. Ціль дотику — весь рядок, а не сам кружечок:
+   так само зроблено зі слабкостями (§6.2). */
+.profile-mark {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.2rem 0;
+  font-family: inherit;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  text-align: left;
+  /* Невідкрита навичка затемнена, але повністю читна: гравець мусить бачити,
+     що може купити (рішення №15). */
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.profile-mark--open {
+  color: var(--text-primary);
+}
+
+.profile-mark__circle {
+  flex: 0 0 auto;
+  width: 0.85rem;
+  height: 0.85rem;
+  margin-top: 0.25rem;
+  background: transparent;
+  border: 2px solid var(--border-color);
+  border-radius: 50%;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.profile-mark--open .profile-mark__circle {
+  background: var(--highlight);
+  border-color: var(--highlight);
+}
+
+.profile-mark:hover .profile-mark__circle {
+  border-color: var(--highlight);
+}
+
+.profile-mark__text {
+  min-width: 0;
+}
+
+.profile-bullet {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.82rem;
+  line-height: 1.5;
+  color: var(--text-secondary);
+}
+
+/* Простий маркер «•»: вкладений вибір, що не відкривається досвідом. */
+.profile-bullet__dot {
+  flex: 0 0 auto;
+  width: 4px;
+  height: 4px;
+  margin-top: 0.5rem;
+  background: var(--text-muted);
+  border-radius: 50%;
+}
+
+.profile-field {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  margin: 0;
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+}
+
+.profile-field__label {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+/* Поле — як назва шкали: без рамки, з підкресленням (§6.3). */
+.profile-field__input,
+.profile-field__blank {
+  flex: 1;
+  min-width: 0;
+  padding: 0.15rem 0;
+  font-family: inherit;
+  font-size: 0.85rem;
+  color: var(--text-primary);
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.profile-field__blank {
+  display: block;
+  height: 1.2rem;
+}
+
+.profile-field__input:focus {
+  outline: none;
+  border-bottom-color: var(--highlight);
+}
+
+/* ── Профілі: шкала картки ────────────────────────────────────────── */
+
+/* Клітинки словами («ВАЖКИЙ ОБЛАДУНОК») не вміщаються в квадрат, тож смуга
+   переноситься, а не стискає підписи. */
+.profile-track {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 2px;
+  margin-top: 0.25rem;
+}
+
+.profile-track__cell {
+  flex: 1 1 auto;
+  min-width: 2.2rem;
+  padding: 0.3rem 0.4rem;
+  font-family: inherit;
+  font-size: 0.78rem;
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+  color: var(--text-secondary);
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.profile-track__cell:hover {
+  color: var(--text-primary);
+  border-color: var(--highlight);
+}
+
+.profile-track__cell--current {
+  font-weight: 700;
+  color: #fff;
+  background: var(--highlight);
+  border-color: var(--highlight);
+}
+
+/* ── Профілі: приклеєний футер телефона ───────────────────────────── */
+
+/* Вище за аркуш, нижче за картку кидка: результат кидка важливіший (§5.4). */
+.profiles-footer {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 800;
+  background: var(--secondary-bg);
+  border-top: 1px solid var(--border-color);
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* Розгорнута шухляда стоїть над футером і під сповіщеннями. */
+.profiles-footer--open {
+  z-index: 850;
+}
+
+.profiles-footer__bar {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0 0.75rem;
+}
+
+.profiles-footer__toggle {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex: 1;
+  gap: 0.5rem;
+  min-height: 44px;
+  padding: 0;
+  font-family: inherit;
+  color: var(--text-secondary);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.profiles-footer__label {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.profiles-footer__chevron {
+  font-size: 0.9rem;
+}
+
+.profiles-drawer {
+  max-height: 45vh;
+  padding: 0 0.75rem 0.5rem;
+  overflow-y: auto;
+  animation: profiles-drawer-in 0.22s ease-out;
+}
+
+/* Затемнене тло належить шухляді, а не футеру: закритий футер сторінку
+   не перекриває. */
+.profiles-drawer__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 849;
+  background: rgba(0, 0, 0, 0.5);
+}
+
+@keyframes profiles-drawer-in {
+  from { opacity: 0; transform: translateY(1rem); }
+  to   { opacity: 1; transform: none; }
+}
+
+/* ── Профілі: модальні екрани (фулскрін картки, вікно вибору) ──────── */
+
+/* Над сповіщеннями (модальний екран перекриває все), під мобільним сайдбаром
+   сайту (1000/1001) — див. §5.4. */
+.profile-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 950;
+  display: flex;
+  flex-direction: column;
+  background: var(--primary-bg);
+  animation: profile-modal-in 0.2s ease-out;
+}
+
+@keyframes profile-modal-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.profile-modal__head {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.75rem 1rem;
+  background: var(--secondary-bg);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.profile-modal__title {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.profile-modal__close {
+  margin-left: auto;
+  min-width: 40px;
+  min-height: 40px;
+  font-size: 1.4rem;
+  line-height: 1;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.profile-modal__close:hover {
+  color: var(--text-primary);
+}
+
+.profile-modal__body {
+  flex: 1;
+  padding: 1rem;
+  overflow-y: auto;
+  /* Вертикальна прокрутка лишається браузеру, горизонталь — свайпу карт. */
+  touch-action: pan-y;
+}
+
+.profile-modal__body--preview {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  max-width: 34rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+.profile-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.profile-modal__pager {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.75rem;
+  padding: 0.5rem 1rem calc(0.5rem + env(safe-area-inset-bottom));
+  background: var(--secondary-bg);
+  border-top: 1px solid var(--border-color);
+}
+
+.profile-modal__position {
+  font-size: 0.82rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+}
+
+/* Картка у фулскріні читається на всю ширину телефона. */
+.profile-modal--card .profile-modal__body {
+  max-width: 34rem;
+  margin: 0 auto;
+  width: 100%;
+}
+
+/* ── Профілі: вікно вибору ────────────────────────────────────────── */
+
+.profile-search {
+  width: 100%;
+  max-width: 34rem;
+  min-height: 44px;
+  margin: 0 auto 1rem;
+  padding: 0.5rem 0.75rem;
+  display: block;
+  font-family: inherit;
+  font-size: 0.9rem;
+  color: var(--text-primary);
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+}
+
+.profile-search:focus {
+  outline: none;
+  border-color: var(--highlight);
+}
+
+.profile-group + .profile-group {
+  margin-top: 1.25rem;
+}
+
+.profile-group__title {
+  margin: 0 0 0.5rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+}
+
+.profile-tiles {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+  gap: 0.5rem;
+}
+
+.profile-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.25rem;
+  min-height: 44px;
+  padding: 0.5rem;
+  font-family: inherit;
+  text-align: left;
+  color: var(--text-primary);
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.profile-tile:hover {
+  border-color: var(--highlight);
+}
+
+.profile-tile__name {
+  font-size: 0.88rem;
+  font-weight: 600;
+  overflow-wrap: anywhere;
+}
+
+/* Плитка показує лише перші рядки — повну картку відкриває тап (рішення №12). */
+.profile-tile__summary {
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+  overflow: hidden;
+  font-size: 0.72rem;
+  line-height: 1.4;
+  color: var(--text-muted);
+}
+
 /* ── Проміжна розкладка: планшет і вузький десктоп ────────────────── */
 
 @media (max-width: 1200px) {
@@ -1315,6 +2010,7 @@
       'vows     vows'
       'bonds    debil'
       'notes    notes'
+      'profiles profiles'
       'tracks   tracks'
       'log      log';
   }
@@ -1342,8 +2038,11 @@
 /* ── Мобільна розкладка: одна колонка, ігровий порядок ────────────── */
 
 @media (max-width: 700px) {
+  /* Приклеєний футер профілів накрив би журнал кидків, тож сторінка лишає
+     під собою його висоту плюс безпечну зону (§5.2). Рядка `profiles`
+     у сітці немає: на телефоні зона не рендериться взагалі. */
   .character-sheet-page {
-    padding: 1rem 0.75rem 2rem;
+    padding: 1rem 0.75rem calc(2rem + 44px + env(safe-area-inset-bottom));
   }
 
   .character-sheet {
@@ -1517,6 +2216,76 @@
   .extra-tracks__add .track-button {
     min-height: 40px;
   }
+
+  /* ── Профілі на телефоні ──────────────────────────────────────── */
+
+  /* У шухляді карти не накладаються й не крутяться: на 366px з-під сусідньої
+     карти видно лише тип, а віяло читається гірше за рівний ряд. Замість
+     накладання — гортання вбік, і на телефоні це й так головний жест. */
+  .profile-hand {
+    --card-width: 6.6rem;
+    gap: 0.4rem;
+    padding-top: 0.5rem;
+  }
+
+  .profile-hand__slot {
+    --tilt-room: 0px;
+  }
+
+  .profile-hand__slot + .profile-hand__slot {
+    margin-left: 0;
+  }
+
+  .profile-spine {
+    min-height: 4.6rem;
+    transform: none;
+  }
+
+  /* Ціль дотику — весь рядок навички; кружечок сам по собі замалий. */
+  .profile-mark {
+    min-height: 44px;
+    padding: 0.45rem 0;
+    font-size: 0.9rem;
+  }
+
+  .profile-mark__circle {
+    width: 1.05rem;
+    height: 1.05rem;
+  }
+
+  .profile-field__input {
+    min-height: 44px;
+    font-size: 0.9rem;
+  }
+
+  .profile-track__cell {
+    min-width: 44px;
+    min-height: 44px;
+    font-size: 0.85rem;
+  }
+
+  .profile-card__remove,
+  .profile-card__close {
+    min-width: 40px;
+    min-height: 40px;
+  }
+
+  .profile-tile {
+    min-height: 5rem;
+  }
+
+  /* Кнопки аркуша на телефоні розтягуються на весь рядок, але тут це зробило б
+     «Видалити» найпомітнішим на картці, а гортання — двома величезними
+     стрілками. Обом лишаємо 44px висоти й власну ширину. */
+  .profile-card__actions .track-button {
+    flex: 0 0 auto;
+    min-height: 44px;
+  }
+
+  .profile-modal__pager .track-button {
+    flex: 0 0 4.5rem;
+    min-height: 44px;
+  }
 }
 
 /* ── Дуже вузькі екрани (iPhone SE тощо) ──────────────────────────── */
@@ -1526,5 +2295,34 @@
      тож на найвужчих екранах їх дві. Ціль дотику важливіша за ряд. */
   .attribute-boxes {
     grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* ── Менше руху ───────────────────────────────────────────────────── */
+
+/* Блок стоїть останнім у файлі свідомо: у нього та сама специфічність, що й
+   у правил, які він скасовує, тож раніше в каскаді він би нічого не вимкнув. */
+
+@media (prefers-reduced-motion: reduce) {
+  .die,
+  .roll-toast,
+  .profiles-drawer,
+  .profile-modal {
+    animation: none;
+  }
+
+  /* Свайп лишається робочим — зникає лише плавність. */
+  .roll-toast__card,
+  .profile-spine {
+    transition: none;
+  }
+
+  /* Карта в руці лишається помітною під курсором (рамка, z-index), але
+     не їде вгору й не крутиться: рух тут суто декоративний. */
+  .profile-spine,
+  .profile-spine:hover,
+  .profile-spine:focus-visible,
+  .profile-spine--raised {
+    transform: none;
   }
 }

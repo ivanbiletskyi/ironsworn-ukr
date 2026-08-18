@@ -3,6 +3,7 @@
 
 import type {
   Character,
+  CharacterProfile,
   CharacterStore,
   DebilityKey,
   ExtraTrack,
@@ -30,6 +31,9 @@ import {
   XP_CELLS,
 } from './types';
 import type { SheetRoll } from './diceEngine';
+import { newId } from './ids';
+import { fieldIds, markPaths } from './profiles';
+import { findProfile } from '../profiles';
 import type { Tombstones } from '../sync/tombstones';
 import { loadTombstones, recordTombstone, saveTombstones } from '../sync/tombstones';
 
@@ -40,10 +44,7 @@ const TOMBSTONE_KEY = 'ironsworn-character-tombstones-v1';
 export const SHEET_LOG_META_KEY = 'ironsworn-sheet-log-meta-v1';
 export const MAX_SHEET_LOG = 100;
 
-export function newId(): string {
-  if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID();
-  return `c-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
-}
+export { newId };
 
 // ── Створення ─────────────────────────────────────────────────────────
 
@@ -79,6 +80,7 @@ export function createCharacter(name = ''): Character {
     debilities: emptyDebilities(),
     notes: '',
     extraTracks: [],
+    profiles: [],
     updatedAt: Date.now(),
   };
 }
@@ -90,6 +92,7 @@ export function duplicateCharacter(character: Character): Character {
   copy.vows = copy.vows.map(vow => ({ ...vow, id: newId() }));
   copy.bonds = copy.bonds.map(bond => ({ ...bond, id: newId() }));
   copy.extraTracks = copy.extraTracks.map(track => ({ ...track, id: newId() }));
+  copy.profiles = copy.profiles.map(profile => ({ ...profile, id: newId() }));
   copy.updatedAt = Date.now();
   return copy;
 }
@@ -142,6 +145,40 @@ function normalizeExtraTrack(raw: unknown): ExtraTrack {
     ...normalizeTrack(raw),
     kind: (kind === 'combat' || kind === 'journey' ? kind : 'other') satisfies TrackKind,
   };
+}
+
+/**
+ * Профіль руки. `null` — коли ключа немає в каталозі: каталог і є джерело
+ * істини, а осиротілі відмітки нікуди показати (PROFILES_PLAN.md §4.3).
+ * Решту полів чистимо, а не відкидаємо запис: втратити картку через одну
+ * неможливу відмітку — надто дорого.
+ */
+export function normalizeProfile(raw: unknown): CharacterProfile | null {
+  const source = isRecord(raw) ? raw : {};
+  const profile = findProfile(str(source.profileId));
+  if (!profile) return null;
+
+  const possible = new Set(markPaths(profile));
+  const markedRaw = Array.isArray(source.marked) ? source.marked : [];
+  const marked = [
+    ...new Set(markedRaw.filter((path): path is string => typeof path === 'string' && possible.has(path))),
+  ];
+
+  const declared = new Set(fieldIds(profile));
+  const fieldsRaw = isRecord(source.fields) ? source.fields : {};
+  const fields: Record<string, string> = {};
+  for (const [key, value] of Object.entries(fieldsRaw)) {
+    if (declared.has(key) && typeof value === 'string') fields[key] = value;
+  }
+
+  const cells = profile.track?.cells.length ?? 0;
+  const rawIndex = source.trackIndex;
+  const trackIndex =
+    cells > 0 && typeof rawIndex === 'number' && Number.isFinite(rawIndex)
+      ? num(rawIndex, 0, 0, cells - 1)
+      : null;
+
+  return { id: str(source.id) || newId(), profileId: profile.id, marked, fields, trackIndex };
 }
 
 /**
@@ -198,6 +235,15 @@ export function normalizeCharacter(raw: unknown): Character {
     ? raw.extraTracks.map(normalizeExtraTrack)
     : [];
 
+  // v3 → v4 окремої функції не потребує: збереження без `profiles` просто
+  // отримує порожню руку.
+  const profiles = Array.isArray(raw.profiles)
+    ? raw.profiles.flatMap(item => {
+        const profile = normalizeProfile(item);
+        return profile ? [profile] : [];
+      })
+    : [];
+
   return {
     id: str(raw.id) || newId(),
     name: str(raw.name),
@@ -210,6 +256,7 @@ export function normalizeCharacter(raw: unknown): Character {
     debilities,
     notes: str(raw.notes),
     extraTracks,
+    profiles,
     updatedAt: num(raw.updatedAt, Date.now(), 0, Number.MAX_SAFE_INTEGER),
   };
 }

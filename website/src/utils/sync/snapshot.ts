@@ -90,6 +90,9 @@ export function isBlankCharacter(character: Character): boolean {
     DEBILITY_KEYS.every(key => !character.debilities[key]) &&
     character.xp.every(cell => cell === 0) &&
     character.extraTracks.length === 0 &&
+    // Без цього персонаж із трьома профілями вважався б порожнім, і перше
+    // злиття після входу його б зжувало.
+    character.profiles.length === 0 &&
     character.vows.every(vow => vow.name.trim() === '' && vow.ticks === 0) &&
     character.bonds.every(bond => bond.name.trim() === '' && bond.ticks === 0)
   );

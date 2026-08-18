@@ -42,6 +42,28 @@ export interface ExtraTrack extends ProgressTrack {
   kind: TrackKind;
 }
 
+/**
+ * Профіль (у правилах сайту — актив) у руці персонажа: посилання на каталог
+ * плюс те, що вписав і відмітив гравець. Сам текст картки живе в каталозі
+ * `utils/profiles` і в збереження не потрапляє (PROFILES_PLAN.md §4.2).
+ */
+export interface CharacterProfile {
+  /** Власний id рядка, як у присяг і треків. */
+  id: string;
+  /** Ключ каталогу. Невідомий ключ під час нормалізації відкидається. */
+  profileId: string;
+  /**
+   * Шляхи відмічених кружечків у дереві блоків: '1' — другий блок верхнього
+   * рівня, '0.2' — третій вкладений у першому. Позиція, а не назва: назви
+   * навичок неунікальні, а порядок блоків у каталозі — незмінна частина даних.
+   */
+  marked: string[];
+  /** Вписані значення полів картки, за `ProfileField.id`. */
+  fields: Record<string, string>;
+  /** Вибрана клітинка шкали картки; null — жодної. */
+  trackIndex: number | null;
+}
+
 export interface Character {
   id: string;
   name: string;
@@ -59,11 +81,13 @@ export interface Character {
   notes: string;
   /** треки боїв і подорожей — поза макетом паперового аркуша */
   extraTracks: ExtraTrack[];
+  /** рука профілів у порядку додавання */
+  profiles: CharacterProfile[];
   updatedAt: number;
 }
 
 export interface CharacterStore {
-  version: 3;
+  version: 4;
   activeId: string | null;
   characters: Character[];
 }
@@ -71,9 +95,10 @@ export interface CharacterStore {
 /**
  * 2 — присяг більше не рівно чотири.
  * 3 — стосунки стали списком шкал замість однієї шкали з нотатками.
+ * 4 — у персонажа з'явилися профілі.
  * Міграції див. у storage.ts.
  */
-export const STORE_VERSION = 3;
+export const STORE_VERSION = 4;
 
 // ── Межі та константи правил ──────────────────────────────────────────
 
