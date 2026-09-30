@@ -40,9 +40,10 @@ const SEED = `
     c.xp = Array.from({ length: 30 }, (_, i) => (i < 5 ? 1 : i < 8 ? 2 : 0));
     c.vows[0] = { id: 'v1', name: 'Знайти сестру', rank: 'formidable', ticks: 13 };
     c.vows[1] = { id: 'v2', name: 'Помститися за село дуже довгою назвою присяги', rank: 'extreme', ticks: 6 };
+    c.bondTicks = 11;
     c.bonds = [
-      { id: 'b1', name: 'Ковалиха Інґрід, селище Кам’яний Брід', ticks: 9 },
-      { id: 'b2', name: 'Морська відьма', ticks: 2 },
+      { id: 'b1', name: 'Ковалиха Інґрід, селище Кам’яний Брід' },
+      { id: 'b2', name: 'Морська відьма' },
     ];
     c.notes = 'Меч батька.';
     c.extraTracks = [

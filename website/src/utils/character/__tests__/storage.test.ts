@@ -30,11 +30,12 @@ describe('a new character', () => {
     expect(character.attributes).toEqual({ edge: 0, heart: 0, iron: 0, shadow: 0, wits: 0 });
   });
 
-  it('has exactly 30 xp circles, a single vow and a single bond', () => {
+  it('has exactly 30 xp circles, a single vow, a single bond row and an empty bond track', () => {
     const character = createCharacter();
     expect(character.xp).toHaveLength(XP_CELLS);
     expect(character.vows).toHaveLength(DEFAULT_VOWS);
     expect(character.bonds).toHaveLength(DEFAULT_BONDS);
+    expect(character.bondTicks).toBe(0);
     expect(character.xp.every(cell => cell === 0)).toBe(true);
   });
 
@@ -57,12 +58,13 @@ describe('normalising damaged data', () => {
       stats: { health: -5 },
       momentum: 999,
       vows: [{ rank: 'nonsense', ticks: 999 }],
-      bonds: [{ ticks: -3 }],
+      bondTicks: -3,
     });
     expect(character.attributes.edge).toBe(5);
     expect(character.stats.health).toBe(0);
     expect(character.vows[0].ticks).toBe(40);
-    expect(character.bonds[0].ticks).toBe(0);
+    expect(character.bondTicks).toBe(0);
+    expect(normalizeCharacter({ bondTicks: 999 }).bondTicks).toBe(40);
   });
 
   it('falls back to the default rank for an unknown one', () => {
@@ -84,21 +86,52 @@ describe('normalising damaged data', () => {
     expect(character.vows.map(vow => vow.name)).toEqual(['Перша', 'Друга', 'Третя']);
   });
 
-  it('keeps however many bonds were stored, and never leaves none', () => {
+  it('keeps however many bond names were stored, and never leaves none', () => {
     const character = normalizeCharacter({
-      bonds: [{ name: 'Кайл', ticks: 4 }, { name: 'Вейлґейв' }],
+      bondTicks: 6,
+      bonds: [{ name: 'Кайл' }, { name: 'Вейлґейв' }, { name: '' }],
     });
-    expect(character.bonds.map(bond => bond.name)).toEqual(['Кайл', 'Вейлґейв']);
-    expect(character.bonds[0].ticks).toBe(4);
-    expect(normalizeCharacter({ bonds: [] }).bonds).toHaveLength(1);
+    expect(character.bonds.map(bond => bond.name)).toEqual(['Кайл', 'Вейлґейв', '']);
+    expect(character.bondTicks).toBe(6);
+    expect(normalizeCharacter({ bondTicks: 0, bonds: [] }).bonds).toHaveLength(1);
   });
 
-  /** До v3 стосунки були однією шкалою: `bondsNotes` + `bondsTicks`. */
-  it('turns the single pre-v3 bond track into the first bond', () => {
+  /**
+   * У v3–v4 кожен стосунок мав власну шкалу, що суперечило правилам: шкала
+   * стосунків одна на всіх. Позначки складаються в спільну шкалу, порожні
+   * слоти «+» відпадають, імена лишаються.
+   */
+  it('folds the v3–v4 per-bond tracks into the single shared one', () => {
+    const character = normalizeCharacter({
+      bonds: [
+        { id: 'b1', name: 'Кайл', ticks: 4 },
+        { id: 'b2', name: 'Вейлґейв', ticks: 3 },
+        { id: 'b3', name: '', ticks: 0 },
+      ],
+    });
+    expect(character.bondTicks).toBe(7);
+    expect(character.bonds.map(bond => bond.name)).toEqual(['Кайл', 'Вейлґейв']);
+    expect(character.bonds.map(bond => bond.id)).toEqual(['b1', 'b2']);
+    expect(character.bonds.every(bond => !('ticks' in bond))).toBe(true);
+  });
+
+  it('caps the folded v3–v4 progress at a full track and keeps one empty row', () => {
+    const folded = normalizeCharacter({
+      bonds: [{ name: 'Кайл', ticks: 30 }, { name: 'Вейлґейв', ticks: 30 }],
+    });
+    expect(folded.bondTicks).toBe(40);
+
+    const blank = normalizeCharacter({ bonds: [{ name: '', ticks: 0 }] });
+    expect(blank.bondTicks).toBe(0);
+    expect(blank.bonds).toHaveLength(1);
+  });
+
+  /** До v3 стосунки були однією шкалою з нотатками: `bondsNotes` + `bondsTicks`. */
+  it('reads the pre-v3 bond track and its notes', () => {
     const character = normalizeCharacter({ bondsNotes: 'Кайл, коваль', bondsTicks: 9 });
+    expect(character.bondTicks).toBe(9);
     expect(character.bonds).toHaveLength(1);
     expect(character.bonds[0].name).toBe('Кайл, коваль');
-    expect(character.bonds[0].ticks).toBe(9);
     expect(character.bonds[0].id).toBeTruthy();
   });
 

@@ -1,6 +1,7 @@
 // Шкала прогресу: назва, ранг, десять клітин по чотири позначки, кнопки.
-// Один компонент на присяги, стосунки й треки боїв — різниця лише в наявності
-// рангу (шкала стосунків рангу не має і завжди отримує одну позначку).
+// Один компонент на присяги, стосунки й треки боїв — різниця лише в шапці:
+// у присяги є назва й ранг, у спільної шкали стосунків немає ні того, ні
+// того (вона одна на всі стосунки і завжди отримує одну позначку).
 
 import type { ReactNode } from 'react';
 import type { Rank } from '../../utils/character/types';
@@ -53,30 +54,37 @@ const ProgressTrackRow = ({
   onMark,
   onToggleBox,
   onRoll,
+  rollTitle,
   action,
 }: {
-  name: string;
+  /** Відсутня для спільної шкали стосунків — їй нема що називати. */
+  name?: string;
   /** Відсутній для шкали стосунків — вона рангу не має. */
   rank?: Rank;
   ticks: number;
-  namePlaceholder: string;
-  onName: (name: string) => void;
+  namePlaceholder?: string;
+  onName?: (name: string) => void;
   onRank?: (rank: Rank) => void;
   onMark: () => void;
   onToggleBox: (boxIndex: number) => void;
   onRoll: () => void;
+  /** Підказка до кнопки кидка — наприклад, назва ходу, який він втілює. */
+  rollTitle?: string;
   /** Кнопка в кінці рядка назви — наприклад, видалення присяги. */
   action?: ReactNode;
 }) => (
   <div className="progress-track">
+    {(onName || (rank && onRank) || action) && (
     <div className="progress-track__head">
-      <input
-        className="progress-track__name"
-        value={name}
-        placeholder={namePlaceholder}
-        aria-label={namePlaceholder}
-        onChange={event => onName(event.target.value)}
-      />
+      {onName && (
+        <input
+          className="progress-track__name"
+          value={name ?? ''}
+          placeholder={namePlaceholder}
+          aria-label={namePlaceholder}
+          onChange={event => onName(event.target.value)}
+        />
+      )}
       {rank && onRank && (
         <select
           className="progress-track__rank"
@@ -93,6 +101,7 @@ const ProgressTrackRow = ({
       )}
       {action}
     </div>
+    )}
 
     <div className="progress-track__body">
       <div className="progress-boxes">
@@ -112,7 +121,12 @@ const ProgressTrackRow = ({
         <button type="button" className="track-button" onClick={onMark}>
           {UI.mark}
         </button>
-        <button type="button" className="track-button track-button--roll" onClick={onRoll}>
+        <button
+          type="button"
+          className="track-button track-button--roll"
+          onClick={onRoll}
+          title={rollTitle}
+        >
           🎲 {UI.progressRoll}
         </button>
       </div>

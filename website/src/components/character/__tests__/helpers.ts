@@ -86,8 +86,12 @@ export const vowConfirmButtons = (root: HTMLElement) =>
 export const vowName = (root: HTMLElement, index: number) =>
   q(vows(root)[index], '.progress-track__name') as HTMLInputElement;
 
-// Стосунки додають і прибирають так само, як присяги, тож і запити ті самі.
-export const bonds = (root: HTMLElement) => qa(root, '.sheet-zone--bonds .progress-track');
+// Стосунки: одна спільна шкала, під нею перелік імен. Імена додають і
+// прибирають так само, як присяги, тож запити до «×» і питання ті самі.
+export const bondTrack = (root: HTMLElement) =>
+  q(root, '.sheet-zone--bonds .progress-track') as HTMLElement;
+export const bondTracks = (root: HTMLElement) => qa(root, '.sheet-zone--bonds .progress-track');
+export const bondEntries = (root: HTMLElement) => qa(root, '.sheet-zone--bonds .bond-entry');
 export const addBondButton = (root: HTMLElement) =>
   q(root, '.sheet-zone--bonds .zone-add') as HTMLElement;
 export const removeBondButtons = (root: HTMLElement) =>
@@ -96,7 +100,7 @@ export const bondConfirm = (root: HTMLElement) => q(root, '.sheet-zone--bonds .t
 export const bondConfirmButtons = (root: HTMLElement) =>
   qa(root, '.sheet-zone--bonds .track-row__confirm .track-button');
 export const bondName = (root: HTMLElement, index: number) =>
-  q(bonds(root)[index], '.progress-track__name') as HTMLInputElement;
+  q(bondEntries(root)[index], '.bond-entry__name') as HTMLInputElement;
 export const extraTracks = (root: HTMLElement) => qa(root, '.extra-track');
 
 // ── Профілі ───────────────────────────────────────────────────────────

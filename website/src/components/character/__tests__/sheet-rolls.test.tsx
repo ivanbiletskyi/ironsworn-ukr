@@ -11,8 +11,10 @@ import {
   badges,
   bondConfirm,
   bondConfirmButtons,
+  bondEntries,
   bondName,
-  bonds,
+  bondTrack,
+  bondTracks,
   burnButton,
   currentValue,
   d10,
@@ -192,7 +194,8 @@ describe('progress tracks (§3.7)', () => {
     expect(trackTicks(vows(container)[0])).toEqual([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
     expect(trackCount(vows(container)[0])).toBe('0/10');
     expect(q(vows(container)[0], '.progress-track__rank')).toBeTruthy();
-    expect(q(bonds(container)[0], '.progress-track__rank')).toBeNull();
+    expect(q(bondTrack(container), '.progress-track__rank')).toBeNull();
+    expect(q(bondTrack(container), '.progress-track__name')).toBeNull();
   });
 
   it('marks progress by rank', () => {
@@ -233,15 +236,32 @@ describe('progress tracks (§3.7)', () => {
     expect(trackTicks(vows(container)[0])).toEqual([4, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
   });
 
-  it('gives every bond track one tick at a time', () => {
+  // Розділ «Стосунки»: шкала стосунків у персонажа одна на всіх, і кожне
+  // успішне «Скріпити стосунки» додає до неї одну позначку.
+  it('keeps a single shared bond track that gains one tick at a time', () => {
     seedCharacter();
     const { container } = renderSheet();
     fireEvent.click(addBondButton(container));
+    fireEvent.click(addBondButton(container));
+    expect(bondEntries(container)).toHaveLength(3);
+    expect(bondTracks(container)).toHaveLength(1);
 
-    for (let i = 0; i < 4; i++) fireEvent.click(markButton(bonds(container)[0]));
-    expect(trackCount(bonds(container)[0])).toBe('1/10');
-    // Шкали стосунків незалежні: позначки першого не течуть у другий.
-    expect(trackCount(bonds(container)[1])).toBe('0/10');
+    for (let i = 0; i < 4; i++) fireEvent.click(markButton(bondTrack(container)));
+    expect(trackCount(bondTrack(container))).toBe('1/10');
+    expect(trackTicks(bondTrack(container))[1]).toBe(0);
+  });
+
+  it('keeps the shared bond track when names come and go', () => {
+    seedCharacter();
+    const { container } = renderSheet();
+    fireEvent.click(addBondButton(container));
+    type(bondName(container, 1), 'Кайл, коваль');
+    for (let i = 0; i < 5; i++) fireEvent.click(markButton(bondTrack(container)));
+
+    fireEvent.click(removeBondButtons(container)[1]);
+    fireEvent.click(bondConfirmButtons(container)[0]);
+    expect(bondEntries(container)).toHaveLength(1);
+    expect(trackTicks(bondTrack(container))).toEqual([4, 1, 0, 0, 0, 0, 0, 0, 0, 0]);
   });
 });
 
@@ -329,12 +349,12 @@ describe('vow slots', () => {
   });
 });
 
-// Стосунки додають і прибирають тими самими правилами, що й присяги.
-describe('bond slots', () => {
-  it('starts with a single bond and hides its remove button while it is empty', () => {
+// Імена в переліку стосунків додають і прибирають тими самими правилами, що й присяги.
+describe('bond names', () => {
+  it('starts with a single name row and hides its remove button while it is empty', () => {
     seedCharacter();
     const { container } = renderSheet();
-    expect(bonds(container)).toHaveLength(1);
+    expect(bondEntries(container)).toHaveLength(1);
     expect(removeBondButtons(container)).toHaveLength(0);
 
     type(bondName(container, 0), 'Кайл, коваль');
@@ -346,11 +366,11 @@ describe('bond slots', () => {
     const first = renderSheet();
     fireEvent.click(addBondButton(first.container));
     type(bondName(first.container, 1), 'Спільнота Вейлґейв');
-    expect(bonds(first.container)).toHaveLength(2);
+    expect(bondEntries(first.container)).toHaveLength(2);
     first.unmount();
 
     const second = renderSheet();
-    expect(bonds(second.container)).toHaveLength(2);
+    expect(bondEntries(second.container)).toHaveLength(2);
     expect(bondName(second.container, 1).value).toBe('Спільнота Вейлґейв');
   });
 
@@ -362,11 +382,11 @@ describe('bond slots', () => {
 
     fireEvent.click(removeBondButtons(container)[1]);
     expect(bondConfirm(container)).toBeNull();
-    expect(bonds(container)).toHaveLength(1);
+    expect(bondEntries(container)).toHaveLength(1);
     expect(bondName(container, 0).value).toBe('Кайл, коваль');
   });
 
-  it('asks before dropping a bond that has a name or progress', () => {
+  it('asks before dropping a named bond', () => {
     seedCharacter();
     const { container } = renderSheet();
     fireEvent.click(addBondButton(container));
@@ -374,26 +394,32 @@ describe('bond slots', () => {
 
     fireEvent.click(removeBondButtons(container)[0]);
     expect(bondConfirm(container)?.textContent).toContain('Кайл, коваль');
-    expect(bonds(container)).toHaveLength(2);
+    expect(bondEntries(container)).toHaveLength(2);
 
     // Скасування лишає стосунок на місці.
     fireEvent.click(bondConfirmButtons(container)[1]);
     expect(bondConfirm(container)).toBeNull();
-    expect(bonds(container)).toHaveLength(2);
+    expect(bondEntries(container)).toHaveLength(2);
 
     fireEvent.click(removeBondButtons(container)[0]);
     fireEvent.click(bondConfirmButtons(container)[0]);
-    expect(bonds(container)).toHaveLength(1);
+    expect(bondEntries(container)).toHaveLength(1);
     expect(bondName(container, 0).value).toBe('');
   });
 
-  it('asks about progress alone, even without a name', () => {
+  // Прогрес лежить на спільній шкалі, а не на рядку імені, тож порожній рядок
+  // порожній і тоді, коли шкала вже заповнюється.
+  it('treats an unnamed row as empty no matter the shared progress', () => {
     seedCharacter();
     const { container } = renderSheet();
-    fireEvent.click(markButton(bonds(container)[0]));
+    fireEvent.click(markButton(bondTrack(container)));
+    expect(removeBondButtons(container)).toHaveLength(0);
 
-    fireEvent.click(removeBondButtons(container)[0]);
-    expect(bondConfirm(container)?.textContent).toContain('Стосунок 1');
+    fireEvent.click(addBondButton(container));
+    fireEvent.click(removeBondButtons(container)[1]);
+    expect(bondConfirm(container)).toBeNull();
+    expect(bondEntries(container)).toHaveLength(1);
+    expect(trackTicks(bondTrack(container))[0]).toBe(1);
   });
 });
 
@@ -425,12 +451,15 @@ describe('progress roll (§3.8)', () => {
     expect(q(container, '.roll-card__label')?.textContent).toBe('Присяга 2');
   });
 
-  it('labels an unnamed bond by its slot too', () => {
-    seedCharacter();
+  // «Написати свій епілог»: кидок за спільною шкалою, а не за окремим стосунком.
+  it('rolls the shared bond track under the zone name', () => {
+    seedCharacter({ bondTicks: 12 });
     const { container } = renderSheet();
-    stubDice(d10(1), d10(1));
-    fireEvent.click(progressRollButton(bonds(container)[0]));
-    expect(q(container, '.roll-card__label')?.textContent).toBe('Стосунок 1');
+    stubDice(d10(2), d10(9));
+    fireEvent.click(progressRollButton(bondTrack(container)));
+    expect(q(container, '.roll-card__label')?.textContent).toBe('Стосунки');
+    expect(q(container, '.roll-math strong')?.textContent).toBe('3');
+    expect(outcomeText(container)).toBe('Ледь влучаєте');
   });
 
   it('picks up a vow name as it is typed', () => {

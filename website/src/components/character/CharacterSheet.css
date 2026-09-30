@@ -883,7 +883,8 @@
   margin-bottom: 0.4rem;
 }
 
-.progress-track__name {
+.progress-track__name,
+.bond-entry__name {
   flex: 1;
   min-width: 0;
   padding: 0.25rem 0;
@@ -895,13 +896,32 @@
   border-bottom: 1px solid var(--border-color);
 }
 
-.progress-track__name:focus {
+.progress-track__name:focus,
+.bond-entry__name:focus {
   outline: none;
   border-bottom-color: var(--highlight);
 }
 
-.progress-track__name::placeholder {
+.progress-track__name::placeholder,
+.bond-entry__name::placeholder {
   color: var(--text-muted);
+}
+
+/* Стосунки: одна спільна шкала зверху, під нею перелік «з ким» — як лінійки
+   під шкалою на паперовому аркуші. Шкала в цій зоні власної назви не має. */
+.bond-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  margin: 0.6rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.bond-entry__row {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .progress-track__remove {

@@ -53,9 +53,11 @@ describe('a blank character', () => {
     withVow.vows[0] = { ...withVow.vows[0], name: 'Знайти брата' };
     expect(isBlankCharacter(withVow)).toBe(false);
 
-    const withProgress = createCharacter();
-    withProgress.bonds[0] = { ...withProgress.bonds[0], ticks: 1 };
-    expect(isBlankCharacter(withProgress)).toBe(false);
+    expect(isBlankCharacter({ ...createCharacter(), bondTicks: 1 })).toBe(false);
+
+    const withBond = createCharacter();
+    withBond.bonds[0] = { ...withBond.bonds[0], name: 'Кайл' };
+    expect(isBlankCharacter(withBond)).toBe(false);
   });
 
   /** Інакше перше злиття після входу зжувало б персонажа з рукою профілів. */

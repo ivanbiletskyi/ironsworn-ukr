@@ -3,7 +3,8 @@
 
 import type { ProgressTrack, Rank } from '../../utils/character/types';
 import { markProgress, toggleBoxTick } from '../../utils/character/rules';
-import { UI } from '../../utils/character/labels';
+import { isEmptyTrack } from '../../utils/character/storage';
+import { confirmTrackRemoval, UI } from '../../utils/character/labels';
 import ProgressTrackRow from './ProgressTrackRow';
 import { useTrackRemoval } from './useTrackRemoval';
 
@@ -25,9 +26,10 @@ const VowRow = ({
   onRoll: () => void;
 }) => {
   const { action, confirm } = useTrackRemoval({
-    track: vow,
+    empty: isEmptyTrack(vow),
     label,
     removeLabel: UI.removeVow,
+    confirmText: confirmTrackRemoval(label),
     isOnly,
     onRemove,
   });

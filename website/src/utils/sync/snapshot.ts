@@ -94,7 +94,8 @@ export function isBlankCharacter(character: Character): boolean {
     // злиття після входу його б зжувало.
     character.profiles.length === 0 &&
     character.vows.every(vow => vow.name.trim() === '' && vow.ticks === 0) &&
-    character.bonds.every(bond => bond.name.trim() === '' && bond.ticks === 0)
+    character.bondTicks === 0 &&
+    character.bonds.every(bond => bond.name.trim() === '')
   );
 }
 

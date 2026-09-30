@@ -2,6 +2,7 @@
 // Ключі навмисно окремі від `ironsworn-oracle-history-*`, який лишається без змін.
 
 import type {
+  Bond,
   Character,
   CharacterProfile,
   CharacterStore,
@@ -56,14 +57,19 @@ export function emptyVow(): ProgressTrack {
   return { id: newId(), name: '', rank: 'dangerous', ticks: 0 };
 }
 
-/** Стосунок рангу не має: за правилами його шкала завжди отримує 1 позначку. */
-export function emptyBond(): Track {
-  return { id: newId(), name: '', ticks: 0 };
+/** Рядок переліку стосунків. Шкали в нього немає — вона одна на всіх. */
+export function emptyBond(): Bond {
+  return { id: newId(), name: '' };
 }
 
 /** Шкала без назви й без прогресу — той самий «порожній слот» аркуша. */
 export function isEmptyTrack(track: Track): boolean {
   return track.name.trim() === '' && track.ticks === 0;
+}
+
+/** Порожній рядок стосунків — це лише порожнє ім'я: прогресу він не має. */
+export function isEmptyBond(bond: Bond): boolean {
+  return bond.name.trim() === '';
 }
 
 /** Новий персонаж за створенням персонажа: показники +5, імпульс +2. */
@@ -76,6 +82,7 @@ export function createCharacter(name = ''): Character {
     momentum: BASE_RESET_MOMENTUM,
     xp: Array<XpCell>(XP_CELLS).fill(0),
     vows: Array.from({ length: DEFAULT_VOWS }, emptyVow),
+    bondTicks: 0,
     bonds: Array.from({ length: DEFAULT_BONDS }, emptyBond),
     debilities: emptyDebilities(),
     notes: '',
@@ -124,18 +131,60 @@ function xpCell(value: unknown): XpCell {
   return value === 1 || value === 2 ? value : 0;
 }
 
-function normalizeBond(raw: unknown): Track {
+function normalizeBond(raw: unknown): Bond {
+  const source = isRecord(raw) ? raw : {};
+  return { id: str(source.id) || newId(), name: str(source.name) };
+}
+
+function normalizeTrack(raw: unknown): ProgressTrack {
   const source = isRecord(raw) ? raw : {};
   return {
     id: str(source.id) || newId(),
     name: str(source.name),
     ticks: num(source.ticks, 0, 0, MAX_TICKS),
+    rank: rank(source.rank),
   };
 }
 
-function normalizeTrack(raw: unknown): ProgressTrack {
-  const source = isRecord(raw) ? raw : {};
-  return { ...normalizeBond(raw), rank: rank(source.rank) };
+/**
+ * Стосунки за всю історію сховища мали три форми:
+ *  - до v3 — одна шкала з нотатками: `bondsTicks` + `bondsNotes`;
+ *  - v3–v4 — список шкал `bonds[]`, кожна зі своїми `ticks` (суперечило
+ *    правилам: шкала стосунків одна на всі стосунки персонажа);
+ *  - від v5 — спільна шкала `bondTicks` і перелік імен `bonds[]`.
+ * Форму впізнаємо за наявністю полів, а не за версією сховища: тоді й «голий»
+ * JSON, збережений вручну, читається правильно. Прогрес нікуди не зникає:
+ * позначки окремих шкал v3–v4 складаються в одну — саме так їх і мав би
+ * рахувати гравець, якби грав за книгою.
+ */
+function normalizeBonds(raw: Record<string, unknown>): Pick<Character, 'bondTicks' | 'bonds'> {
+  const list = Array.isArray(raw.bonds) ? raw.bonds : [];
+
+  if (typeof raw.bondTicks === 'number') {
+    const bonds = list.map(normalizeBond);
+    return {
+      bondTicks: num(raw.bondTicks, 0, 0, MAX_TICKS),
+      bonds: bonds.length > 0 ? bonds : [emptyBond()],
+    };
+  }
+
+  if (Array.isArray(raw.bonds)) {
+    const total = list.reduce<number>(
+      (sum, item) => sum + (isRecord(item) ? num(item.ticks, 0, 0, MAX_TICKS) : 0),
+      0,
+    );
+    // Порожні шкали v3–v4 — це порожні слоти «+»; у переліку імен їм не місце.
+    const bonds = list.map(normalizeBond).filter(bond => !isEmptyBond(bond));
+    return {
+      bondTicks: Math.min(MAX_TICKS, total),
+      bonds: bonds.length > 0 ? bonds : [emptyBond()],
+    };
+  }
+
+  return {
+    bondTicks: num(raw.bondsTicks, 0, 0, MAX_TICKS),
+    bonds: [normalizeBond({ name: raw.bondsNotes })],
+  };
 }
 
 function normalizeExtraTrack(raw: unknown): ExtraTrack {
@@ -222,14 +271,9 @@ export function normalizeCharacter(raw: unknown): Character {
   const vowsRaw = Array.isArray(raw.vows) ? raw.vows : [];
   const vows = vowsRaw.length > 0 ? vowsRaw.map(normalizeTrack) : [emptyVow()];
 
-  // Стосунки — так само: щонайменше один рядок. До v3 їх була одна шкала
-  // (`bondsTicks` + `bondsNotes`); вона стає першим стосунком у списку, щоб
-  // прогрес нікуди не зник. Міграція за наявністю поля, а не за версією
-  // сховища: тоді й «голий» JSON, збережений вручну, читається правильно.
-  const bondsRaw = Array.isArray(raw.bonds)
-    ? raw.bonds
-    : [{ name: raw.bondsNotes, ticks: raw.bondsTicks }];
-  const bonds = bondsRaw.length > 0 ? bondsRaw.map(normalizeBond) : [emptyBond()];
+  // Стосунки — так само щонайменше один рядок; форми старих збережень
+  // розбирає normalizeBonds.
+  const { bondTicks, bonds } = normalizeBonds(raw);
 
   const extraTracks = Array.isArray(raw.extraTracks)
     ? raw.extraTracks.map(normalizeExtraTrack)
@@ -252,6 +296,7 @@ export function normalizeCharacter(raw: unknown): Character {
     momentum,
     xp,
     vows,
+    bondTicks,
     bonds,
     debilities,
     notes: str(raw.notes),

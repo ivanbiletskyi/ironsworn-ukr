@@ -128,6 +128,8 @@ export const UI = {
   removeVow: 'Видалити присягу',
   addBond: 'Додати стосунок',
   removeBond: 'Видалити стосунок',
+  /** Кидок прогресу за шкалою стосунків — це хід «Написати свій епілог». */
+  bondsRollTitle: 'Написати свій епілог: кидок прогресу за шкалою стосунків',
   addCombatTrack: '+ Бій',
   addJourneyTrack: '+ Подорож',
   addOtherTrack: '+ Інше',
@@ -184,6 +186,11 @@ export function debilityHint(count: number): string | null {
 /** Питання перед видаленням шкали, у якій уже є назва або прогрес. */
 export function confirmTrackRemoval(label: string): string {
   return `Видалити «${label}» разом із прогресом?`;
+}
+
+/** Рядок стосунків прогресу не має — питаємо лише про ім'я. */
+export function confirmBondRemoval(label: string): string {
+  return `Видалити стосунок «${label}»?`;
 }
 
 /** Те саме для картки, у якій є робота гравця: відмітки, поля, шкала. */

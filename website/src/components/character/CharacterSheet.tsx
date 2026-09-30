@@ -9,7 +9,6 @@ import type {
   CharacterProfile,
   ExtraTrack,
   ProgressTrack,
-  Track,
   TrackKind,
 } from '../../utils/character/types';
 import { emptyBond, emptyVow, newId } from '../../utils/character/storage';
@@ -29,7 +28,7 @@ import DebilitiesBox from './DebilitiesBox';
 import RollToasts, { MAX_TOASTS } from './RollToasts';
 import RollLog from './RollLog';
 import VowRow from './VowRow';
-import BondRow from './BondRow';
+import BondsBox from './BondsBox';
 import XpTrack from './XpTrack';
 import CharacterBar from './CharacterBar';
 import ExtraTracksSection from './ExtraTracksSection';
@@ -39,7 +38,6 @@ import ProfilePicker from './ProfilePicker';
 import './CharacterSheet.css';
 
 const vowLabel = (name: string, index: number) => name.trim() || `Присяга ${index + 1}`;
-const bondLabel = (name: string, index: number) => name.trim() || `Стосунок ${index + 1}`;
 
 /** Зона аркуша. `area` — ім'я з grid-template-areas. */
 const Zone = ({
@@ -157,11 +155,15 @@ const CharacterSheetInner = () => {
       return { ...current, vows: vows.length > 0 ? vows : [emptyVow()] };
     });
 
-  /** Стосунки живуть за тими самими правилами, що й присяги. */
-  const updateBond = (index: number, updater: (bond: Track) => Track) =>
+  /** Шкала стосунків одна на всіх — це просто число на персонажі. */
+  const updateBondTicks = (updater: (ticks: number) => number) =>
+    updateCharacter(current => ({ ...current, bondTicks: updater(current.bondTicks) }));
+
+  /** Перелік імен додають і прибирають за тими самими правилами, що й присяги. */
+  const renameBond = (id: string, name: string) =>
     updateCharacter(current => ({
       ...current,
-      bonds: current.bonds.map((bond, i) => (i === index ? updater(bond) : bond)),
+      bonds: current.bonds.map(bond => (bond.id === id ? { ...bond, name } : bond)),
     }));
 
   const addBond = () =>
@@ -355,17 +357,14 @@ const CharacterSheetInner = () => {
             </button>
           }
         >
-          {character.bonds.map((bond, index) => (
-            <BondRow
-              key={bond.id}
-              bond={bond}
-              label={bondLabel(bond.name, index)}
-              isOnly={character.bonds.length === 1}
-              onUpdate={updater => updateBond(index, updater)}
-              onRemove={() => removeBond(bond.id)}
-              onRoll={() => handleProgressRoll(bondLabel(bond.name, index), bond.ticks)}
-            />
-          ))}
+          <BondsBox
+            ticks={character.bondTicks}
+            bonds={character.bonds}
+            onTicks={updateBondTicks}
+            onName={renameBond}
+            onRemove={removeBond}
+            onRoll={() => handleProgressRoll(SHEET.bonds, character.bondTicks)}
+          />
         </Zone>
 
         <Zone area="debil" title={SHEET.debilities}>
