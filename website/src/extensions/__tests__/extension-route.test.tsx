@@ -83,6 +83,7 @@ describe('extension route', () => {
     expect(fetchCatalog).toHaveBeenCalledWith('stranger@example.com');
     expect(loadExtension).not.toHaveBeenCalled();
     expect(screen.queryByText('Демо')).toBeNull();
+    expect(screen.queryByText('Доповнення')).toBeNull();
   });
 
   it('loads the extension, renders its routes and lists it in the menu', async () => {
@@ -94,6 +95,7 @@ describe('extension route', () => {
     renderAt('/uk/x/demo/one');
 
     expect(await screen.findByText('Текст першого розділу')).toBeTruthy();
+    expect(screen.getByText('Доповнення')).toBeTruthy();
     expect(screen.getByText('Демо')).toBeTruthy();
     expect(screen.getByText('Перший розділ').getAttribute('href')).toBe('/uk/x/demo/one');
   });
