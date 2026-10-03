@@ -153,8 +153,9 @@ export function rollSingle(oracleId: string, lang: Lang): RollResult {
   return { id: newResultId(), atoms: rollOracle(oracle, lang), timestamp: Date.now() };
 }
 
-export function rollCombo(preset: ComboPreset, lang: Lang): RollResult {
-  const byId = new Map(ORACLES.map(o => [o.id, o]));
+/** `oracles` — разом з оракулами доповнень, якщо комбо посилається на них. */
+export function rollCombo(preset: ComboPreset, lang: Lang, oracles: readonly Oracle[] = ORACLES): RollResult {
+  const byId = new Map(oracles.map(o => [o.id, o]));
   const atoms = preset.oracleIds.flatMap(id => {
     const o = byId.get(id);
     if (!o) return [];

@@ -10,6 +10,21 @@
 // мажорна (HOST_API_VERSION + 1). Розширення оголошує `requires.hostApi`.
 
 import type { ComponentType, ReactNode } from 'react';
+import type { ComboPreset, Oracle } from '../utils/oracles/oracle-types';
+
+export type {
+  CompoundOracle,
+  MultiColumnOracle,
+  RangeOracle,
+  RangeRow,
+  SimpleOracle,
+  TwoStepOracle,
+} from '../utils/oracles/oracle-types';
+
+/** Таблиця для сторінки «Генератори оракулів» — та сама форма, що й в основної книги. */
+export type ExtensionOracle = Oracle;
+/** Кнопка «Комбо»: кидає кілька оракулів за раз. */
+export type ExtensionOracleCombo = ComboPreset;
 
 export const HOST_API_VERSION = 1;
 
@@ -58,6 +73,17 @@ export interface HostApi {
 export interface ExtensionDefinition {
   /** Дерево <Route> відносно basePath. */
   routes: ReactNode;
+  /**
+   * Оракули, які сторінка «Генератори оракулів» показує окремою секцією під
+   * назвою розширення. `id` достатньо унікальних у межах розширення: хост
+   * сам додає до них префікс `{extId}/`.
+   */
+  oracles?: ExtensionOracle[];
+  /**
+   * Комбо для тієї ж сторінки. `oracleIds` — це `id` оракулів самого
+   * розширення або оракулів основної книги (`settlement-name`, `action`…).
+   */
+  oracleCombos?: ExtensionOracleCombo[];
 }
 
 export type RegisterExtension = (host: HostApi) => ExtensionDefinition;

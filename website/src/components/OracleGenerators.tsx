@@ -1,6 +1,6 @@
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { ORACLES, COMBO_PRESETS } from '../utils/oracles/index';
-import type { Oracle, Lang } from '../utils/oracles/index';
+import type { Oracle, Lang, ComboPreset } from '../utils/oracles/index';
 import {
   HISTORY_META_KEY,
   MAX_HISTORY,
@@ -14,6 +14,8 @@ import {
 import type { RollResult, RollAtom } from '../utils/oracleEngine';
 import { recordLogCleared, recordLogRemoval } from '../utils/sync/logs';
 import { notifyLocalChange, subscribeOracleHistory } from '../utils/sync/engine';
+import ExtensionBoundary from '../extensions/ExtensionBoundary';
+import { useExtensionOracles } from '../extensions/useExtensionOracles';
 import './OracleGenerators.css';
 
 // ─── OracleCard ──────────────────────────────────────────────────────────────
@@ -130,21 +132,23 @@ function OracleCard({ oracle, lang, lastAtoms, onRoll, onReroll, onDelete }: Ora
 
 interface ComboPresetBarProps {
   lang: Lang;
+  presets: ComboPreset[];
+  oracles: Oracle[];
   onRoll: (result: RollResult) => void;
 }
 
-function ComboPresetBar({ lang, onRoll }: ComboPresetBarProps) {
+function ComboPresetBar({ lang, presets, oracles, onRoll }: ComboPresetBarProps) {
   return (
     <div className="combo-bar">
       <span className="combo-bar-label">
         {lang === 'uk' ? 'Комбо:' : 'Combos:'}
       </span>
-      {COMBO_PRESETS.map(preset => (
+      {presets.map(preset => (
         <button
           key={preset.id}
           className="combo-chip"
           title={preset.description[lang]}
-          onClick={() => onRoll(rollCombo(preset, lang))}
+          onClick={() => onRoll(rollCombo(preset, lang, oracles))}
         >
           {preset.label[lang]}
         </button>
@@ -305,6 +309,17 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
   const [history, setHistory] = useState<RollResult[]>(() => loadHistory(currentLang));
   const [lastByOracle, setLastByOracle] = useState<Record<string, RollAtom[]>>({});
 
+  // Оракули й комбо доповнень, до яких є доступ і які увімкнені в профілі.
+  const extensionGroups = useExtensionOracles();
+  const allOracles = useMemo(
+    () => [...ORACLES, ...extensionGroups.flatMap(g => g.oracles)],
+    [extensionGroups],
+  );
+  const allCombos = useMemo(
+    () => [...COMBO_PRESETS, ...extensionGroups.flatMap(g => g.combos)],
+    [extensionGroups],
+  );
+
   // Reload history when the language changes. Adjusted during render rather than
   // in an effect: an effect would let the save effect below run once with the
   // previous language's history already keyed to the new language.
@@ -447,7 +462,8 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
     const atom = entry.atoms[atomIndex];
     if (!atom) return;
     const oracleId = atom.oracleId.split(':')[0];
-    const oracle = ORACLES.find(o => o.id === oracleId);
+    // Оракул вимкненого доповнення в журналі лишається, але не перекидається.
+    const oracle = allOracles.find(o => o.id === oracleId);
     if (!oracle) return;
     const newAtoms = rollOracle(oracle, currentLang);
     const updatedAtoms = [
@@ -466,7 +482,7 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
     const byOracle: Record<string, RollAtom[]> = {};
     newAtoms.forEach(a => { (byOracle[a.oracleId.split(':')[0]] ??= []).push(a); });
     setLastByOracle(prev => ({ ...prev, ...byOracle }));
-  }, [history, currentLang]);
+  }, [history, currentLang, allOracles]);
 
   // Keyboard shortcuts
   useEffect(() => {
@@ -477,6 +493,18 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [handleClear]);
+
+  const renderCard = (oracle: Oracle) => (
+    <OracleCard
+      key={oracle.id}
+      oracle={oracle}
+      lang={currentLang}
+      lastAtoms={lastByOracle[oracle.id]}
+      onRoll={handleCardRoll}
+      onReroll={handleCardReroll}
+      onDelete={() => handleCardDelete(oracle.id)}
+    />
+  );
 
   return (
     <div className="oracle-page">
@@ -489,20 +517,21 @@ export default function OracleGenerators({ currentLang }: OracleGeneratorsProps)
           : 'Roll oracles for in-game inspiration. Press C to clear the log.'}
       </p>
 
-      <ComboPresetBar lang={currentLang} onRoll={pushResult} />
+      <ComboPresetBar lang={currentLang} presets={allCombos} oracles={allOracles} onRoll={pushResult} />
 
       <div className="oracle-layout">
-        <div className="oracle-grid">
-          {ORACLES.map(oracle => (
-            <OracleCard
-              key={oracle.id}
-              oracle={oracle}
-              lang={currentLang}
-              lastAtoms={lastByOracle[oracle.id]}
-              onRoll={handleCardRoll}
-              onReroll={handleCardReroll}
-              onDelete={() => handleCardDelete(oracle.id)}
-            />
+        <div className="oracle-sections">
+          <div className="oracle-grid">{ORACLES.map(renderCard)}</div>
+          {extensionGroups.filter(group => group.oracles.length > 0).map(group => (
+            // Таблиці доповнення не мають права зламати решту сторінки.
+            <ExtensionBoundary key={group.extId} fallback={null}>
+              <section className="oracle-section">
+                <h2 className="oracle-section-title">
+                  {group.title[currentLang] ?? group.title.uk ?? group.extId}
+                </h2>
+                <div className="oracle-grid">{group.oracles.map(renderCard)}</div>
+              </section>
+            </ExtensionBoundary>
           ))}
         </div>
         <RollLog

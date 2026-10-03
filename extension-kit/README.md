@@ -35,6 +35,29 @@ vite.config.mjs     export { default } from …; див. нижче
 host/               git submodule ironsworn-ukr
 ```
 
+### Оракули
+
+Крім `routes`, `register()` може повернути `oracles` і `oracleCombos` — їх
+сторінка «Генератори оракулів» покаже окремою секцією під назвою розширення.
+Форма таблиць та сама, що й в основної книги (`website/src/utils/oracles/`).
+`id` мають бути унікальними лише в межах розширення: хост додає префікс
+`{id розширення}/`. Комбо можуть посилатися й на оракули основної книги
+(`settlement-name`, `action`…).
+
+```tsx
+import type { ExtensionOracle, RegisterExtension } from '../host/extension-kit/types';
+
+const omen: ExtensionOracle = { kind: 'range', id: 'omen', title: { uk: '…', en: '…' }, rows: { uk: […], en: […] } };
+
+const register: RegisterExtension = host => ({
+  routes: …,
+  oracles: [omen],
+  oracleCombos: [{ id: 'omen-action', label: {…}, description: {…}, oracleIds: ['omen', 'action'] }],
+});
+```
+
+Щоб показати оракули, сторінка завантажує всі ввімкнені розширення гравця.
+
 ```js
 // vite.config.mjs
 import { extensionPreset } from './host/extension-kit/vite.mjs';

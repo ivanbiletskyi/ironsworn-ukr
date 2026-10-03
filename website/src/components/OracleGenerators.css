@@ -61,6 +61,20 @@
   align-items: start;
 }
 
+.oracle-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+  min-width: 0;
+}
+
+.oracle-section-title {
+  font-size: 1.3rem;
+  margin: 0 0 0.75rem;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--border-color);
+}
+
 .oracle-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
