@@ -15,7 +15,7 @@ import {
   STAT_KEYS,
 } from '../character/types';
 import { MAX_SHEET_LOG, normalizeCharacter, normalizeSheetRoll } from '../character/storage';
-import type { SheetRoll } from '../character/diceEngine';
+import type { SheetLogEntry } from '../character/diceEngine';
 import type { Lang } from '../oracles/oracle-types';
 import type { RollResult } from '../oracleEngine';
 import { MAX_HISTORY, normalizeResult, resultClock } from '../oracleEngine';
@@ -34,7 +34,7 @@ export interface SyncSnapshot {
    */
   tombstones: Tombstones;
   /** Журнал кидків аркуша. */
-  sheetLog: LogSnapshot<SheetRoll>;
+  sheetLog: LogSnapshot<SheetLogEntry>;
   /** Історія оракулів — своя на кожну мову, як і в localStorage. */
   oracleHistory: Record<Lang, LogSnapshot<RollResult>>;
 }
@@ -44,7 +44,7 @@ export const SYNC_FORMAT_VERSION = 1;
 
 // Записи журналу кидків незмінні: спалення імпульсу додає окремий рядок,
 // а не переписує старий. Тож час створення слугує і часом правки.
-export const SHEET_LOG_SHAPE: LogShape<SheetRoll> = {
+export const SHEET_LOG_SHAPE: LogShape<SheetLogEntry> = {
   id: entry => entry.id,
   clock: entry => entry.timestamp,
   order: entry => entry.timestamp,
@@ -67,7 +67,7 @@ export function emptySnapshot(): SyncSnapshot {
   return {
     characters: [],
     tombstones: {},
-    sheetLog: emptyLog<SheetRoll>(),
+    sheetLog: emptyLog<SheetLogEntry>(),
     oracleHistory: emptyOracleHistory(),
   };
 }

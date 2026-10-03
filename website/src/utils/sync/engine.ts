@@ -10,7 +10,7 @@
 
 import type { CharacterStore } from '../character/types';
 import { STORE_VERSION } from '../character/types';
-import type { SheetRoll } from '../character/diceEngine';
+import type { SheetLogEntry } from '../character/diceEngine';
 import {
   SHEET_LOG_META_KEY,
   createCharacter,
@@ -61,7 +61,7 @@ const MAX_PAYLOAD = 900_000;
 let state: SyncState = { status: 'off', lastSyncedAt: null, error: null };
 const stateListeners = new Set<(state: SyncState) => void>();
 const storeListeners = new Set<(store: CharacterStore) => void>();
-const sheetLogListeners = new Set<(log: SheetRoll[]) => void>();
+const sheetLogListeners = new Set<(log: SheetLogEntry[]) => void>();
 const oracleListeners = new Set<(lang: Lang, history: RollResult[]) => void>();
 
 let uid: string | null = null;
@@ -93,7 +93,7 @@ export function subscribeStore(listener: (store: CharacterStore) => void): () =>
   return () => storeListeners.delete(listener);
 }
 
-export function subscribeSheetLog(listener: (log: SheetRoll[]) => void): () => void {
+export function subscribeSheetLog(listener: (log: SheetLogEntry[]) => void): () => void {
   sheetLogListeners.add(listener);
   return () => sheetLogListeners.delete(listener);
 }

@@ -8,6 +8,15 @@ import { ATTR_LABELS, UI, formatScaleValue } from '../../utils/character/labels'
 
 const MAX_ADDS = 5;
 
+/** «Ходи з Вістрям»: назва атрибута в орудному відмінку. */
+const ATTR_INSTRUMENTAL: Record<AttrKey, string> = {
+  edge: 'Вістрям',
+  heart: 'Серцем',
+  iron: 'Залізом',
+  shadow: 'Тінню',
+  wits: 'Розумом',
+};
+
 /**
  * Степери повідомляють крок, а не готове значення: нове значення рахується
  * від актуального стану в reducer'і. Інакше кілька кліків, що потрапили в
@@ -17,10 +26,13 @@ const AttributeBoxes = ({
   character,
   onStep,
   onRoll,
+  onShowMoves,
 }: {
   character: Character;
   onStep: (attribute: AttrKey, delta: number) => void;
   onRoll: (attribute: AttrKey, adds: number) => void;
+  /** «Ходи з Вістрям →»: шторка ходів із фільтром за цим атрибутом. */
+  onShowMoves?: (attribute: AttrKey) => void;
 }) => {
   const [selected, setSelected] = useState<AttrKey | null>(null);
   const [adds, setAdds] = useState(0);
@@ -140,6 +152,18 @@ const AttributeBoxes = ({
           >
             🎲 {UI.roll}
           </button>
+          {onShowMoves && (
+            <button
+              type="button"
+              className="roll-panel__moves"
+              onClick={() => {
+                onShowMoves(selected);
+                setSelected(null);
+              }}
+            >
+              Ходи з {ATTR_INSTRUMENTAL[selected]} →
+            </button>
+          )}
           <button
             type="button"
             className="roll-panel__close"

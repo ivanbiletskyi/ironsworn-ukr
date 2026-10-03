@@ -3,6 +3,7 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render, waitFor } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import CharacterSheet from '../CharacterSheet';
 import { MAX_TOASTS } from '../RollToasts';
 import {
@@ -47,7 +48,13 @@ import {
   vows,
 } from './helpers';
 
-const renderSheet = () => render(<CharacterSheet currentLang="uk" />);
+// Шторка ходів живе в URL аркуша, тож аркуш рендериться в роутері.
+const renderSheet = () =>
+  render(
+    <MemoryRouter initialEntries={['/uk/character']}>
+      <CharacterSheet currentLang="uk" />
+    </MemoryRouter>,
+  );
 
 afterEach(() => {
   vi.restoreAllMocks();
@@ -423,7 +430,15 @@ describe('bond names', () => {
   });
 });
 
+// Кнопка «Кинути» на шкалі відкриває хід прогресу в шторці ходів з цією
+// шкалою, а кидок робить кнопка в нижній смузі шторки — так гравець одразу
+// бачить, що означає результат.
 describe('progress roll (§3.8)', () => {
+  const drawerRoll = (container: HTMLElement) =>
+    fireEvent.click(q(container, '.moves-drawer__roll') as HTMLElement);
+  const checkedTrack = (container: HTMLElement) =>
+    q(container, '.moves-drawer .play-option[aria-checked="true"] .play-option__label')?.textContent;
+
   it('counts filled boxes, rolls no action die and cannot burn momentum', () => {
     seedCharacter({
       momentum: 8,
@@ -431,33 +446,43 @@ describe('progress roll (§3.8)', () => {
     });
     const { container } = renderSheet();
 
-    stubDice(d10(3), d10(8));
     fireEvent.click(progressRollButton(vows(container)[0]));
+    expect(q(container, '.moves-drawer .move-detail__title')?.textContent).toBe('Втілити присягу');
+    expect(checkedTrack(container)).toBe('Знайти сестру');
+
+    stubDice(d10(3), d10(8));
+    drawerRoll(container);
 
     expect(q(container, '.roll-math strong')?.textContent).toBe('5');
     expect(outcomeText(container)).toBe('Ледь влучаєте');
     expect(qa(container, '.die--action')).toHaveLength(0);
     expect(qa(container, '.die--challenge')).toHaveLength(2);
     expect(burnButton(container)).toBeNull();
-    expect(q(container, '.roll-card__label')?.textContent).toBe('Знайти сестру');
+    expect(q(container, '.roll-card__label')?.textContent).toBe('Втілити присягу · Знайти сестру');
+    expect(q(container, '.outcome-band--rolled')?.getAttribute('data-outcome')).toBe('weak');
+    expect(q(container, '.log-row__label')?.textContent).toBe('Втілити присягу · Знайти сестру');
   });
 
   it('labels an unnamed vow by its slot', () => {
     seedCharacter();
     const { container } = renderSheet();
     fireEvent.click(addVowButton(container));
-    stubDice(d10(1), d10(1));
     fireEvent.click(progressRollButton(vows(container)[1]));
-    expect(q(container, '.roll-card__label')?.textContent).toBe('Присяга 2');
+    expect(checkedTrack(container)).toBe('Присяга 2');
+    stubDice(d10(1), d10(1));
+    drawerRoll(container);
+    expect(q(container, '.roll-card__label')?.textContent).toBe('Втілити присягу · Присяга 2');
   });
 
   // «Написати епілог»: кидок за спільною шкалою, а не за окремим стосунком.
   it('rolls the shared bond track under the zone name', () => {
     seedCharacter({ bondTicks: 12 });
     const { container } = renderSheet();
-    stubDice(d10(2), d10(9));
     fireEvent.click(progressRollButton(bondTrack(container)));
-    expect(q(container, '.roll-card__label')?.textContent).toBe('Стосунки');
+    expect(q(container, '.moves-drawer .move-detail__title')?.textContent).toBe('Написати епілог');
+    stubDice(d10(2), d10(9));
+    drawerRoll(container);
+    expect(q(container, '.roll-card__label')?.textContent).toBe('Написати епілог · Стосунки');
     expect(q(container, '.roll-math strong')?.textContent).toBe('3');
     expect(outcomeText(container)).toBe('Ледь влучаєте');
   });
@@ -466,9 +491,10 @@ describe('progress roll (§3.8)', () => {
     seedCharacter();
     const { container } = renderSheet();
     type(vowName(container, 0), 'Помститися');
-    stubDice(d10(1), d10(1));
     fireEvent.click(progressRollButton(vows(container)[0]));
-    expect(q(container, '.roll-card__label')?.textContent).toBe('Помститися');
+    stubDice(d10(1), d10(1));
+    drawerRoll(container);
+    expect(q(container, '.roll-card__label')?.textContent).toBe('Втілити присягу · Помститися');
   });
 });
 

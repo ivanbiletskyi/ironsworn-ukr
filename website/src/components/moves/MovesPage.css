@@ -838,6 +838,13 @@
   color: var(--text-muted);
 }
 
+.play-on-sheet {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  font-weight: 600;
+}
+
 .move-source {
   color: var(--text-muted);
   font-size: 0.75rem;
@@ -1343,7 +1350,7 @@ a.cheat-card__link:hover {
   /* `overflow: hidden` у `.main-content` робить його контейнером прокрутки,
      і `position: sticky` перестає працювати. `clip` так само обрізає, але
      контейнером прокрутки не є. */
-  .main-content:has(.moves-page) {
+  .main-content:has(.moves-page:not(.moves-drawer)) {
     overflow: clip;
   }
 
@@ -1553,21 +1560,22 @@ a.cheat-card__link:hover {
     margin: 10mm;
   }
 
-  body:has(.moves-page) {
+  body:has(.moves-page:not(.moves-drawer)) {
     background: #fff !important;
   }
 
-  body:has(.moves-page) .navigation,
-  body:has(.moves-page) .sidebar,
-  body:has(.moves-page) .sidebar-overlay,
-  body:has(.moves-page) .footer,
-  .moves-page > :not(.moves-print) {
+  body:has(.moves-page:not(.moves-drawer)) .navigation,
+  body:has(.moves-page:not(.moves-drawer)) .sidebar,
+  body:has(.moves-page:not(.moves-drawer)) .sidebar-overlay,
+  body:has(.moves-page:not(.moves-drawer)) .footer,
+  .moves-page:not(.moves-drawer) > :not(.moves-print),
+  .moves-drawer {
     display: none !important;
   }
 
-  body:has(.moves-page) .app,
-  body:has(.moves-page) .main-content,
-  body:has(.moves-page) .content-wrapper,
+  body:has(.moves-page:not(.moves-drawer)) .app,
+  body:has(.moves-page:not(.moves-drawer)) .main-content,
+  body:has(.moves-page:not(.moves-drawer)) .content-wrapper,
   .moves-page {
     display: block !important;
     height: auto !important;

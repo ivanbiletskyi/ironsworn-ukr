@@ -27,8 +27,11 @@ const ProfilesFooter = ({
   onAdd,
   onUpdate,
   onRemove,
+  onOpenMoves,
 }: {
   entries: ResolvedProfile[];
+  /** Ліва половина футера — шторка ходів, у зоні великого пальця. */
+  onOpenMoves?: () => void;
   onAdd: () => void;
   onUpdate: (id: string, updater: (entry: CharacterProfile) => CharacterProfile) => void;
   onRemove: (id: string) => void;
@@ -51,6 +54,11 @@ const ProfilesFooter = ({
 
       <div className={`profiles-footer${open ? ' profiles-footer--open' : ''}`}>
         <div className="profiles-footer__bar">
+          {onOpenMoves && !open && (
+            <button type="button" className="profiles-footer__moves" onClick={onOpenMoves}>
+              ⚔ Ходи
+            </button>
+          )}
           <button
             type="button"
             className="profiles-footer__toggle"

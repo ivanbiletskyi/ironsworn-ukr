@@ -1,10 +1,29 @@
 // Текст ходу: абзаци, списки «➢» і таблиці з `MoveBlock[]`. Розбір
 // розмітки всередині рядка — у moveMarkup.tsx.
 
-import { isTable, type MoveBlock, type MoveTable } from '../../utils/moves';
+import type { ReactNode } from 'react';
+import { isTable, itemEffects, itemText, type Effect, type MoveBlock, type MoveTable } from '../../utils/moves';
 import { inline, type OpenMove } from './moveMarkup';
 
-export function MoveTableView({ table, onOpen }: { table: MoveTable; onOpen?: OpenMove }) {
+/**
+ * Чіпи наслідків під пунктом чи результатом. Є лише на аркуші: довідник без
+ * персонажа їх не показує, тож функція необовʼязкова.
+ */
+export type RenderEffects = (effects: Effect[], key: string) => ReactNode;
+
+/** Кнопка кидка d100 біля таблиці; ключ — «after.0», «miss.1». */
+export type RenderTableAction = (table: MoveTable, key: string) => ReactNode;
+
+export function MoveTableView({
+  table,
+  onOpen,
+  highlightRow,
+}: {
+  table: MoveTable;
+  onOpen?: OpenMove;
+  /** Рядок, що випав на d100. */
+  highlightRow?: number;
+}) {
   return (
     <div className="move-table-wrap">
       <table className="move-table">
@@ -15,8 +34,8 @@ export function MoveTableView({ table, onOpen }: { table: MoveTable; onOpen?: Op
           </tr>
         </thead>
         <tbody>
-          {table.rows.map(([range, result]) => (
-            <tr key={range}>
+          {table.rows.map(([range, result], index) => (
+            <tr key={range} className={index === highlightRow ? 'move-table__hit' : undefined}>
               <td className="move-table__range">{range}</td>
               <td>{inline(result, onOpen)}</td>
             </tr>
@@ -30,7 +49,23 @@ export function MoveTableView({ table, onOpen }: { table: MoveTable; onOpen?: Op
 /** Таблиця довша за 6 рядків згорнута за замовчуванням. */
 const COLLAPSE_AFTER = 6;
 
-export function MoveBlocks({ blocks, onOpen }: { blocks: MoveBlock[]; onOpen?: OpenMove }) {
+export function MoveBlocks({
+  blocks,
+  onOpen,
+  renderEffects,
+  keyPrefix = '',
+  tableAction,
+  tableHighlight,
+}: {
+  blocks: MoveBlock[];
+  onOpen?: OpenMove;
+  renderEffects?: RenderEffects;
+  /** Ключ наслідків: «weak.1.2» — третій пункт другого блока смуги. */
+  keyPrefix?: string;
+  tableAction?: RenderTableAction;
+  /** Рядок таблиці з ключем `key`, що випав на d100. */
+  tableHighlight?: (key: string) => number | undefined;
+}) {
   return (
     <>
       {blocks.map((block, index) => {
@@ -38,22 +73,39 @@ export function MoveBlocks({ blocks, onOpen }: { blocks: MoveBlock[]; onOpen?: O
           return <p key={index}>{inline(block, onOpen)}</p>;
         }
         if (isTable(block)) {
-          return block.rows.length > COLLAPSE_AFTER ? (
-            <details key={index} className="move-table-details">
-              <summary>
-                Таблиця: {block.head[0]} · {block.rows.length} рядків
-              </summary>
-              <MoveTableView table={block} onOpen={onOpen} />
-            </details>
-          ) : (
-            <MoveTableView key={index} table={block} onOpen={onOpen} />
+          const key = `${keyPrefix}${index}`;
+          const highlightRow = tableHighlight?.(key);
+          const view = <MoveTableView table={block} onOpen={onOpen} highlightRow={highlightRow} />;
+          // Таблиця, у якій щось випало, розгорнута: інакше рядок сховано.
+          return (
+            <div key={index} className="move-table-block">
+              {tableAction?.(block, key)}
+              {block.rows.length > COLLAPSE_AFTER ? (
+                <details className="move-table-details" open={highlightRow !== undefined || undefined}>
+                  <summary>
+                    Таблиця: {block.head[0]} · {block.rows.length} рядків
+                  </summary>
+                  {view}
+                </details>
+              ) : (
+                view
+              )}
+            </div>
           );
         }
         return (
           <ul key={index} className="move-list">
-            {block.map(item => (
-              <li key={item}>{inline(item, onOpen)}</li>
-            ))}
+            {block.map((item, itemIndex) => {
+              const effects = itemEffects(item);
+              return (
+                <li key={itemText(item)}>
+                  {inline(itemText(item), onOpen)}
+                  {renderEffects &&
+                    effects.length > 0 &&
+                    renderEffects(effects, `${keyPrefix}${index}.${itemIndex}`)}
+                </li>
+              );
+            })}
           </ul>
         );
       })}

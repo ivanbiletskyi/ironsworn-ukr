@@ -303,6 +303,13 @@ function MovesPageInner() {
       onOpen={openMove}
       floatingSwitcher={floatingSwitcher}
       bookBase="/uk"
+      footerSlot={
+        target.rollKind !== 'none' && (
+          <Link className="play-on-sheet" to={`/uk/character?move=${target.id}`}>
+            🎲 Зробити цей хід на аркуші персонажа →
+          </Link>
+        )
+      }
     />
   );
 

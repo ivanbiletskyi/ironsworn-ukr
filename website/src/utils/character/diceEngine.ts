@@ -41,10 +41,31 @@ export interface ProgressRollResult extends BaseRoll {
 
 export type SheetRoll = ActionRollResult | ProgressRollResult;
 
+/**
+ * Кидок d100 ходу оракула («Сплатити ціну», «Спитати Оракула»). Результату
+ * влучання в нього немає — лише число і те, що воно означає.
+ */
+export interface OracleRollResult {
+  kind: 'oracle';
+  id: string;
+  label: string;
+  /** 1–100; 100 читається як «00». */
+  value: number;
+  /** Рядок таблиці або відповідь «Так» / «Ні». */
+  result: string;
+  /** дубль цифр (11, 22 … 100) — на «Спитати Оракула» це несподіванка */
+  matched: boolean;
+  timestamp: number;
+}
+
+/** Запис журналу аркуша: кидок граників або кидок d100 ходу оракула. */
+export type SheetLogEntry = SheetRoll | OracleRollResult;
+
 // ── Граники ───────────────────────────────────────────────────────────
 
 const d6 = () => Math.floor(Math.random() * 6) + 1;
 const d10 = () => Math.floor(Math.random() * 10) + 1;
+const d100 = () => Math.floor(Math.random() * 100) + 1;
 
 let counter = 0;
 const nextId = () => `roll-${Date.now().toString(36)}-${(counter++).toString(36)}`;
@@ -183,4 +204,28 @@ export function rollProgress(label: string, ticks: number): ProgressRollResult {
     matched: challengeDice[0] === challengeDice[1],
     timestamp: Date.now(),
   };
+}
+
+// ── Кидок d100 ────────────────────────────────────────────────────────
+
+/**
+ * Кидок d100 для ходу оракула. Що означає число, вирішує викликач:
+ * `describe` перетворює його на рядок таблиці чи відповідь «Так» / «Ні».
+ */
+export function rollOracle(label: string, describe: (value: number) => string): OracleRollResult {
+  const value = d100();
+  return {
+    kind: 'oracle',
+    id: nextId(),
+    label,
+    value,
+    result: describe(value),
+    matched: value % 11 === 0 || value === 100,
+    timestamp: Date.now(),
+  };
+}
+
+/** 100 на d100 читається як «00», як на граниках. */
+export function formatD100(value: number): string {
+  return value === 100 ? '00' : String(value);
 }

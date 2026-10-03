@@ -1219,6 +1219,7 @@
 .log-row--strong { border-left-color: var(--success); }
 .log-row--weak   { border-left-color: var(--warning); }
 .log-row--miss   { border-left-color: var(--danger); }
+.log-row--oracle { border-left-color: var(--cat-fate); }
 
 .log-row__label {
   min-width: 7rem;
@@ -2012,6 +2013,116 @@
   font-size: 0.72rem;
   line-height: 1.4;
   color: var(--text-muted);
+}
+
+/* ── Шторка ходів поруч з аркушем ─────────────────────────────────── */
+
+.moves-open-button {
+  flex-shrink: 0;
+  font-size: 0.82rem;
+  font-weight: 600;
+  padding: 0.25rem 0.75rem;
+  min-height: 32px;
+  border-radius: 999px;
+  border: 1px solid var(--highlight);
+  background: color-mix(in srgb, var(--highlight) 12%, transparent);
+  color: var(--text-primary);
+  white-space: nowrap;
+}
+
+.moves-open-button[aria-expanded='true'] {
+  background: color-mix(in srgb, var(--highlight) 26%, transparent);
+}
+
+.roll-panel__moves {
+  border: none;
+  background: transparent;
+  color: var(--highlight);
+  padding: 0.3rem 0.4rem;
+  min-height: 36px;
+  font-size: 0.88rem;
+}
+
+.roll-panel__moves:hover {
+  background: transparent;
+  color: var(--highlight-hover);
+}
+
+.profiles-footer__moves {
+  flex-shrink: 0;
+  min-height: 44px;
+  padding: 0 1rem;
+  border: none;
+  border-right: 1px solid var(--border-color);
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* Сітка аркуша рахує власну ширину, а не ширину вікна: коли шторка ходів
+   забирає 400–440 px, аркуш перебудовується так само, як на вужчому екрані.
+   Контейнер — обгортка, а не сторінка: інакше `position: fixed` карток
+   кидків і футера рахувався б від неї. */
+.character-sheet-frame {
+  container: sheet / inline-size;
+}
+
+/* Картки кидків атрибутів не ховаються під шторкою. */
+@media (min-width: 901px) {
+  body.has-moves-drawer .roll-toasts {
+    right: calc(var(--moves-drawer-w, 440px) + 1rem);
+  }
+}
+
+@container sheet (max-width: 900px) {
+  .character-sheet-page--docked .character-sheet {
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      'name     xp'
+      'attrs    attrs'
+      'momentum stats'
+      'vows     vows'
+      'bonds    debil'
+      'notes    notes'
+      'profiles profiles'
+      'tracks   tracks'
+      'log      log';
+  }
+
+  .character-sheet-page--docked .sheet-zone--momentum,
+  .character-sheet-page--docked .sheet-zone--stats {
+    min-width: 0;
+  }
+
+  .character-sheet-page--docked .scale-track {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(2.6rem, 1fr));
+    gap: 3px;
+  }
+
+  .character-sheet-page--docked .sheet-zone--momentum .scale-readouts {
+    flex-direction: row;
+  }
+}
+
+@container sheet (max-width: 560px) {
+  .character-sheet-page--docked .character-sheet {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      'name'
+      'xp'
+      'attrs'
+      'momentum'
+      'stats'
+      'vows'
+      'tracks'
+      'bonds'
+      'debil'
+      'notes'
+      'profiles'
+      'log';
+  }
 }
 
 /* ── Проміжна розкладка: планшет і вузький десктоп ────────────────── */

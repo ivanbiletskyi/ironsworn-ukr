@@ -31,7 +31,7 @@ import {
   STORE_VERSION,
   XP_CELLS,
 } from './types';
-import type { SheetRoll } from './diceEngine';
+import type { SheetLogEntry } from './diceEngine';
 import { newId } from './ids';
 import { fieldIds, markPaths } from './profiles';
 import { findProfile } from '../profiles';
@@ -366,14 +366,19 @@ export function saveStore(store: CharacterStore): void {
 }
 
 /** Приводить довільні дані до запису журналу; `null` — якщо це не він. */
-export function normalizeSheetRoll(raw: unknown): SheetRoll | null {
+export function normalizeSheetRoll(raw: unknown): SheetLogEntry | null {
   if (!isRecord(raw)) return null;
   if (typeof raw.id !== 'string' || typeof raw.timestamp !== 'number') return null;
+  if (raw.kind === 'oracle') {
+    // Кидок d100 ходу оракула: без числа й підпису запис нічого не каже.
+    if (typeof raw.value !== 'number' || typeof raw.result !== 'string') return null;
+    return raw as unknown as SheetLogEntry;
+  }
   if (raw.kind !== 'action' && raw.kind !== 'progress') return null;
-  return raw as unknown as SheetRoll;
+  return raw as unknown as SheetLogEntry;
 }
 
-export function loadSheetLog(): SheetRoll[] {
+export function loadSheetLog(): SheetLogEntry[] {
   try {
     const rawText = localStorage.getItem(LOG_KEY);
     const parsed: unknown = rawText ? JSON.parse(rawText) : [];
@@ -387,7 +392,7 @@ export function loadSheetLog(): SheetRoll[] {
   }
 }
 
-export function saveSheetLog(log: SheetRoll[]): void {
+export function saveSheetLog(log: SheetLogEntry[]): void {
   try {
     localStorage.setItem(LOG_KEY, JSON.stringify(log.slice(0, MAX_SHEET_LOG)));
   } catch {

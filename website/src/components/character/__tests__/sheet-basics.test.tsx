@@ -21,7 +21,13 @@ import {
   type,
 } from './helpers';
 
-const renderSheet = () => render(<CharacterSheet currentLang="uk" />);
+// Шторка ходів живе в URL аркуша, тож аркуш рендериться в роутері.
+const renderSheet = () =>
+  render(
+    <MemoryRouter initialEntries={['/uk/character']}>
+      <CharacterSheet currentLang="uk" />
+    </MemoryRouter>,
+  );
 
 const storedCharacter = () =>
   JSON.parse(localStorage.getItem('ironsworn-characters-v1') ?? 'null')?.characters?.[0];

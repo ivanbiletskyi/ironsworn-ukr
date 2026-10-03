@@ -4,6 +4,11 @@
 
 export type {
   Approach,
+  Effect,
+  MoveListItem,
+  RollOption,
+  RollSpec,
+  TrackKindForMove,
   Move,
   MoveBlock,
   MoveCategory,
@@ -12,11 +17,11 @@ export type {
   MoveTable,
   RollKind,
 } from './move-types';
-export { MOVE_CATEGORIES, isTable } from './move-types';
+export { MOVE_CATEGORIES, isTable, itemEffects, itemText } from './move-types';
 export { OTHER_COMBAT_MOVES } from './moves-combat';
 
 import type { Move, MoveBlock, MoveCategory, MoveStat } from './move-types';
-import { MOVE_CATEGORIES, isTable } from './move-types';
+import { MOVE_CATEGORIES, isTable, itemText } from './move-types';
 import { ATTR_LABELS, STAT_LABELS } from '../character/labels';
 import ADVENTURE from './moves-adventure';
 import RELATIONSHIP from './moves-relationship';
@@ -117,7 +122,7 @@ export function moveTexts(move: Move): string[] {
         ? [block]
         : isTable(block)
           ? block.rows.flat()
-          : block,
+          : block.map(itemText),
     );
   return [
     ...fromBlocks(move.lead),

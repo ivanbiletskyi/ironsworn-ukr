@@ -3,6 +3,7 @@
 // «2 пункта прогресу», «додоткоий».
 
 import type { Move } from './move-types';
+import { momentum, opt, stat, mark } from './effects';
 
 const BOOK = '3-Moves_5-Suffer-Moves';
 
@@ -25,8 +26,8 @@ const SUFFER: Move[] = [
       strong: [
         'оберіть одне:',
         [
-          '**Здригнутись**: Якщо ваше Здоров’я вище 0, втратьте -1 імпульс за +1 Здоров’я.',
-          '**Стримати біль**: Отримайте +1 імпульс.',
+          opt('**Здригнутись**: Якщо ваше Здоров’я вище 0, втратьте -1 імпульс за +1 Здоров’я.', momentum(-1), stat('health', 1)),
+          opt('**Стримати біль**: Отримайте +1 імпульс.', momentum(1)),
         ],
       ],
       weak: ['ви притискаєте рану.'],
@@ -50,6 +51,8 @@ const SUFFER: Move[] = [
         },
       ],
     },
+    outcomeEffects: { miss: [momentum(-1), mark('wounded'), mark('maimed')] },
+    roll: { kind: 'sufferThenRoll', lose: 'health', versus: 'iron' },
     bookRef: `${BOOK}#зазнати-шкоди`,
     source: 'page-0012',
   },
@@ -103,6 +106,8 @@ const SUFFER: Move[] = [
         'Якщо ви промахнулись зі значенням 1 на гранику дії, а Здоров’я супутників рівне 0, вони мертві. Отримайте 1 досвід за кожну відмітку здібностей в профілі супутника, потім скиньте профіль.',
       ],
     },
+    outcomeEffects: { miss: [momentum(-1)] },
+    roll: { kind: 'sufferThenRoll', lose: 'companionHealth', versus: 'heart' },
     bookRef: `${BOOK}#шкода-супутнику`,
     source: 'page-0012',
   },
@@ -124,8 +129,8 @@ const SUFFER: Move[] = [
       strong: [
         'оберіть одне:',
         [
-          '**Здригнутись**: Якщо ваш Дух вище 0, втратьте -1 імпульс за +1 Дух.',
-          '**Зазирнути в пітьму**: Отримайте +1 імпульс.',
+          opt('**Здригнутись**: Якщо ваш Дух вище 0, втратьте -1 імпульс за +1 Дух.', momentum(-1), stat('spirit', 1)),
+          opt('**Зазирнути в пітьму**: Отримайте +1 імпульс.', momentum(1)),
         ],
       ],
       weak: ['ви стримуєте емоції.'],
@@ -142,6 +147,8 @@ const SUFFER: Move[] = [
         },
       ],
     },
+    outcomeEffects: { miss: [momentum(-1), mark('shaken'), mark('corrupted')] },
+    roll: { kind: 'sufferThenRoll', lose: 'spirit', versus: 'heart' },
     bookRef: `${BOOK}#зазнати-стресу`,
     source: 'page-0013',
   },
@@ -181,6 +188,7 @@ const SUFFER: Move[] = [
     lead: [
       'Коли **ваші Припаси вичерпано** (знижено до 0), відмітьте Розгубленість. Якщо ви зазнаєте повторних втрат Припасів поки розгублені, доведеться втратити Здоров’я, Дух чи імпульс взамін у будь-якій комбінації, залежно від обставин.',
     ],
+    leadEffects: [mark('unprepared')],
     bookRef: `${BOOK}#зазнати-злиднів`,
     source: 'page-0013',
   },

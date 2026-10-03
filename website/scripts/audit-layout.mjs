@@ -12,10 +12,11 @@
 //   SHEET_URL   page to audit      (default http://localhost:5173/uk/character)
 //   CHROME_PATH browser executable (default macOS Google Chrome)
 //   DEBUG_PORT  DevTools port      (default 9222)
+//   SCREENSHOT_DIR  also save PNGs of the moves drawer states there
 
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -23,6 +24,7 @@ const SHEET_URL = process.env.SHEET_URL ?? 'http://localhost:5173/uk/character';
 const CHROME_PATH =
   process.env.CHROME_PATH ?? '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
 const DEBUG_PORT = Number(process.env.DEBUG_PORT ?? 9222);
+const SCREENSHOT_DIR = process.env.SCREENSHOT_DIR;
 
 const WIDTHS = [320, 360, 390, 414, 480, 600, 700, 768, 900, 1024, 1200, 1300, 1500, 1800];
 
@@ -190,7 +192,7 @@ try {
 
   await send('Page.enable');
 
-  const load = async (width, height, mobile) => {
+  const load = async (width, height, mobile, search = '') => {
     await send('Emulation.setDeviceMetricsOverride', {
       width,
       height,
@@ -201,8 +203,14 @@ try {
     await wait(1200);
     const seeded = await evaluate(SEED);
     if (!seeded) throw new Error(`No character rendered at ${SHEET_URL}. Is the dev server up?`);
-    await send('Page.navigate', { url: SHEET_URL });
+    await send('Page.navigate', { url: SHEET_URL + search });
     await wait(1400);
+  };
+
+  const shoot = async name => {
+    if (!SCREENSHOT_DIR) return;
+    const { data } = await send('Page.captureScreenshot', { format: 'png' });
+    writeFileSync(join(SCREENSHOT_DIR, `${name}.png`), Buffer.from(data, 'base64'));
   };
 
   console.log('\nHorizontal overflow across viewport widths');
@@ -370,6 +378,66 @@ try {
     check(`${width}px has no overflow in the light theme`, documentWidth <= viewport);
     check(`${width}px picks up light theme colours`, zoneBackground !== 'rgb(22, 27, 34)', zoneBackground);
   }
+
+  // Шторка ходів: на десктопі — колонка поруч з аркушем, і аркуш під неї не
+  // залазить; на телефоні — діалог на весь екран із кнопкою кидка внизу.
+  console.log('\nMoves drawer');
+  for (const width of [1024, 1280, 1440]) {
+    await load(width, 900, false, '?move=face-danger');
+    const placement = JSON.parse(
+      await evaluate(`
+        JSON.stringify((() => {
+          const drawer = document.querySelector('.moves-drawer--wide');
+          const sheet = document.querySelector('.character-sheet');
+          if (!drawer || !sheet) return null;
+          return { drawerLeft: Math.round(drawer.getBoundingClientRect().left),
+            sheetRight: Math.round(sheet.getBoundingClientRect().right) };
+        })())
+      `),
+    );
+    check(
+      `${width}px docks the drawer beside the sheet`,
+      placement !== null && placement.sheetRight <= placement.drawerLeft,
+      JSON.stringify(placement),
+    );
+    await overflowCheck(`${width}px with the drawer open`);
+    await evaluate(`document.querySelector('.moves-drawer .play-option').click()`);
+    await wait(150);
+    await evaluate(`document.querySelector('.moves-drawer__roll').click()`);
+    await wait(500);
+    check(
+      `${width}px rolls from the move card and picks the band`,
+      await evaluate(`!!document.querySelector('.move-roll-result .roll-card') && !!document.querySelector('.outcome-band--rolled')`),
+    );
+    await shoot(`drawer-${width}`);
+  }
+
+  await load(390, 844, true, '?moves');
+  await shoot('drawer-390-list');
+  await load(390, 844, true, '?move=endure-harm');
+  const phone = JSON.parse(
+    await evaluate(`
+      JSON.stringify((() => {
+        const drawer = document.querySelector('.moves-drawer--full');
+        const bar = document.querySelector('.moves-drawer__bar');
+        if (!drawer || !bar) return null;
+        // Розкладка, а не getBoundingClientRect: анімація виїзду ще могла не скінчитися.
+        return { height: drawer.clientHeight, viewport: innerHeight,
+          barBottom: bar.offsetTop + bar.offsetHeight,
+          rollHeight: Math.round(document.querySelector('.moves-drawer__roll').getBoundingClientRect().height) };
+      })())
+    `),
+  );
+  check('390px opens the drawer fullscreen', phone !== null && phone.height === phone.viewport, JSON.stringify(phone));
+  check(
+    '390px keeps the roll button at the bottom and tappable',
+    phone !== null && phone.barBottom <= phone.viewport && phone.rollHeight >= 44,
+    JSON.stringify(phone),
+  );
+  await overflowCheck('390px drawer fits the viewport');
+  const drawerTargets = JSON.parse(await evaluate(TOUCH_PROBE));
+  check('390px drawer has nothing smaller than 24px', drawerTargets.length === 0, JSON.stringify(drawerTargets));
+  await shoot('drawer-390');
 
   console.log('\nReduced motion');
   await send('Emulation.setEmulatedMedia', {

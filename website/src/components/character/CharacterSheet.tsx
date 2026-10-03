@@ -1,11 +1,12 @@
 // Аркуш персонажа: маршрут, розкладка зон і зведення всіх дій докупи.
 // Правила та розкладку описано в CHARACTER_SHEET_PLAN.md.
 
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import type { ReactNode } from 'react';
-import { Navigate } from 'react-router-dom';
+import { Navigate, useLocation, useNavigate, useSearchParams, type To } from 'react-router-dom';
 import type {
   AttrKey,
+  Character,
   CharacterProfile,
   ExtraTrack,
   ProgressTrack,
@@ -16,7 +17,7 @@ import type { Profile } from '../../utils/profiles';
 import { emptyCharacterProfile, resolveProfiles } from '../../utils/character/profiles';
 import type { SheetRoll } from '../../utils/character/diceEngine';
 import { commitBurn, previewBurn, rollAction, rollProgress } from '../../utils/character/diceEngine';
-import { ATTR_LABELS, SHEET, UI } from '../../utils/character/labels';
+import { ATTR_LABELS, SHEET, TRACK_KIND_LABELS, UI } from '../../utils/character/labels';
 import { clampAttribute, clampStat, nextXpState, resetMomentum } from '../../utils/character/rules';
 import { useCharacterStore } from './useCharacterStore';
 import { useSheetLog } from './useSheetLog';
@@ -35,7 +36,34 @@ import ExtraTracksSection from './ExtraTracksSection';
 import ProfilesZone from './ProfilesZone';
 import ProfilesFooter from './ProfilesFooter';
 import ProfilePicker from './ProfilePicker';
+import MovesDrawer, { type DrawerPreset } from '../moves/MovesDrawer';
+import type { RollDraft } from '../moves/rollDraft';
+import { WIDE_QUERY, useMediaQuery } from '../moves/useMediaQuery';
+import type { Move } from '../../utils/moves';
+import { getMove } from '../../utils/moves';
+import { ATTR_KEYS } from '../../utils/character/types';
 import './CharacterSheet.css';
+
+/**
+ * Скільки записів історії шторка відкрила поверх аркуша: «×» повертається
+ * на стільки кроків, щоб закриття не лишало хвіст ходів у «Назад».
+ */
+interface DrawerNavState {
+  depth?: number;
+  backTo?: string;
+}
+
+/** Хід прогресу, що відкривається кнопкою «Кинути» на шкалі цього виду. */
+const PROGRESS_MOVE: Record<'vow' | 'combat' | 'journey' | 'bond', string> = {
+  vow: 'fulfill-your-vow',
+  combat: 'end-the-fight',
+  journey: 'reach-your-destination',
+  bond: 'write-your-epilogue',
+};
+
+const isTyping = (target: EventTarget | null) =>
+  target instanceof HTMLElement &&
+  (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT' || target.isContentEditable);
 
 const vowLabel = (name: string, index: number) => name.trim() || `Присяга ${index + 1}`;
 
@@ -86,6 +114,77 @@ const CharacterSheetInner = () => {
   } = useCharacterStore();
   const { log, push, remove, clear } = useSheetLog();
   const narrow = useIsNarrow();
+  const wide = useMediaQuery(WIDE_QUERY);
+
+  // ── Шторка ходів ────────────────────────────────────────────────────
+  // Що відкрито — у URL аркуша: `?moves` — список, `?move=<id>` — картка.
+  const [params] = useSearchParams();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const navState = useMemo(() => (location.state ?? {}) as DrawerNavState, [location.state]);
+  const depth = navState.depth ?? 0;
+  const drawerMoveId = params.get('move');
+  const drawerOpen = params.has('moves') || drawerMoveId !== null;
+  const rawStat = params.get('stat');
+  const drawerStat = (ATTR_KEYS as readonly string[]).includes(rawStat ?? '') ? (rawStat as AttrKey) : null;
+  const [preset, setPreset] = useState<DrawerPreset | null>(null);
+
+  const drawerLink = useCallback(
+    (search: string): To => ({ pathname: location.pathname, search }),
+    [location.pathname],
+  );
+
+  /** Відкрити список; уже відкрита шторка не множить записів історії. */
+  const openDrawer = useCallback(
+    (stat?: AttrKey) => {
+      const search = stat ? `?moves&stat=${stat}` : '?moves';
+      if (drawerOpen) navigate(drawerLink(search), { replace: true, state: navState });
+      else navigate(drawerLink(search), { state: { depth: depth + 1 } satisfies DrawerNavState });
+    },
+    [drawerOpen, navigate, drawerLink, navState, depth],
+  );
+
+  /** Відкрити хід з аркуша, з наперед вибраною шкалою чи шкодою. */
+  const openMoveFromSheet = (moveId: string, draft: Partial<RollDraft> = {}) => {
+    setPreset(current => ({ moveId, draft, nonce: (current?.nonce ?? 0) + 1 }));
+    const state: DrawerNavState = { depth: drawerOpen ? depth : depth + 1 };
+    navigate(drawerLink(`?move=${moveId}`), { replace: drawerOpen, state: drawerOpen ? navState : state });
+  };
+
+  const closeDrawer = useCallback(() => {
+    if (depth > 0) navigate(-depth);
+    else navigate(drawerLink(''), { replace: true });
+  }, [depth, navigate, drawerLink]);
+
+  // Клавіша M відкриває шторку на десктопі.
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.code !== 'KeyM' || event.metaKey || event.ctrlKey || event.altKey) return;
+      if (isTyping(event.target) || drawerOpen) return;
+      event.preventDefault();
+      openDrawer();
+    };
+    document.addEventListener('keydown', onKeyDown);
+    return () => document.removeEventListener('keydown', onKeyDown);
+  }, [drawerOpen, openDrawer]);
+
+  // На десктопі шторка — колонка праворуч: контент сайту звільняє їй місце,
+  // а її верх рівняється по низу шапки сайту.
+  const docked = drawerOpen && wide;
+  useEffect(() => {
+    if (!docked) return;
+    const place = () => {
+      const bottom = document.querySelector('.navigation')?.getBoundingClientRect().bottom ?? 0;
+      document.body.style.setProperty('--moves-drawer-top', `${Math.max(0, bottom)}px`);
+    };
+    place();
+    document.body.classList.add('has-moves-drawer');
+    window.addEventListener('resize', place);
+    return () => {
+      document.body.classList.remove('has-moves-drawer');
+      window.removeEventListener('resize', place);
+    };
+  }, [docked]);
 
   // Картки-сповіщення живуть лише в межах сесії. Якби вони бралися з журналу,
   // після перезавантаження гравцеві пропонували б спалити імпульс на кидку,
@@ -136,6 +235,41 @@ const CharacterSheetInner = () => {
 
   const handleProgressRoll = (label: string, ticks: number) =>
     showRoll(rollProgress(label, ticks));
+
+  const drawer = drawerOpen && (
+    <MovesDrawer
+      character={character}
+      wide={wide}
+      moveId={drawerMoveId}
+      initialStat={drawerStat}
+      backTo={navState.backTo ? getMove(navState.backTo) : undefined}
+      preset={preset}
+      linkFor={(move: Move) => drawerLink(`?move=${move.id}`)}
+      listLinkState={{ depth: depth + 1 } satisfies DrawerNavState}
+      onOpenMove={(move: Move) =>
+        navigate(drawerLink(`?move=${move.id}`), {
+          state: { depth: depth + 1, backTo: drawerMoveId ?? undefined } satisfies DrawerNavState,
+        })
+      }
+      onShowList={() => navigate(drawerLink('?moves'), { replace: true, state: { depth } })}
+      onBack={() => navigate(-1)}
+      onClose={closeDrawer}
+      onLog={push}
+      onCharacter={(update: (current: Character) => Character) => updateCharacter(update)}
+    />
+  );
+
+  const movesButton = (
+    <button
+      type="button"
+      className="moves-open-button"
+      onClick={() => openDrawer()}
+      aria-expanded={drawerOpen}
+      title="Довідник ходів (M)"
+    >
+      ⚔ Ходи
+    </button>
+  );
 
   /** Присяга змінюється завжди від актуального стану, а не від пропса. */
   const updateVow = (index: number, updater: (vow: ProgressTrack) => ProgressTrack) =>
@@ -233,11 +367,15 @@ const CharacterSheetInner = () => {
   );
 
   return (
-    <div className="character-sheet-page">
+    <div className={`character-sheet-page${docked ? ' character-sheet-page--docked' : ''}`}>
+      {/* Обгортка — контейнер для @container: коли шторка забирає місце,
+          сітка аркуша перебудовується за власною шириною, а не за вікном. */}
+      <div className="character-sheet-frame">
       <div className="character-sheet">
         <section className="sheet-zone sheet-zone--name" style={{ gridArea: 'name' }}>
           <div className="sheet-zone__head">
             <h2 className="sheet-zone__title">{SHEET.character}</h2>
+            {movesButton}
             <CharacterBar
               store={store}
               character={character}
@@ -282,6 +420,7 @@ const CharacterSheetInner = () => {
               }))
             }
             onRoll={handleRoll}
+            onShowMoves={attribute => openDrawer(attribute)}
           />
         </Zone>
 
@@ -327,7 +466,7 @@ const CharacterSheetInner = () => {
               isOnly={character.vows.length === 1}
               onUpdate={updater => updateVow(index, updater)}
               onRemove={() => removeVow(vow.id)}
-              onRoll={() => handleProgressRoll(vowLabel(vow.name, index), vow.ticks)}
+              onRoll={() => openMoveFromSheet(PROGRESS_MOVE.vow, { trackId: vow.id })}
             />
           ))}
         </Zone>
@@ -363,7 +502,7 @@ const CharacterSheetInner = () => {
             onTicks={updateBondTicks}
             onName={renameBond}
             onRemove={removeBond}
-            onRoll={() => handleProgressRoll(SHEET.bonds, character.bondTicks)}
+            onRoll={() => openMoveFromSheet(PROGRESS_MOVE.bond)}
           />
         </Zone>
 
@@ -403,13 +542,18 @@ const CharacterSheetInner = () => {
                 extraTracks: current.extraTracks.filter(track => track.id !== id),
               }))
             }
-            onRoll={handleProgressRoll}
+            onRoll={track =>
+              track.kind === 'other'
+                ? handleProgressRoll(track.name.trim() || TRACK_KIND_LABELS[track.kind], track.ticks)
+                : openMoveFromSheet(PROGRESS_MOVE[track.kind], { trackId: track.id })
+            }
           />
         </Zone>
 
         <Zone area="log" title={SHEET.log}>
           <RollLog log={log} onRemove={remove} onClear={clear} />
         </Zone>
+      </div>
       </div>
 
       {/* Поза сіткою: стос висить над сторінкою, а не займає в ній зону. */}
@@ -423,11 +567,14 @@ const CharacterSheetInner = () => {
       {narrow && (
         <ProfilesFooter
           entries={profiles}
+          onOpenMoves={() => openDrawer()}
           onAdd={() => setPickerOpen(true)}
           onUpdate={updateProfile}
           onRemove={removeProfile}
         />
       )}
+
+      {drawer}
 
       {pickerOpen && (
         <ProfilePicker

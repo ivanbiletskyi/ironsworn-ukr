@@ -5,12 +5,12 @@
 // місці. Перемикач результату приглушує дві інші смуги: сценарій «кидок
 // уже зроблено, що мені випало?».
 
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { Link } from 'react-router-dom';
 import type { Move } from '../../utils/moves';
 import { relatedMoves, statLabel } from '../../utils/moves';
 import { CATEGORY_META } from '../../utils/moves';
-import { MoveBlocks } from './MoveText';
+import { MoveBlocks, type RenderEffects, type RenderTableAction } from './MoveText';
 import type { OpenMove } from './moveMarkup';
 import { CategoryIcon, Diamonds, RollBadge, StarButton } from './MoveBits';
 import { OUTCOME_KEYS, OUTCOME_TEXT, type OutcomeKey } from './outcomes';
@@ -75,10 +75,14 @@ export function OutcomeBands({
   move,
   selected,
   onOpen,
+  play,
+  onSelect,
 }: {
   move: Move;
   selected: OutcomeKey | null;
   onOpen?: OpenMove;
+  play?: MovePlay;
+  onSelect?: (outcome: OutcomeKey) => void;
 }) {
   const refs = useRef<Partial<Record<OutcomeKey, HTMLElement | null>>>({});
 
@@ -101,16 +105,27 @@ export function OutcomeBands({
           }}
           className={`outcome-band outcome-band--${key} ${
             selected && selected !== key ? 'outcome-band--dimmed' : ''
-          }`}
+          } ${play?.outcome === key ? 'outcome-band--rolled' : ''}`}
           aria-label={OUTCOME_TEXT[key].full}
           data-outcome={key}
+          // Приглушену смугу можна тапнути, щоб прочитати; «випало» лишається.
+          onClick={selected && selected !== key && onSelect ? () => onSelect(key) : undefined}
         >
           <h4 className="outcome-band__title">
             <Diamonds outcome={key} />
             {OUTCOME_TEXT[key].full}
+            {play?.outcome === key && <span className="outcome-band__rolled"> · випало</span>}
           </h4>
           <div className="outcome-band__body">
-            <MoveBlocks blocks={outcomes[key]} onOpen={onOpen} />
+            <MoveBlocks
+              blocks={outcomes[key]}
+              onOpen={onOpen}
+              renderEffects={play?.renderEffects}
+              keyPrefix={`${key}.`}
+              tableAction={play?.tableAction}
+              tableHighlight={play?.tableHighlight}
+            />
+            {play && move.outcomeEffects?.[key] && play.renderEffects(move.outcomeEffects[key], key)}
           </div>
         </section>
       ))}
@@ -123,6 +138,20 @@ const ROLL_HINT: Partial<Record<Move['rollKind'], string>> = {
   oracle: 'Кидайте d100 по таблиці',
 };
 
+/**
+ * Хід на аркуші персонажа: панель кидка, результат і чіпи наслідків. Без
+ * цього обʼєкта картка — чистий довідник, як на /uk/moves.
+ */
+export interface MovePlay {
+  rollSlot: ReactNode;
+  resultSlot: ReactNode;
+  /** Результат останнього кидка цього ходу — його смуга вибирається сама. */
+  outcome: OutcomeKey | null;
+  renderEffects: RenderEffects;
+  tableAction: RenderTableAction;
+  tableHighlight: (key: string) => number | undefined;
+}
+
 export interface MoveDetailProps {
   move: Move;
   favorite: boolean;
@@ -131,6 +160,9 @@ export interface MoveDetailProps {
   /** Перемикач унизу екрана (мобільна шторка) замість вбудованого. */
   floatingSwitcher?: boolean;
   bookBase: string;
+  play?: MovePlay;
+  /** Додаткова дія у футері: «Зробити на аркуші →». */
+  footerSlot?: ReactNode;
 }
 
 export default function MoveDetail({
@@ -140,6 +172,8 @@ export default function MoveDetail({
   onOpen,
   floatingSwitcher = false,
   bookBase,
+  play,
+  footerSlot,
 }: MoveDetailProps) {
   const [selected, setSelected] = useState<OutcomeKey | null>(null);
   const [copied, setCopied] = useState(false);
@@ -149,8 +183,16 @@ export default function MoveDetail({
   const [shownId, setShownId] = useState(move.id);
   if (shownId !== move.id) {
     setShownId(move.id);
-    setSelected(null);
+    setSelected(play?.outcome ?? null);
     setCopied(false);
+  }
+
+  // Кидок сам вибирає смугу, що випала (і після спалення імпульсу теж).
+  const rolled = play?.outcome ?? null;
+  const [shownOutcome, setShownOutcome] = useState(rolled);
+  if (shownOutcome !== rolled) {
+    setShownOutcome(rolled);
+    setSelected(rolled);
   }
 
   const copyLink = () => {
@@ -188,12 +230,27 @@ export default function MoveDetail({
       <section className="move-section">
         <h3 className="move-section__label">{move.rollKind === 'none' ? 'Що робити' : 'Коли'}</h3>
         <div className="move-section__body">
-          <MoveBlocks blocks={move.lead} onOpen={onOpen} />
+          <MoveBlocks
+            blocks={move.lead}
+            onOpen={onOpen}
+            renderEffects={play?.renderEffects}
+            keyPrefix="lead."
+          />
+          {play && move.leadEffects && play.renderEffects(move.leadEffects, 'lead')}
         </div>
         {ROLL_HINT[move.rollKind] && <p className="move-roll-hint">{ROLL_HINT[move.rollKind]}</p>}
       </section>
 
-      {(move.approaches || move.bonuses) && (
+      {play?.rollSlot && (
+        <section className="move-section move-section--play">
+          <h3 className="move-section__label">Кидайте</h3>
+          {play.rollSlot}
+        </section>
+      )}
+
+      {play?.resultSlot}
+
+      {!play?.rollSlot && (move.approaches || move.bonuses) && (
         <section className="move-section">
           <h3 className="move-section__label">Кидайте</h3>
           <ApproachTable move={move} />
@@ -215,17 +272,25 @@ export default function MoveDetail({
             <h3 className="move-section__label">Результати</h3>
             {!floatingSwitcher && <OutcomeSwitcher selected={selected} onSelect={setSelected} />}
           </div>
-          <OutcomeBands move={move} selected={selected} onOpen={onOpen} />
+          <OutcomeBands move={move} selected={selected} onOpen={onOpen} play={play} onSelect={setSelected} />
         </section>
       )}
 
       {move.after && (
         <section className="move-section move-section--after">
-          <MoveBlocks blocks={move.after} onOpen={onOpen} />
+          <MoveBlocks
+            blocks={move.after}
+            onOpen={onOpen}
+            renderEffects={play?.renderEffects}
+            keyPrefix="after."
+            tableAction={play?.tableAction}
+            tableHighlight={play?.tableHighlight}
+          />
         </section>
       )}
 
       <footer className="move-detail__foot">
+        {footerSlot}
         {related.length > 0 && (
           <div className="related-moves">
             <span className="related-moves__label">Повʼязані ходи:</span>

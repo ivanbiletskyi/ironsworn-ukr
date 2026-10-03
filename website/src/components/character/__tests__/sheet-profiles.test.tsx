@@ -3,6 +3,7 @@
 
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { fireEvent, render } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import CharacterSheet from '../CharacterSheet';
 import {
   addProfileButton,
@@ -35,7 +36,13 @@ import {
   type,
 } from './helpers';
 
-const renderSheet = () => render(<CharacterSheet currentLang="uk" />);
+// Шторка ходів живе в URL аркуша, тож аркуш рендериться в роутері.
+const renderSheet = () =>
+  render(
+    <MemoryRouter initialEntries={['/uk/character']}>
+      <CharacterSheet currentLang="uk" />
+    </MemoryRouter>,
+  );
 
 const storedProfiles = () =>
   JSON.parse(localStorage.getItem('ironsworn-characters-v1') ?? 'null')?.characters?.[0]?.profiles;

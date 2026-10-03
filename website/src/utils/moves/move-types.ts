@@ -5,7 +5,7 @@
 // Довідник існує лише українською, як і аркуш персонажа, тож рядки тут
 // прості, без `Localized<T>`.
 
-import type { AttrKey, StatKey } from '../character/types';
+import type { AttrKey, DebilityKey, StatKey } from '../character/types';
 
 export type MoveCategory = 'adventure' | 'relationship' | 'combat' | 'suffer' | 'quest' | 'fate';
 
@@ -24,12 +24,31 @@ export interface MoveTable {
   rows: [string, string][];
 }
 
+/** Які шкали прогресу персонажа підходять ходу. */
+export type TrackKindForMove = 'vow' | 'combat' | 'journey' | 'bond';
+
 /**
- * Один блок тексту: рядок — абзац, масив рядків — список «➢», обʼєкт —
+ * Машинно-читаний наслідок, що стоїть поруч із текстом. Шторка на аркуші
+ * пропонує застосувати його в один тап; сам текст лишається дослівним і
+ * нічого не розбирається з нього.
+ */
+export type Effect =
+  | { kind: 'momentum'; delta: number }
+  | { kind: 'stat'; stat: StatKey; delta: number }
+  | { kind: 'progress'; tracks: TrackKindForMove }
+  | { kind: 'debility'; key: DebilityKey; marked: boolean }
+  /** Інший хід; `harm` — шкода чи стрес, підставлені в його крок втрати. */
+  | { kind: 'move'; moveId: string; harm?: number };
+
+/** Пункт списку «➢»: просто текст або текст із наслідками варіанта. */
+export type MoveListItem = string | { text: string; effects: Effect[] };
+
+/**
+ * Один блок тексту: рядок — абзац, масив — список «➢», обʼєкт —
  * таблиця. Рядки містять розмітку `**жирний**` і `*курсив*`; курсивом
  * набрано назви інших ходів, і саме курсив стає посиланням.
  */
-export type MoveBlock = string | string[] | MoveTable;
+export type MoveBlock = string | MoveListItem[] | MoveTable;
 
 /** Рядок таблиці «як дієте → стат» для ходів зі статом на вибір. */
 export interface Approach {
@@ -38,6 +57,25 @@ export interface Approach {
   /** Уточнення до рядка, як «+1, якщо маєте стосунки з персонажем». */
   note?: string;
 }
+
+/** Рядок панелі кидка: що додається до граника дії. */
+export type RollOption =
+  | { label: string; stat: MoveStat }
+  /** «Лікувати» власні рани: нижче з двох атрибутів. */
+  | { label: string; lowerOf: [AttrKey, AttrKey] };
+
+/**
+ * Як хід кидається з аркуша. Для ходів дії форма виводиться з `approaches`
+ * і `stats` (див. `rollSpec` у play.ts); вручну задаються лише особливі.
+ */
+export type RollSpec =
+  | { kind: 'action'; options: RollOption[] }
+  /** Спершу втратити показник, потім кинути вище з нього й атрибута. */
+  | { kind: 'sufferThenRoll'; lose: 'health' | 'spirit' | 'companionHealth'; versus: AttrKey }
+  | { kind: 'progress'; tracks: TrackKindForMove }
+  | { kind: 'payThePrice' }
+  | { kind: 'askTheOracle' }
+  | { kind: 'none' };
 
 export interface MoveOutcomes {
   strong: MoveBlock[];
@@ -74,6 +112,12 @@ export interface Move {
   /** Короткі чіпи бонусів до кидка: «+1 за стосунки». */
   bonuses?: string[];
   outcomes?: MoveOutcomes;
+  /** Наслідки, що стосуються всього результату, а не варіанта зі списку. */
+  outcomeEffects?: Partial<Record<keyof MoveOutcomes, Effect[]>>;
+  /** Наслідки ходу без кидка: «Зазнати злиднів» → «Розгубленість». */
+  leadEffects?: Effect[];
+  /** Форма кидка, коли її не виводиться з `approaches` і `stats`. */
+  roll?: RollSpec;
   /** Спільні для кількох результатів варіанти й примітки — під смугами. */
   after?: MoveBlock[];
   /**
@@ -96,4 +140,12 @@ export const MOVE_CATEGORIES: readonly MoveCategory[] = [
 
 export function isTable(block: MoveBlock): block is MoveTable {
   return typeof block === 'object' && !Array.isArray(block);
+}
+
+export function itemText(item: MoveListItem): string {
+  return typeof item === 'string' ? item : item.text;
+}
+
+export function itemEffects(item: MoveListItem): Effect[] {
+  return typeof item === 'string' ? [] : item.effects;
 }

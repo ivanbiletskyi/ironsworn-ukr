@@ -1,6 +1,7 @@
 // Журнал кидків: компактні рядки, найновіші зверху.
 
-import type { SheetRoll } from '../../utils/character/diceEngine';
+import type { SheetLogEntry, SheetRoll } from '../../utils/character/diceEngine';
+import { formatD100 } from '../../utils/character/diceEngine';
 import { OUTCOME_LABELS, UI, formatScaleValue } from '../../utils/character/labels';
 
 function describeRoll(roll: SheetRoll): string {
@@ -22,7 +23,7 @@ const RollLog = ({
   onRemove,
   onClear,
 }: {
-  log: SheetRoll[];
+  log: SheetLogEntry[];
   onRemove: (id: string) => void;
   onClear: () => void;
 }) => {
@@ -32,10 +33,17 @@ const RollLog = ({
     <>
       <ul className="roll-log">
         {log.map(roll => (
-          <li key={roll.id} className={`log-row log-row--${roll.outcome}`}>
+          <li
+            key={roll.id}
+            className={`log-row log-row--${roll.kind === 'oracle' ? 'oracle' : roll.outcome}`}
+          >
             <span className="log-row__label">{roll.label}</span>
-            <span className="log-row__dice">{describeRoll(roll)}</span>
-            <span className="log-row__outcome">{OUTCOME_LABELS[roll.outcome]}</span>
+            <span className="log-row__dice">
+              {roll.kind === 'oracle' ? `d100: ${formatD100(roll.value)}` : describeRoll(roll)}
+            </span>
+            <span className="log-row__outcome">
+              {roll.kind === 'oracle' ? roll.result : OUTCOME_LABELS[roll.outcome]}
+            </span>
             {roll.kind === 'action' && roll.momentumBurned && (
               <span className="log-row__flag" title={UI.burnMomentum}>
                 🔥

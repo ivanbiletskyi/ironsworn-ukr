@@ -3,6 +3,7 @@
 
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { act, fireEvent, render } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import CharacterSheet from '../CharacterSheet';
 import { createCharacter, serializeCharacter } from '../../../utils/character/storage';
 import {
@@ -26,7 +27,13 @@ import {
   xpCells,
 } from './helpers';
 
-const renderSheet = () => render(<CharacterSheet currentLang="uk" />);
+// Шторка ходів живе в URL аркуша, тож аркуш рендериться в роутері.
+const renderSheet = () =>
+  render(
+    <MemoryRouter initialEntries={['/uk/character']}>
+      <CharacterSheet currentLang="uk" />
+    </MemoryRouter>,
+  );
 
 const cellState = (cell: HTMLElement) => cell.className.match(/xp-cell--(\d)/)?.[1];
 

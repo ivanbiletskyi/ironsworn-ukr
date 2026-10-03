@@ -17,7 +17,8 @@ const ExtraTracksSection = ({
   onAdd: (kind: TrackKind) => void;
   onUpdate: (id: string, updater: (track: ExtraTrack) => ExtraTrack) => void;
   onRemove: (id: string) => void;
-  onRoll: (label: string, ticks: number) => void;
+  /** Шкала цілком: бій і подорож відкривають свій хід, решта кидається одразу. */
+  onRoll: (track: ExtraTrack) => void;
 }) => (
   <div className="extra-tracks">
     <div className="extra-tracks__add">
@@ -69,9 +70,7 @@ const ExtraTracksSection = ({
                 ticks: toggleBoxTick(current.ticks, box),
               }))
             }
-            onRoll={() =>
-              onRoll(track.name.trim() || TRACK_KIND_LABELS[track.kind], track.ticks)
-            }
+            onRoll={() => onRoll(track)}
           />
         </div>
       ))
