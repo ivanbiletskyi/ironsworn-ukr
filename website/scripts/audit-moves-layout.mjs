@@ -171,13 +171,11 @@ try {
     await shoot(`face-danger-${width}`);
   }
 
-  console.log('\nCheat sheet and trainer');
+  console.log('\nCheat sheet');
   for (const width of [360, 1280, 1440]) {
     await load('/uk/moves?view=sheet', width);
     await overflowCheck(`${width}px cheat sheet`);
     await shoot(`sheet-${width}`);
-    await load('/uk/moves?view=train', width);
-    await overflowCheck(`${width}px trainer`);
   }
   await load('/uk/moves/endure-harm?view=sheet', 1440);
   check(

@@ -46,7 +46,7 @@ export function inline(text: string, onOpen?: OpenMove, keyPrefix = ''): ReactNo
   return nodes;
 }
 
-/** Розмітка геть — для однорядкових підсумків і тренування. */
+/** Розмітка геть — для однорядкових підсумків шпаргалки. */
 export function plain(text: string): string {
   return text.replace(/\*/g, '');
 }

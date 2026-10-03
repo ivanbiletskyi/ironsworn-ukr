@@ -61,22 +61,22 @@
 /* ── Категорії: смужка, піктограма, чіп ─────────────────────────────── */
 
 .move-card--adventure, .move-group--adventure, .chip--adventure, .move-detail--adventure,
-.cheat-card--adventure, .cheat-group--adventure, .trainer-card--adventure, .move-sheet--adventure,
+.cheat-card--adventure, .cheat-group--adventure, .move-sheet--adventure,
 .cat-icon--adventure { --cat: var(--cat-adventure); }
 .move-card--relationship, .move-group--relationship, .chip--relationship, .move-detail--relationship,
-.cheat-card--relationship, .cheat-group--relationship, .trainer-card--relationship, .move-sheet--relationship,
+.cheat-card--relationship, .cheat-group--relationship, .move-sheet--relationship,
 .cat-icon--relationship { --cat: var(--cat-relationship); }
 .move-card--combat, .move-group--combat, .chip--combat, .move-detail--combat,
-.cheat-card--combat, .cheat-group--combat, .trainer-card--combat, .move-sheet--combat,
+.cheat-card--combat, .cheat-group--combat, .move-sheet--combat,
 .cat-icon--combat { --cat: var(--cat-combat); }
 .move-card--suffer, .move-group--suffer, .chip--suffer, .move-detail--suffer,
-.cheat-card--suffer, .cheat-group--suffer, .trainer-card--suffer, .move-sheet--suffer,
+.cheat-card--suffer, .cheat-group--suffer, .move-sheet--suffer,
 .cat-icon--suffer { --cat: var(--cat-suffer); }
 .move-card--quest, .move-group--quest, .chip--quest, .move-detail--quest,
-.cheat-card--quest, .cheat-group--quest, .trainer-card--quest, .move-sheet--quest,
+.cheat-card--quest, .cheat-group--quest, .move-sheet--quest,
 .cat-icon--quest { --cat: var(--cat-quest); }
 .move-card--fate, .move-group--fate, .chip--fate, .move-detail--fate,
-.cheat-card--fate, .cheat-group--fate, .trainer-card--fate, .move-sheet--fate,
+.cheat-card--fate, .cheat-group--fate, .move-sheet--fate,
 .cat-icon--fate { --cat: var(--cat-fate); }
 
 .cat-icon {
@@ -1021,163 +1021,6 @@ a.cheat-card__link:hover {
   margin: 0 !important;
 }
 
-/* ── Тренування ─────────────────────────────────────────────────────── */
-
-.trainer {
-  max-width: 560px;
-  padding: 0 var(--moves-gutter) 2.5rem;
-}
-
-.trainer__title {
-  font-size: 1.3rem !important;
-  margin-bottom: 0.4rem !important;
-}
-
-.trainer__lead {
-  color: var(--text-secondary);
-}
-
-.trainer__field {
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 0.5rem 0.8rem 0.6rem;
-  margin: 0 0 0.8rem;
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.25rem 1rem;
-}
-
-.trainer__field legend {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-  padding: 0 0.3rem;
-}
-
-.trainer__option {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.4rem;
-  min-height: 36px;
-  cursor: pointer;
-  font-size: 0.92rem;
-}
-
-.trainer__actions {
-  display: flex;
-  gap: 0.5rem;
-  flex-wrap: wrap;
-  margin-top: 0.9rem;
-}
-
-.trainer__primary {
-  background: var(--highlight);
-  border-color: var(--highlight);
-  color: #fff;
-  font-weight: 600;
-  min-height: 44px;
-}
-
-.trainer__primary:hover {
-  background: var(--highlight-hover);
-}
-
-.trainer__primary:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.trainer__secondary {
-  min-height: 44px;
-}
-
-.trainer__meta {
-  display: flex;
-  justify-content: space-between;
-  color: var(--text-muted);
-  font-size: 0.8rem;
-  margin: 0.5rem 0;
-}
-
-.trainer__score {
-  font-size: 1.2rem;
-}
-
-.trainer-card {
-  border: 1px solid var(--border-color);
-  border-top: 4px solid var(--cat);
-  border-radius: 10px;
-  background: var(--secondary-bg);
-  padding: 1rem 1.1rem;
-}
-
-.trainer-card__prompt {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: var(--text-muted);
-}
-
-.trainer-card__situation {
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1.2rem;
-  line-height: 1.4;
-}
-
-.trainer-card__name {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-family: Georgia, 'Times New Roman', serif;
-  font-size: 1.5rem;
-  font-weight: 700;
-}
-
-.trainer-card__choices {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.5rem;
-  margin-top: 0.8rem;
-}
-
-.trainer-choice {
-  min-height: 48px;
-  font-family: Georgia, 'Times New Roman', serif;
-  text-align: left;
-}
-
-.trainer-choice:disabled {
-  cursor: default;
-  opacity: 0.6;
-}
-
-.trainer-choice.is-correct {
-  opacity: 1;
-  border-color: var(--success);
-  background: color-mix(in srgb, var(--success) 18%, transparent);
-}
-
-.trainer-choice.is-wrong {
-  opacity: 1;
-  border-color: var(--danger);
-  background: color-mix(in srgb, var(--danger) 14%, transparent);
-}
-
-.trainer-card__verdict {
-  margin-top: 0.8rem !important;
-  font-weight: 600;
-}
-
-.trainer-card__back .cheat-card__outcomes {
-  display: block;
-  padding: 0;
-}
-
-.trainer-card__back .cheat-card__outcome > span:last-child {
-  white-space: normal;
-}
-
 /* ── Клавіатурна підказка ───────────────────────────────────────────── */
 
 .moves-help-backdrop {
@@ -1515,10 +1358,6 @@ a.cheat-card__link:hover {
 @media (max-width: 480px) {
   .moves-page {
     --moves-gutter: 12px;
-  }
-
-  .trainer-card__choices {
-    grid-template-columns: 1fr;
   }
 
   .view-switch__btn {

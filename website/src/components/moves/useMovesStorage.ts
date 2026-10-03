@@ -1,4 +1,4 @@
-// Стан довідника в localStorage: закріплені, нещодавні, коробки тренування.
+// Стан довідника в localStorage: закріплені й нещодавні ходи.
 // Синхронізація через Firebase у першій версії не потрібна (дизайн-план,
 // «Технічна реалізація»): це зручності одного пристрою, не дані гри.
 
@@ -7,7 +7,6 @@ import { getMove } from '../../utils/moves';
 
 export const FAVORITES_KEY = 'ironsworn-moves-favorites-v1';
 export const RECENT_KEY = 'ironsworn-moves-recent-v1';
-export const TRAINER_KEY = 'ironsworn-moves-trainer-v1';
 
 export const RECENT_LIMIT = 5;
 
@@ -65,30 +64,4 @@ export function useRecent() {
     [update],
   );
   return { recent, pushRecent: push };
-}
-
-/** Коробка Лейтнера: 1 — не знаю, 3 — знаю добре. */
-export type TrainerBox = 1 | 2 | 3;
-export type TrainerBoxes = Record<string, TrainerBox>;
-
-const isBoxes = (value: unknown): value is TrainerBoxes =>
-  typeof value === 'object' &&
-  value !== null &&
-  !Array.isArray(value) &&
-  Object.values(value).every(box => box === 1 || box === 2 || box === 3);
-
-export function useTrainerBoxes() {
-  const [boxes, update] = usePersistent(TRAINER_KEY, () => read(TRAINER_KEY, {}, isBoxes));
-  /** «Знав» піднімає хід на коробку вище, «не знав» повертає в першу. */
-  const answer = useCallback(
-    (id: string, knew: boolean) =>
-      update(prev => {
-        const box = prev[id] ?? 1;
-        const next: TrainerBox = knew ? (Math.min(3, box + 1) as TrainerBox) : 1;
-        return { ...prev, [id]: next };
-      }),
-    [update],
-  );
-  const reset = useCallback(() => update(() => ({})), [update]);
-  return { boxes, answer, resetBoxes: reset };
 }

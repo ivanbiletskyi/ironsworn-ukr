@@ -17,18 +17,16 @@ import MoveSearchBar from './MoveSearchBar';
 import MoveList from './MoveList';
 import MoveDetail, { RollPrimer } from './MoveDetail';
 import MoveCheatSheet from './MoveCheatSheet';
-import MoveTrainer from './MoveTrainer';
 import { CategoryIcon } from './MoveBits';
 import { useFavorites, useRecent } from './useMovesStorage';
 import { WIDE_QUERY, useMediaQuery } from './useMediaQuery';
 import './MovesPage.css';
 
-type View = 'list' | 'sheet' | 'train';
+type View = 'list' | 'sheet';
 
 const VIEWS: { id: View; label: string }[] = [
   { id: 'list', label: 'Список' },
   { id: 'sheet', label: 'Шпаргалка' },
-  { id: 'train', label: 'Тренування' },
 ];
 
 const ATTRS: readonly string[] = ['edge', 'heart', 'iron', 'shadow', 'wits'];
@@ -107,7 +105,7 @@ function MovesPageInner() {
   const stat = ATTRS.includes(rawStat ?? '') ? (rawStat as AttrKey) : null;
   const coreOnly = params.get('core') === '1';
   const rawView = params.get('view');
-  const view: View = rawView === 'sheet' || rawView === 'train' ? rawView : 'list';
+  const view: View = rawView === 'sheet' ? 'sheet' : 'list';
 
   const move = getMove(moveId);
   const stems = useMemo(() => queryStems(query), [query]);
@@ -483,12 +481,7 @@ function MovesPageInner() {
 
   return (
     <div className={`moves-page moves-page--${view} ${isWide ? 'moves-page--wide' : 'moves-page--narrow'}`}>
-      {view === 'train' ? (
-        <div className="moves-single">
-          {header}
-          <MoveTrainer />
-        </div>
-      ) : view === 'sheet' ? (
+      {view === 'sheet' ? (
         <div className="moves-single">
           {header}
           {listPane}

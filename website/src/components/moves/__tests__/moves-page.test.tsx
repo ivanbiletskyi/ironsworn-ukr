@@ -1,5 +1,5 @@
 // Довідник ходів через UI: URL ↔ фільтри, шторка й «Назад», перемикач
-// результату, посилання між ходами, клавіатура, закріплені, тренування.
+// результату, посилання між ходами, клавіатура, закріплені.
 //
 // jsdom не має `matchMedia`, тож за замовчуванням рендериться вузька
 // (мобільна) верстка; десктопні випадки підміняють медіазапит явно.
@@ -9,7 +9,7 @@ import { act, fireEvent, render, screen, within } from '@testing-library/react';
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router-dom';
 import MovesPage from '../MovesPage';
 import { MOVES } from '../../../utils/moves';
-import { FAVORITES_KEY, RECENT_KEY, TRAINER_KEY } from '../useMovesStorage';
+import { FAVORITES_KEY, RECENT_KEY } from '../useMovesStorage';
 
 function LocationProbe() {
   const location = useLocation();
@@ -217,18 +217,6 @@ describe('закріплені й нещодавні', () => {
   it('відкритий хід потрапляє в нещодавні', () => {
     renderAt('/uk/moves/heal');
     expect(JSON.parse(localStorage.getItem(RECENT_KEY) ?? '[]')).toEqual(['heal']);
-  });
-});
-
-describe('тренування', () => {
-  it('«Ситуація → хід»: правильна відповідь піднімає хід у коробку 2', () => {
-    renderAt('/uk/moves?view=train');
-    fireEvent.click(screen.getByRole('button', { name: 'Почати' }));
-    const situation = document.querySelector('.trainer-card__situation')!.textContent!;
-    const move = MOVES.find(m => situation === `Коли… ${m.trigger}`)!;
-    fireEvent.click(screen.getByRole('button', { name: move.name }));
-    expect(screen.getByText('Так!')).toBeTruthy();
-    expect(JSON.parse(localStorage.getItem(TRAINER_KEY) ?? '{}')[move.id]).toBe(2);
   });
 });
 
