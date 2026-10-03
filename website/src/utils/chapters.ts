@@ -155,3 +155,27 @@ export const UK_TITLES: Record<string, string> = {
   '7-Gameplay_6-Hacking-Ironsworn.md': 'Модифікація Ironsworn',
   '7-Gameplay_7-Extended-Example-of-Play.md': 'Розширений приклад гри',
 };
+
+export type Lang = 'en' | 'uk';
+
+/** Усі сторінки книги по порядку — для «Далі» і бічного меню. */
+export const FLAT_FILES = CHAPTERS.flatMap(chapter =>
+  chapter.files.map(file => ({ file, prefix: chapter.prefix })),
+);
+
+/** "1-Basics_1-Playing-Ironsworn.md" → "Гра в Ironsworn" / "Playing Ironsworn". */
+export function pageTitle(file: string, prefix: string, lang: Lang): string {
+  if (lang === 'uk') return UK_TITLES[file] || file;
+  return file.replace(`${prefix}_`, '').replace('.md', '').replace(/^\d+-/, '').replace(/-/g, ' ');
+}
+
+export function pagePath(lang: Lang, file: string): string {
+  return `/${lang}/${file.replace('.md', '')}`;
+}
+
+/** Сторінка книги за шляхом роутера, якщо це вона (з .md чи без, зі слешем чи без). */
+export function fileFromPath(pathname: string, lang: Lang): string | null {
+  const rest = pathname.replace(new RegExp(`^/${lang}/`), '').replace(/\/$/, '').replace(/\.md$/, '');
+  const file = `${rest}.md`;
+  return FLAT_FILES.some(f => f.file === file) ? file : null;
+}

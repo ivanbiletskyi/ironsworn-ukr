@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { BrowserRouter as Router, Routes, Route, Link, useParams, Navigate, useLocation } from 'react-router-dom';
 import Navigation from './components/Navigation';
+import Sidebar from './components/sidebar/Sidebar';
 import MarkdownRenderer from './components/MarkdownRenderer';
 import Search from './components/Search';
 import OracleGenerators from './components/OracleGenerators';
@@ -9,91 +10,10 @@ import MovesPage from './components/moves/MovesPage';
 import AuthProvider from './components/auth/AuthProvider';
 import ExtensionsProvider from './extensions/ExtensionsProvider';
 import ExtensionRoute from './extensions/ExtensionRoute';
-import ExtensionsNav from './extensions/ExtensionsNav';
 import ExtensionsSettings from './extensions/ExtensionsSettings';
 import { EXTENSIONS_SETTINGS_PATH } from './extensions/extensionsContext';
-import { CHAPTERS, UK_TITLES } from './utils/chapters';
+import { CHAPTERS, FLAT_FILES, pageTitle } from './utils/chapters';
 import './App.css';
-
-// Groups of chapters to show on the Home Page and Sidebar
-// Hardcoded structure based on the md files provided.
-
-
-const FLAT_FILES = CHAPTERS.flatMap(chapter => 
-  chapter.files.map(file => ({
-    file,
-    prefix: chapter.prefix
-  }))
-);
-
-const Sidebar = ({ currentLang, isOpen, onClose }: { currentLang: string, isOpen: boolean, onClose: () => void }) => {
-  const location = useLocation();
-
-  return (
-    <aside className={`sidebar ${isOpen ? 'open' : ''}`}>
-      <div className="sidebar-header mobile-only">
-        <button className="close-sidebar" onClick={onClose}>×</button>
-      </div>
-      {CHAPTERS.map(chapter => (
-        <div key={chapter.prefix}>
-          <h3>{currentLang === 'uk' ? chapter.titleUk : chapter.titleEn}</h3>
-          <ul>
-            {chapter.prefix === '3-Moves' && currentLang === 'uk' && (
-              <li>
-                <Link
-                  to="/uk/moves"
-                  className={location.pathname.startsWith('/uk/moves') ? 'active' : ''}
-                  onClick={() => { if (window.innerWidth <= 900) onClose(); }}
-                >
-                  ⚔️ Довідник ходів
-                </Link>
-              </li>
-            )}
-            {chapter.prefix === '6-Oracles' && (
-              <li>
-                <Link
-                  to={`/${currentLang}/oracles`}
-                  className={location.pathname === `/${currentLang}/oracles` ? 'active' : ''}
-                  onClick={() => { if (window.innerWidth <= 900) onClose(); }}
-                >
-                  {currentLang === 'uk' ? '🎲 Генератори оракулів' : '🎲 Oracle Generators'}
-                </Link>
-              </li>
-            )}
-            {chapter.files.map(file => {
-              // Create readable link name from filename, e.g., "1-Basics_1-Playing-Ironsworn.md" -> "Playing Ironsworn"
-              const linkName = currentLang === 'uk' 
-                ? (UK_TITLES[file] || file) 
-                : file.replace(`${chapter.prefix}_`, '').replace('.md', '').replace(/^\d+-/, '').replace(/-/g, ' ');
-              const fullPath = `/${currentLang}/${file.replace('.md', '')}`;
-              const isActive = location.pathname === fullPath || location.pathname === `${fullPath}.md` || location.pathname === fullPath + '/';
-              
-              return (
-                <li key={file}>
-                  <Link 
-                    to={fullPath} 
-                    className={isActive ? 'active' : ''}
-                    onClick={() => {
-                      if (window.innerWidth <= 900) {
-                        onClose();
-                      }
-                    }}
-                  >
-                    {linkName}
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
-        </div>
-      ))}
-      <ExtensionsNav
-        currentLang={currentLang === 'en' ? 'en' : 'uk'}
-        onNavigate={() => { if (window.innerWidth <= 900) onClose(); }}
-      />
-    </aside>
-  );
-};
 
 const HomePage = ({ currentLang }: { currentLang: string }) => {
   return (
@@ -117,9 +37,22 @@ const HomePage = ({ currentLang }: { currentLang: string }) => {
   );
 };
 
-const PageRenderer = ({ currentLang }: { currentLang: string }) => {
+const PageRenderer = ({ currentLang }: { currentLang: 'en' | 'uk' }) => {
   const { '*': pathParam } = useParams();
-  
+  const location = useLocation();
+  const pageRef = useRef<HTMLDivElement>(null);
+  const fileKey = pathParam?.replace(/\.md$/, '') ?? '';
+
+  // Нова сторінка відкривається з початку: на десктопі прокручується
+  // .content-wrapper, і без цього лишалася позиція попередньої сторінки.
+  // Посилання на заголовок чи результат пошуку прокручує MarkdownRenderer.
+  useEffect(() => {
+    if (location.hash || location.search) return;
+    pageRef.current?.closest('.content-wrapper')?.scrollTo(0, 0);
+    window.scrollTo(0, 0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- лише при зміні сторінки
+  }, [fileKey]);
+
   if (!pathParam) {
     return <HomePage currentLang={currentLang} />;
   }
@@ -136,7 +69,7 @@ const PageRenderer = ({ currentLang }: { currentLang: string }) => {
   const isMovesChapter = currentLang === 'uk' && fileName.startsWith('3-Moves_');
 
   return (
-    <div className="page-content">
+    <div className="page-content" ref={pageRef}>
       {isMovesChapter && (
         <Link to="/uk/moves" className="moves-quick-link">
           ⚔️ Коротка довідка ходів →
@@ -152,11 +85,7 @@ const PageRenderer = ({ currentLang }: { currentLang: string }) => {
             onClick={() => window.scrollTo(0, 0)}
           >
             <div className="btn-label">{currentLang === 'uk' ? 'Далі' : 'Next'}</div>
-            <div className="btn-title">
-              {currentLang === 'uk' 
-                ? (UK_TITLES[nextFile.file] || nextFile.file) 
-                : nextFile.file.replace(`${nextFile.prefix}_`, '').replace('.md', '').replace(/^\d+-/, '').replace(/-/g, ' ')}
-            </div>
+            <div className="btn-title">{pageTitle(nextFile.file, nextFile.prefix, currentLang)}</div>
             <span className="arrow">→</span>
           </Link>
         </div>
@@ -253,7 +182,7 @@ const LayoutParamsWrapper = () => {
 
   // Toggle sidebar for mobile
   const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
-  const closeSidebar = () => setIsSidebarOpen(false);
+  const closeSidebar = useCallback(() => setIsSidebarOpen(false), []);
 
   return (
     <div className={`app ${isSidebarOpen ? 'sidebar-open' : ''}`}>

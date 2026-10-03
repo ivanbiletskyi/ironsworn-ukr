@@ -176,32 +176,37 @@
   min-width: 0;
 }
 
-/* Sidebar Navigation */
+/* Sidebar Navigation — основні стилі меню книги в components/sidebar/Sidebar.css */
 .sidebar {
   width: 300px;
   flex-shrink: 0;
-  padding: 2rem 1.5rem;
+  padding: 0 1rem 2rem;
   border-right: 1px solid var(--border-color);
   background: var(--primary-bg);
   transition: transform 0.3s ease;
   z-index: 90;
 }
 
-.sidebar-header {
-  display: none;
-  justify-content: flex-end;
-  padding-bottom: 1rem;
-}
-
 .close-sidebar {
+  display: none;
+  flex-shrink: 0;
+  width: 2.25rem;
+  height: 2.25rem;
   background: transparent;
   border: none;
+  border-radius: 6px;
   color: var(--text-muted);
-  font-size: 2rem;
+  font-size: 1.75rem;
   cursor: pointer;
   line-height: 1;
 }
 
+.close-sidebar:hover {
+  background: var(--secondary-bg);
+  color: var(--text-primary);
+}
+
+/* Заголовки й посилання секції доповнень (ExtensionsNav) */
 .sidebar h3 {
   margin: 1.5rem 0 0.75rem;
   font-size: 0.8em;
@@ -212,10 +217,6 @@
   padding-bottom: 0.25rem;
 }
 
-.sidebar div:first-child h3 {
-  margin-top: 0;
-}
-
 .sidebar ul {
   list-style: none;
   padding: 0;
@@ -223,16 +224,16 @@
 }
 
 .sidebar li {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.125rem;
 }
 
 .sidebar a {
   display: block;
-  padding: 0.5rem 0.75rem;
+  padding: 0.4rem 0.75rem;
   border-radius: 6px;
   color: var(--text-secondary);
   font-size: 0.95em;
-  transition: all 0.2s ease;
+  transition: background 0.15s ease, color 0.15s ease;
   border-left: 2px solid transparent;
 }
 
@@ -264,10 +265,14 @@
   pointer-events: none;
 }
 
-.sidebar-overlay.visible {
-  display: block;
-  opacity: 1;
-  pointer-events: auto;
+/* Лише на вузькому екрані: шухляда, відкрита на телефоні, не має лишати
+   розмиття, коли вікно розширилось (поворот, зміна розміру). */
+@media (max-width: 900px) {
+  .sidebar-overlay.visible {
+    display: block;
+    opacity: 1;
+    pointer-events: auto;
+  }
 }
 
 /* Page Content */
@@ -520,7 +525,7 @@
     top: 0;
     left: 0;
     bottom: 0;
-    width: 280px;
+    width: min(320px, 86vw);
     max-height: 100vh;
     overflow-y: auto;
     -webkit-overflow-scrolling: touch;
@@ -528,15 +533,16 @@
     z-index: 1001;
     box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5);
     border-right: 1px solid var(--border-color);
-    padding: 1rem;
+    padding: 0 0.75rem 1.5rem;
+    overscroll-behavior: contain;
   }
 
   .sidebar.open {
     transform: translateX(0);
   }
 
-  .sidebar-header.mobile-only {
-    display: flex;
+  .close-sidebar {
+    display: block;
   }
 
   .main-content {

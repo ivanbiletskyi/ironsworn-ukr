@@ -44,6 +44,9 @@ const Mermaid: React.FC<{ chart: string; isDark: boolean }> = ({ chart, isDark }
 
 const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, content, linkBase, title }) => {
   const [markdownContent, setMarkdownContent] = useState<string>('');
+  // Шлях, чий текст зараз на екрані: під час завантаження нової сторінки ще
+  // видно стару, а бічне меню бере підзаголовки саме звідси.
+  const [loadedPath, setLoadedPath] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const contentRef = useRef<HTMLDivElement>(null);
@@ -65,6 +68,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, conte
 
         const content = await loadMarkdownContent(markdownPath);
         setMarkdownContent(content);
+        setLoadedPath(markdownPath);
       } catch (err) {
         console.error('Error loading markdown:', err);
         setError(`Не вдалося завантажити файл / Failed to load file: ${markdownPath}`);
@@ -140,13 +144,13 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, conte
       } else if (hash) {
         // Wait a small tick to ensure DOM is updated after markdown render
         setTimeout(() => {
-          const id = hash.replace('#', '');
+          // Кириличні id приходять у хеші закодованими.
+          let id = hash.replace('#', '');
+          try { id = decodeURIComponent(id); } catch { /* лишаємо як є */ }
           const element = document.getElementById(id);
-          if (element) {
-            const yOffset = -80; // offset for fixed header
-            const y = element.getBoundingClientRect().top + window.scrollY + yOffset;
-            window.scrollTo({ top: y, behavior: 'smooth' });
-          }
+          // На десктопі прокручується .content-wrapper, а не вікно, тож
+          // window.scrollTo тут не діє; відступ задає scroll-margin-top.
+          element?.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }, 150);
       }
     }
@@ -243,7 +247,12 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, conte
   const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
 
   return (
-    <div className="markdown-content" ref={contentRef} data-color-mode={isDark ? 'dark' : 'light'}>
+    <div
+      className="markdown-content"
+      ref={contentRef}
+      data-color-mode={isDark ? 'dark' : 'light'}
+      data-source={content === undefined ? loadedPath ?? undefined : undefined}
+    >
       {title && <h1 className="page-title">{title}</h1>}
       <MarkdownPreview
         source={source}

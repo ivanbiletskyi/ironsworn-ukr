@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useSearchParams } from 'react-router-dom';
 import { searchDocumentation, type SearchResult } from '../utils/searchUtils';
 import { searchMoves } from '../utils/moves/search';
 import { rollBadge } from '../utils/moves';
@@ -8,7 +8,9 @@ import './Search.css';
 const Search: React.FC = () => {
   const { lang } = useParams();
   const currentLang = lang === 'en' ? 'en' : 'uk';
-  const [query, setQuery] = useState('');
+  const [searchParams] = useSearchParams();
+  // ?q= — запит, з яким сюди переходить фільтр бічного меню.
+  const [query, setQuery] = useState(() => searchParams.get('q') ?? '');
   const [results, setResults] = useState<SearchResult[]>([]);
   const [loading, setLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
