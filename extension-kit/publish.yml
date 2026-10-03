@@ -1,0 +1,50 @@
+# Шаблон для .github/workflows/publish.yml у репозиторії розширення.
+# Секрети репозиторію: FIREBASE_SERVICE_ACCOUNT, EXT_SIGNING_KEY.
+name: Publish extension
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      rollback:
+        description: 'Версія для відкату (порожньо — звичайна публікація)'
+        required: false
+
+concurrency:
+  group: extension-publish
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: true
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - run: npm ci
+
+      - name: Rollback
+        if: ${{ inputs.rollback != '' && inputs.rollback != null }}
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+        run: node host/extension-kit/publish.mjs rollback "${{ inputs.rollback }}"
+
+      - name: Check, build, publish
+        if: ${{ inputs.rollback == '' || inputs.rollback == null }}
+        env:
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
+          EXT_SIGNING_KEY: ${{ secrets.EXT_SIGNING_KEY }}
+        run: |
+          npm run typecheck
+          npm run build
+          node host/extension-kit/publish.mjs

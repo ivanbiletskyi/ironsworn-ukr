@@ -7,6 +7,9 @@ import OracleGenerators from './components/OracleGenerators';
 import CharacterSheet from './components/character/CharacterSheet';
 import MovesPage from './components/moves/MovesPage';
 import AuthProvider from './components/auth/AuthProvider';
+import ExtensionsProvider from './extensions/ExtensionsProvider';
+import ExtensionRoute from './extensions/ExtensionRoute';
+import ExtensionsNav from './extensions/ExtensionsNav';
 import { CHAPTERS, UK_TITLES } from './utils/chapters';
 import './App.css';
 
@@ -82,6 +85,10 @@ const Sidebar = ({ currentLang, isOpen, onClose }: { currentLang: string, isOpen
           </ul>
         </div>
       ))}
+      <ExtensionsNav
+        currentLang={currentLang === 'en' ? 'en' : 'uk'}
+        onNavigate={() => { if (window.innerWidth <= 900) onClose(); }}
+      />
     </aside>
   );
 };
@@ -265,6 +272,7 @@ const LayoutParamsWrapper = () => {
             <Route path="character" element={<CharacterSheet currentLang={currentLang} />} />
             <Route path="moves" element={<MovesPage currentLang={currentLang} />} />
             <Route path="moves/:moveId" element={<MovesPage currentLang={currentLang} />} />
+            <Route path="x/:extId/*" element={<ExtensionRoute currentLang={currentLang} />} />
             <Route path="*" element={<PageRenderer currentLang={currentLang} />} />
           </Routes>
           <Footer currentLang={currentLang} />
@@ -281,12 +289,14 @@ function App() {
   // спільна для всіх сторінок.
   return (
     <AuthProvider>
-      <Router basename={basename}>
-        <Routes>
-          <Route path="/" element={<Navigate to="/uk" replace />} />
-          <Route path="/:lang/*" element={<LayoutParamsWrapper />} />
-        </Routes>
-      </Router>
+      <ExtensionsProvider>
+        <Router basename={basename}>
+          <Routes>
+            <Route path="/" element={<Navigate to="/uk" replace />} />
+            <Route path="/:lang/*" element={<LayoutParamsWrapper />} />
+          </Routes>
+        </Router>
+      </ExtensionsProvider>
     </AuthProvider>
   );
 }

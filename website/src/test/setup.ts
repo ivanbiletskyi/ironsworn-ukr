@@ -5,5 +5,6 @@ afterEach(() => {
   // cleanup() unmounts first — and unmounting flushes any pending state to
   // localStorage — so the store is only cleared afterwards.
   cleanup();
-  localStorage.clear();
+  // Node-середовище (`@vitest-environment node`) localStorage не має.
+  if (typeof localStorage !== 'undefined') localStorage.clear();
 });

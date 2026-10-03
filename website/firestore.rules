@@ -15,6 +15,28 @@ service cloud.firestore {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
 
+    // Розширення (див. src/extensions/loader.ts). Пише їх лише CI через
+    // Admin SDK, який ці правила оминає; клієнт тільки читає.
+
+    // Пошта акаунта, якщо Google її підтвердив; інакше null.
+    function verifiedEmail() {
+      return request.auth != null && request.auth.token.email_verified == true
+        ? request.auth.token.email.lower()
+        : null;
+    }
+
+    // Дозволи бачить лише власник пошти: список розширень нікому іншому
+    // не віддається.
+    match /grants/{email}/ext/{extId} {
+      allow read: if verifiedEmail() == email;
+    }
+
+    // Маніфест, релізи й код — лише з дозволом на це розширення.
+    match /ext/{extId}/{rest=**} {
+      allow read: if verifiedEmail() != null
+        && exists(/databases/$(database)/documents/grants/$(verifiedEmail())/ext/$(extId));
+    }
+
     // Усе інше закрито.
     match /{document=**} {
       allow read, write: if false;

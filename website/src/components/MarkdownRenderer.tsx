@@ -1,11 +1,16 @@
 import React, { useEffect, useState, useRef } from 'react';
 import MarkdownPreview from '@uiw/react-markdown-preview';
 import { loadMarkdownContent } from '../utils/markdownLoader';
+import { resolveMarkdownLink } from '../utils/markdownLinks';
 import { useLocation, Link, useParams } from 'react-router-dom';
 import mermaid from 'mermaid';
 
 interface MarkdownRendererProps {
-  markdownPath: string; // The relative path in the public folder e.g., "en/1-Basics_1-Playing-Ironsworn.md"
+  markdownPath?: string; // The relative path in the public folder e.g., "en/1-Basics_1-Playing-Ironsworn.md"
+  /** Готовий Markdown замість файлу з public/ — наприклад, текст розширення. */
+  content?: string;
+  /** Куди ведуть відносні посилання на сусідні .md; типово — `/{lang}/`, тобто основна книга. */
+  linkBase?: string;
   title?: string;
 }
 
@@ -37,7 +42,7 @@ const Mermaid: React.FC<{ chart: string; isDark: boolean }> = ({ chart, isDark }
   return <div ref={ref} className="mermaid-container flex justify-center my-4 overflow-x-auto w-full" />;
 };
 
-const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title }) => {
+const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, content, linkBase, title }) => {
   const [markdownContent, setMarkdownContent] = useState<string>('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
@@ -45,7 +50,14 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title
   const location = useLocation();
   const { lang } = useParams();
 
+  const source = content ?? markdownContent;
+  const isLoading = content === undefined && loading;
+  const loadError = content === undefined ? error : null;
+
   useEffect(() => {
+    // Готовий текст не треба завантажувати — див. `source` нижче.
+    if (content !== undefined || !markdownPath) return;
+
     const loadContent = async () => {
       try {
         setLoading(true);
@@ -62,11 +74,11 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title
     };
 
     loadContent();
-  }, [markdownPath]);
+  }, [markdownPath, content]);
 
   // Handle scroll to search result or anchor hash
   useEffect(() => {
-    if (!loading && markdownContent && contentRef.current) {
+    if (!isLoading && source && contentRef.current) {
       const searchParams = new URLSearchParams(location.search);
       const searchQuery = searchParams.get('search');
       
@@ -138,7 +150,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title
         }, 150);
       }
     }
-  }, [loading, markdownContent, location.search, location.hash]);
+  }, [isLoading, source, location.search, location.hash]);
 
 
 
@@ -207,7 +219,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title
     }
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="markdown-content">
         {title && <h1 className="page-title">{title}</h1>}
@@ -216,12 +228,12 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title
     );
   }
 
-  if (error) {
+  if (loadError) {
     return (
       <div className="markdown-content">
         {title && <h1 className="page-title">{title}</h1>}
         <div className="error-message" style={{ color: 'var(--danger)', padding: '2rem', textAlign: 'center' }}>
-          {error}
+          {loadError}
         </div>
       </div>
     );
@@ -234,7 +246,7 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title
     <div className="markdown-content" ref={contentRef} data-color-mode={isDark ? 'dark' : 'light'}>
       {title && <h1 className="page-title">{title}</h1>}
       <MarkdownPreview
-        source={markdownContent}
+        source={source}
         wrapperElement={{
           "data-color-mode": isDark ? "dark" : "light"
         }}
@@ -270,23 +282,8 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, title
               return <Link to={`${location.pathname}${href}`} {...props} />;
             }
 
-            // Handle internal markdown file links
-            let internalPath = href;
-            let hash = '';
-            
-            // Extract hash if present
-            if (internalPath.includes('#')) {
-              const parts = internalPath.split('#');
-              internalPath = parts[0];
-              hash = '#' + parts[1];
-            }
-
-            // Remove .md extension and relative prefixes
-            internalPath = internalPath.replace(/\.md$/, '').replace(/^\.\//, '');
-            
-            // Construct absolute router path with current language
-            const to = `/${lang || 'uk'}/${internalPath}${hash}`;
-            
+            // Internal markdown file links → router paths
+            const to = resolveMarkdownLink(href, lang || 'uk', linkBase);
             return <Link to={to} {...props} />;
           }
         }}
