@@ -51,7 +51,12 @@ function devOverrides(): Map<string, string> {
   return overrides;
 }
 
-async function devCatalog(): Promise<CatalogEntry[]> {
+/** Лише в dev: чи задано VITE_EXT_DEV. Тоді розширення видно й без входу. */
+export function hasDevExtensions(): boolean {
+  return devOverrides().size > 0;
+}
+
+export async function devCatalog(): Promise<CatalogEntry[]> {
   const entries: CatalogEntry[] = [];
   for (const [id, origin] of devOverrides()) {
     try {

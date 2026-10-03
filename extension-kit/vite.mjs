@@ -108,7 +108,7 @@ export function extensionPreset({ root = process.cwd() } = {}) {
         fileName: () => 'extension.js',
       },
       rolldownOptions: {
-        output: { inlineDynamicImports: true },
+        output: { codeSplitting: false },
       },
     },
   };

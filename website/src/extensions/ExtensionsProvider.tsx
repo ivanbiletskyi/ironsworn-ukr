@@ -8,7 +8,7 @@ import { useAuth } from '../components/auth/authContext';
 import type { ExtensionDefinition } from './api';
 import { createHostApi } from './hostApi';
 import type { CatalogEntry } from './loader';
-import { clearExtensionCache, fetchCatalog, loadExtension } from './loader';
+import { clearExtensionCache, devCatalog, fetchCatalog, hasDevExtensions, loadExtension } from './loader';
 import type { CatalogState, ExtensionsValue } from './extensionsContext';
 import { ExtensionsContext } from './extensionsContext';
 
@@ -25,7 +25,11 @@ const ExtensionsProvider = ({ children }: { children: ReactNode }) => {
       // Вихід з акаунта: прибрати з пристрою закешований код розширень.
       if (hadUser.current) void clearExtensionCache();
       hadUser.current = false;
-      return;
+      if (!hasDevExtensions()) return;
+      // Лише в dev: локальні розширення видно й без входу.
+      let active = true;
+      void devCatalog().then(entries => { if (active) setResult({ email: '', entries }); });
+      return () => { active = false; };
     }
     hadUser.current = true;
     let active = true;
@@ -41,8 +45,8 @@ const ExtensionsProvider = ({ children }: { children: ReactNode }) => {
 
   const catalog: CatalogState = useMemo(() => {
     if (loading) return { status: 'loading' };
-    if (!email) return { status: 'signed-out' };
-    if (result?.email !== email) return { status: 'loading' };
+    if (!email && !hasDevExtensions()) return { status: 'signed-out' };
+    if (result?.email !== (email ?? '')) return { status: 'loading' };
     return { status: 'ready', entries: result.entries };
   }, [loading, email, result]);
 
