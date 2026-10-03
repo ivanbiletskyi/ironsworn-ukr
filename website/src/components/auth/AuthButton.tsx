@@ -1,6 +1,8 @@
 // Кнопка входу в шапці сайту та меню синхронізації під нею.
 
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
+import { EXTENSIONS_SETTINGS_PATH, useOptionalExtensions } from '../../extensions/extensionsContext';
 import type { SyncState } from '../../utils/sync/engine';
 import { useAuth } from './authContext';
 import './AuthButton.css';
@@ -11,6 +13,7 @@ interface Labels {
   signOut: string;
   account: string;
   syncNow: string;
+  extensions: string;
   loading: string;
   hint: string;
   status: Record<SyncState['status'], string>;
@@ -26,6 +29,7 @@ const LABELS: Record<'uk' | 'en', Labels> = {
     signOut: 'Вийти',
     account: 'Акаунт і синхронізація',
     syncNow: 'Синхронізувати зараз',
+    extensions: 'Доповнення',
     loading: 'Перевіряємо вхід…',
     hint: 'Аркуш персонажа синхронізується між пристроями.',
     status: {
@@ -45,6 +49,7 @@ const LABELS: Record<'uk' | 'en', Labels> = {
     signOut: 'Sign out',
     account: 'Account and sync',
     syncNow: 'Sync now',
+    extensions: 'Supplements',
     loading: 'Checking sign-in…',
     hint: 'Your character sheet syncs across devices.',
     status: {
@@ -101,6 +106,10 @@ const GoogleMark = () => (
 const AuthButton = ({ currentLang }: { currentLang: string }) => {
   const { user, loading, busy, error, sync, signIn, signOut, syncNow } = useAuth();
   const labels = currentLang === 'en' ? LABELS.en : LABELS.uk;
+  // Пункт «Доповнення» бачать лише ті, кому є що вмикати: акаунт без
+  // дозволів не дізнається навіть, що такі сторінки існують.
+  const catalog = useOptionalExtensions()?.catalog;
+  const hasExtensions = catalog?.status === 'ready' && catalog.entries.length > 0;
 
   const menuRoot = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
@@ -192,6 +201,16 @@ const AuthButton = ({ currentLang }: { currentLang: string }) => {
           {error && <p className="auth-error">{error}</p>}
 
           <p className="auth-menu__hint">{labels.hint}</p>
+
+          {hasExtensions && (
+            <Link
+              to={`/${currentLang === 'en' ? 'en' : 'uk'}/${EXTENSIONS_SETTINGS_PATH}`}
+              className="auth-menu__link"
+              onClick={close}
+            >
+              🧩 {labels.extensions}
+            </Link>
+          )}
 
           <div className="auth-menu__actions">
             <button

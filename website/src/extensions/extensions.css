@@ -18,6 +18,8 @@
 }
 
 .ext-gate__signin {
+  display: inline-block;
+  text-decoration: none;
   padding: 0.6rem 1.2rem;
   border: 1px solid var(--border-color);
   border-radius: 8px;
@@ -41,4 +43,136 @@
 
 .ext-nav__group ul {
   margin-bottom: 0.75rem;
+}
+
+/* ── Профіль: керування доповненнями ──────────────────────────────── */
+
+.ext-settings h1 {
+  margin-top: 0;
+}
+
+.ext-settings__intro {
+  max-width: 40rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.ext-settings__list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.ext-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  background: var(--secondary-bg);
+  transition: opacity 0.15s;
+}
+
+.ext-card--off .ext-card__title {
+  color: var(--text-secondary);
+}
+
+.ext-card__text {
+  min-width: 0;
+}
+
+.ext-card__title {
+  margin: 0;
+  font-size: 1.1rem;
+  border: none;
+  padding: 0;
+}
+
+.ext-card__open {
+  display: inline-block;
+  margin-top: 0.35rem;
+  font-size: 0.85rem;
+  color: var(--highlight);
+  text-decoration: none;
+}
+
+.ext-card__open:hover {
+  color: var(--highlight-hover);
+}
+
+.ext-card__error {
+  margin: 0.35rem 0 0;
+  color: var(--danger);
+  font-size: 0.8rem;
+}
+
+.ext-switch {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-shrink: 0;
+  cursor: pointer;
+}
+
+.ext-switch__state {
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+}
+
+/* Сам чекбокс лишається для клавіатури й читачів екрана, а видно доріжку. */
+.ext-switch__input {
+  position: absolute;
+  opacity: 0;
+  width: 1px;
+  height: 1px;
+  margin: 0;
+}
+
+.ext-switch__track {
+  position: relative;
+  width: 2.5rem;
+  height: 1.4rem;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  background: var(--accent-bg);
+  transition: background 0.15s, border-color 0.15s;
+}
+
+.ext-switch__track::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 0.15rem;
+  width: 1rem;
+  height: 1rem;
+  border-radius: 50%;
+  background: var(--text-secondary);
+  transform: translateY(-50%);
+  transition: transform 0.15s, background 0.15s;
+}
+
+.ext-switch__input:checked + .ext-switch__track {
+  background: var(--success);
+  border-color: var(--success);
+}
+
+.ext-switch__input:checked + .ext-switch__track::after {
+  background: #fff;
+  transform: translate(1.1rem, -50%);
+}
+
+.ext-switch__input:focus-visible + .ext-switch__track {
+  outline: 2px solid var(--highlight);
+  outline-offset: 2px;
+}
+
+.ext-switch__input:disabled + .ext-switch__track {
+  opacity: 0.5;
+  cursor: progress;
 }

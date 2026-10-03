@@ -2,19 +2,22 @@
 // тут перевіряється лише реакція UI на каталог і на результат завантаження.
 
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import type { AuthValue } from '../../components/auth/authContext';
 import type { CatalogEntry } from '../loader';
 import ExtensionsProvider from '../ExtensionsProvider';
 import ExtensionRoute from '../ExtensionRoute';
 import ExtensionsNav from '../ExtensionsNav';
+import ExtensionsSettings from '../ExtensionsSettings';
 import { ExtensionIntegrityError } from '../verify';
 
 let auth: Partial<AuthValue>;
 const fetchCatalog = vi.fn();
 const loadExtension = vi.fn();
 const clearExtensionCache = vi.fn(async () => {});
+let storedDisabled: string[] = [];
+const saveDisabled = vi.fn(async (_uid: string | null, ids: string[]) => { storedDisabled = ids; });
 
 vi.mock('../../components/auth/authContext', () => ({ useAuth: () => auth }));
 
@@ -23,6 +26,14 @@ vi.mock('../loader', async importOriginal => ({
   fetchCatalog: (...args: unknown[]) => fetchCatalog(...args),
   loadExtension: (...args: unknown[]) => loadExtension(...args),
   clearExtensionCache: () => clearExtensionCache(),
+}));
+
+vi.mock('../prefs', () => ({
+  subscribeDisabled: (_uid: string | null, onChange: (ids: string[]) => void) => {
+    onChange(storedDisabled);
+    return () => {};
+  },
+  saveDisabled: (uid: string | null, ids: string[]) => saveDisabled(uid, ids),
 }));
 
 const DEMO: CatalogEntry = {
@@ -50,6 +61,7 @@ const renderAt = (path: string) =>
                 <ExtensionsNav currentLang="uk" onNavigate={() => {}} />
                 <Routes>
                   <Route path="x/:extId/*" element={<ExtensionRoute currentLang="uk" />} />
+                  <Route path="profile/extensions" element={<ExtensionsSettings currentLang="uk" />} />
                 </Routes>
               </>
             }
@@ -61,6 +73,7 @@ const renderAt = (path: string) =>
 
 beforeEach(() => {
   vi.clearAllMocks();
+  storedDisabled = [];
 });
 
 describe('extension route', () => {
@@ -119,5 +132,62 @@ describe('extension route', () => {
 
     expect(await screen.findByText('На цій сторінці сталася помилка.')).toBeTruthy();
     expect(screen.getByText('Демо')).toBeTruthy();
+  });
+});
+
+describe('extension settings', () => {
+  it('hides a turned-off extension from the menu and does not load it', async () => {
+    signedIn('player4@example.com');
+    storedDisabled = ['demo'];
+    fetchCatalog.mockResolvedValue([DEMO]);
+    renderAt('/uk/x/demo/one');
+
+    expect(await screen.findByText('Це доповнення вимкнено у вашому профілі.')).toBeTruthy();
+    expect(screen.getByText('Керувати доповненнями').getAttribute('href')).toBe('/uk/profile/extensions');
+    expect(screen.queryByText('Перший розділ')).toBeNull();
+    expect(loadExtension).not.toHaveBeenCalled();
+  });
+
+  it('turns an extension off and back on from the profile page', async () => {
+    signedIn('player5@example.com');
+    fetchCatalog.mockResolvedValue([DEMO]);
+    renderAt('/uk/profile/extensions');
+
+    const toggle = await screen.findByRole('switch', { name: 'Демо' }) as HTMLInputElement;
+    expect(toggle.checked).toBe(true);
+    expect(screen.getByText('Перший розділ')).toBeTruthy();
+
+    fireEvent.click(toggle);
+    await waitFor(() => expect(saveDisabled).toHaveBeenCalledWith('player5@example.com', ['demo']));
+    expect(toggle.checked).toBe(false);
+    expect(screen.queryByText('Перший розділ')).toBeNull();
+
+    fireEvent.click(toggle);
+    await waitFor(() => expect(saveDisabled).toHaveBeenLastCalledWith('player5@example.com', []));
+    expect(toggle.checked).toBe(true);
+    expect(screen.getByText('Перший розділ')).toBeTruthy();
+  });
+
+  it('puts the switch back and says so when saving fails', async () => {
+    signedIn('player6@example.com');
+    fetchCatalog.mockResolvedValue([DEMO]);
+    saveDisabled.mockRejectedValueOnce(new Error('offline'));
+    vi.spyOn(console, 'error').mockImplementation(() => {});
+    renderAt('/uk/profile/extensions');
+
+    const toggle = await screen.findByRole('switch', { name: 'Демо' }) as HTMLInputElement;
+    fireEvent.click(toggle);
+
+    expect(await screen.findByText('Не вдалося зберегти вибір. Спробуйте ще раз.')).toBeTruthy();
+    expect(toggle.checked).toBe(true);
+    expect(screen.getByText('Перший розділ')).toBeTruthy();
+  });
+
+  it('tells accounts without grants that there is nothing to manage', async () => {
+    signedIn('stranger2@example.com');
+    fetchCatalog.mockResolvedValue([]);
+    renderAt('/uk/profile/extensions');
+
+    expect(await screen.findByText('Для вашого акаунта доповнень немає.')).toBeTruthy();
   });
 });

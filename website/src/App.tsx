@@ -10,6 +10,8 @@ import AuthProvider from './components/auth/AuthProvider';
 import ExtensionsProvider from './extensions/ExtensionsProvider';
 import ExtensionRoute from './extensions/ExtensionRoute';
 import ExtensionsNav from './extensions/ExtensionsNav';
+import ExtensionsSettings from './extensions/ExtensionsSettings';
+import { EXTENSIONS_SETTINGS_PATH } from './extensions/extensionsContext';
 import { CHAPTERS, UK_TITLES } from './utils/chapters';
 import './App.css';
 
@@ -273,6 +275,7 @@ const LayoutParamsWrapper = () => {
             <Route path="moves" element={<MovesPage currentLang={currentLang} />} />
             <Route path="moves/:moveId" element={<MovesPage currentLang={currentLang} />} />
             <Route path="x/:extId/*" element={<ExtensionRoute currentLang={currentLang} />} />
+            <Route path={EXTENSIONS_SETTINGS_PATH} element={<ExtensionsSettings currentLang={currentLang} />} />
             <Route path="*" element={<PageRenderer currentLang={currentLang} />} />
           </Routes>
           <Footer currentLang={currentLang} />

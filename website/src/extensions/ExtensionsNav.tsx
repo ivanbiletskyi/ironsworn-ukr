@@ -1,6 +1,6 @@
 // Спільна секція «Доповнення» в бічному меню з підсекцією на кожне
-// розширення, до якого в акаунта є доступ. Гість і акаунт без дозволів не
-// бачать навіть заголовка секції.
+// розширення, до якого в акаунта є доступ і яке не вимкнене в профілі. Гість
+// і акаунт без дозволів не бачать навіть заголовка секції.
 
 import { Link, useLocation } from 'react-router-dom';
 import type { Lang } from './api';
@@ -10,11 +10,13 @@ import './extensions.css';
 const SECTION_TITLE: Record<Lang, string> = { uk: 'Доповнення', en: 'Supplements' };
 
 const ExtensionsNav = ({ currentLang, onNavigate }: { currentLang: Lang; onNavigate: () => void }) => {
-  const { catalog } = useExtensions();
+  const { catalog, disabled } = useExtensions();
   const location = useLocation();
   if (catalog.status !== 'ready') return null;
 
-  const visible = catalog.entries.filter(entry => (entry.nav[currentLang] ?? []).length > 0);
+  const visible = catalog.entries.filter(
+    entry => !disabled.has(entry.id) && (entry.nav[currentLang] ?? []).length > 0,
+  );
   if (!visible.length) return null;
 
   return (
