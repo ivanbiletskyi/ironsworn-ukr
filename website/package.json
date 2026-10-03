@@ -11,6 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "audit:layout": "node scripts/audit-layout.mjs",
+    "audit:layout:moves": "node scripts/audit-moves-layout.mjs",
     "preview": "vite preview",
     "copy-md": "node copy-markdown.js",
     "copy-md:watch": "node copy-markdown.js --watch"

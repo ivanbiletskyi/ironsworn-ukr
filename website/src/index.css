@@ -13,6 +13,15 @@
   --warning: #d29922;
   --danger: #f85149;
 
+  /* Категорії ходів (довідник ходів): лише смужка, піктограма й активний
+     чіп, ніколи текст. Приглушені й відмінні від трьох кольорів результату. */
+  --cat-adventure: #3aa59a;
+  --cat-relationship: #c86f98;
+  --cat-combat: #8fa1bf;
+  --cat-suffer: #a07ae6;
+  --cat-quest: #b98a5e;
+  --cat-fate: #5fa8d3;
+
   font-family: 'Open Sans', 'Helvetica Neue', sans-serif;
   line-height: 1.6;
   font-weight: 400;
@@ -40,6 +49,12 @@
   --success: #2da44e;
   --warning: #bf8700;
   --danger: #cf222e;
+  --cat-adventure: #1f7a70;
+  --cat-relationship: #a64d78;
+  --cat-combat: #5a6f94;
+  --cat-suffer: #7c55c7;
+  --cat-quest: #8a6239;
+  --cat-fate: #2f7fb0;
 }
 
 * {

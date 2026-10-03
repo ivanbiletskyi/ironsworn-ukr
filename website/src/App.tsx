@@ -5,6 +5,7 @@ import MarkdownRenderer from './components/MarkdownRenderer';
 import Search from './components/Search';
 import OracleGenerators from './components/OracleGenerators';
 import CharacterSheet from './components/character/CharacterSheet';
+import MovesPage from './components/moves/MovesPage';
 import AuthProvider from './components/auth/AuthProvider';
 import { CHAPTERS, UK_TITLES } from './utils/chapters';
 import './App.css';
@@ -32,6 +33,17 @@ const Sidebar = ({ currentLang, isOpen, onClose }: { currentLang: string, isOpen
         <div key={chapter.prefix}>
           <h3>{currentLang === 'uk' ? chapter.titleUk : chapter.titleEn}</h3>
           <ul>
+            {chapter.prefix === '3-Moves' && currentLang === 'uk' && (
+              <li>
+                <Link
+                  to="/uk/moves"
+                  className={location.pathname.startsWith('/uk/moves') ? 'active' : ''}
+                  onClick={() => { if (window.innerWidth <= 900) onClose(); }}
+                >
+                  ⚔️ Довідник ходів
+                </Link>
+              </li>
+            )}
             {chapter.prefix === '6-Oracles' && (
               <li>
                 <Link
@@ -111,8 +123,16 @@ const PageRenderer = ({ currentLang }: { currentLang: string }) => {
   const currentIndex = FLAT_FILES.findIndex(f => f.file === fileName);
   const nextFile = currentIndex !== -1 && currentIndex < FLAT_FILES.length - 1 ? FLAT_FILES[currentIndex + 1] : null;
 
+  // Розділи ходів книги ведуть у коротку довідку — і навпаки.
+  const isMovesChapter = currentLang === 'uk' && fileName.startsWith('3-Moves_');
+
   return (
     <div className="page-content">
+      {isMovesChapter && (
+        <Link to="/uk/moves" className="moves-quick-link">
+          ⚔️ Коротка довідка ходів →
+        </Link>
+      )}
       <MarkdownRenderer markdownPath={markdownPath} />
       
       {nextFile && (
@@ -243,6 +263,8 @@ const LayoutParamsWrapper = () => {
             <Route path="search" element={<Search />} />
             <Route path="oracles" element={<OracleGenerators currentLang={currentLang} />} />
             <Route path="character" element={<CharacterSheet currentLang={currentLang} />} />
+            <Route path="moves" element={<MovesPage currentLang={currentLang} />} />
+            <Route path="moves/:moveId" element={<MovesPage currentLang={currentLang} />} />
             <Route path="*" element={<PageRenderer currentLang={currentLang} />} />
           </Routes>
           <Footer currentLang={currentLang} />

@@ -14,7 +14,11 @@ const Navigation: React.FC<NavigationProps> = ({ currentLang, onToggleSidebar, i
 
   // Аркуш існує лише українською, тож перемикач на EN тут лише спричинив би
   // редирект назад і мигання — вимикаємо його явно.
-  const isCharacterPage = location.pathname.replace(/\/$/, '').endsWith('/character');
+  // Те саме з довідником ходів.
+  const path = location.pathname.replace(/\/$/, '');
+  const isCharacterPage = path.endsWith('/character');
+  const isMovesPage = /\/moves(\/[^/]+)?$/.test(path);
+  const ukOnly = isCharacterPage || isMovesPage;
 
   const handleLanguageSwitch = (lang: string) => {
     if (lang === currentLang) return;
@@ -62,6 +66,16 @@ const Navigation: React.FC<NavigationProps> = ({ currentLang, onToggleSidebar, i
               📜
             </Link>
           )}
+          {currentLang === 'uk' && (
+            <Link
+              to="/uk/moves"
+              className="nav-icon-btn"
+              aria-label="Довідник ходів"
+              title="Довідник ходів"
+            >
+              ⚔️
+            </Link>
+          )}
           <Link
             to={`/${currentLang}/oracles`}
             className="nav-icon-btn"
@@ -82,8 +96,14 @@ const Navigation: React.FC<NavigationProps> = ({ currentLang, onToggleSidebar, i
             <button
               className={`lang-btn ${currentLang === 'en' ? 'active' : ''}`}
               onClick={() => handleLanguageSwitch('en')}
-              disabled={isCharacterPage}
-              title={isCharacterPage ? 'Аркуш персонажа доступний лише українською' : undefined}
+              disabled={ukOnly}
+              title={
+                isCharacterPage
+                  ? 'Аркуш персонажа доступний лише українською'
+                  : isMovesPage
+                    ? 'Довідник ходів доступний лише українською'
+                    : undefined
+              }
             >
               EN
             </button>

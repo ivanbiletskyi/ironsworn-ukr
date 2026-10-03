@@ -1,0 +1,1641 @@
+/* Довідник ходів. Точки зламу — як у сайту (900 і 480 px) плюс 1200 px
+   для ширини списку. Кольори результатів (--success/--warning/--danger)
+   зарезервовано лише за результатами; --cat-* — лише за категоріями. */
+
+.moves-page {
+  --moves-gutter: 16px;
+  --band-strong: var(--success);
+  --band-weak: var(--warning);
+  --band-miss: var(--danger);
+  color: var(--text-primary);
+}
+
+/* Глобальні стилі заголовків і таблиць сайту розраховані на markdown
+   книги; у довіднику вони заважають. */
+.moves-page h1,
+.moves-page h2,
+.moves-page h3,
+.moves-page h4 {
+  border: none;
+  padding: 0;
+  margin: 0;
+}
+
+.moves-page table {
+  display: table;
+  white-space: normal;
+  width: 100%;
+  margin: 0;
+}
+
+.moves-page th,
+.moves-page td {
+  min-width: 0;
+  border: none;
+  padding: 0;
+}
+
+.moves-page tr,
+.moves-page tr:nth-child(odd),
+.moves-page tr:nth-child(even),
+.moves-page tr:hover {
+  background: transparent;
+}
+
+.moves-page p {
+  margin: 0 0 0.6rem;
+}
+
+.moves-sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Категорії: смужка, піктограма, чіп ─────────────────────────────── */
+
+.move-card--adventure, .move-group--adventure, .chip--adventure, .move-detail--adventure,
+.cheat-card--adventure, .cheat-group--adventure, .trainer-card--adventure, .move-sheet--adventure,
+.cat-icon--adventure { --cat: var(--cat-adventure); }
+.move-card--relationship, .move-group--relationship, .chip--relationship, .move-detail--relationship,
+.cheat-card--relationship, .cheat-group--relationship, .trainer-card--relationship, .move-sheet--relationship,
+.cat-icon--relationship { --cat: var(--cat-relationship); }
+.move-card--combat, .move-group--combat, .chip--combat, .move-detail--combat,
+.cheat-card--combat, .cheat-group--combat, .trainer-card--combat, .move-sheet--combat,
+.cat-icon--combat { --cat: var(--cat-combat); }
+.move-card--suffer, .move-group--suffer, .chip--suffer, .move-detail--suffer,
+.cheat-card--suffer, .cheat-group--suffer, .trainer-card--suffer, .move-sheet--suffer,
+.cat-icon--suffer { --cat: var(--cat-suffer); }
+.move-card--quest, .move-group--quest, .chip--quest, .move-detail--quest,
+.cheat-card--quest, .cheat-group--quest, .trainer-card--quest, .move-sheet--quest,
+.cat-icon--quest { --cat: var(--cat-quest); }
+.move-card--fate, .move-group--fate, .chip--fate, .move-detail--fate,
+.cheat-card--fate, .cheat-group--fate, .trainer-card--fate, .move-sheet--fate,
+.cat-icon--fate { --cat: var(--cat-fate); }
+
+.cat-icon {
+  display: inline-block;
+  flex-shrink: 0;
+  background-color: var(--cat, var(--text-secondary));
+  mask-size: contain;
+  mask-repeat: no-repeat;
+  mask-position: center;
+  -webkit-mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  vertical-align: middle;
+}
+
+/* ── Шапка сторінки й перемикач вигляду ─────────────────────────────── */
+
+.moves-header {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  padding: 1.25rem var(--moves-gutter) 0.75rem;
+}
+
+.moves-header__title {
+  font-size: 1.5rem;
+}
+
+.moves-header__subtitle {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  margin: 0.15rem 0 0 !important;
+}
+
+.view-switch {
+  display: inline-flex;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.view-switch__btn {
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+  min-height: 36px;
+}
+
+.view-switch__btn + .view-switch__btn {
+  border-left: 1px solid var(--border-color);
+}
+
+.view-switch__btn.is-active {
+  background: var(--accent-bg);
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+/* ── Пошук і чіпи ───────────────────────────────────────────────────── */
+
+.move-search {
+  padding: 0 var(--moves-gutter) 0.6rem;
+  background: var(--primary-bg);
+}
+
+.move-search__form {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  position: relative;
+}
+
+.move-search__icon {
+  position: absolute;
+  left: 0.7rem;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.move-search__input {
+  flex: 1;
+  min-width: 0;
+  font: inherit;
+  font-size: 16px; /* менше — і iOS збільшує сторінку */
+  padding: 0.6rem 2.2rem 0.6rem 2rem;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: var(--secondary-bg);
+  color: var(--text-primary);
+  min-height: 44px;
+}
+
+.move-search__input:focus {
+  outline: 2px solid var(--highlight);
+  outline-offset: -1px;
+}
+
+.move-search__input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.move-search__clear {
+  position: absolute;
+  right: 0.25rem;
+  top: 50%;
+  transform: translateY(-50%);
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.3rem;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  line-height: 1;
+}
+
+.move-search__form:has(.move-search__filters) .move-search__clear {
+  right: calc(0.25rem + 6.6rem);
+}
+
+.move-search__filters {
+  flex-shrink: 0;
+  min-height: 44px;
+  font-size: 0.85rem;
+  padding: 0 0.75rem;
+  width: 6.2rem;
+}
+
+.move-search__filters.is-active {
+  border-color: var(--highlight);
+  color: var(--highlight);
+}
+
+.chip-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border-radius: 999px;
+  padding: 0.25rem 0.7rem;
+  font-size: 0.82rem;
+  background: transparent;
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  min-height: 32px;
+  white-space: nowrap;
+}
+
+.chip:hover {
+  color: var(--text-primary);
+  background: var(--accent-bg);
+}
+
+.chip.is-active {
+  color: var(--text-primary);
+  border-color: var(--cat, var(--highlight));
+  background: color-mix(in srgb, var(--cat, var(--highlight)) 18%, transparent);
+}
+
+.recent-row {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  padding: 0 var(--moves-gutter) 0.6rem;
+  font-size: 0.8rem;
+}
+
+.recent-row__label {
+  color: var(--text-muted);
+}
+
+.recent-chip,
+.related-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.2rem 0.6rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  background: var(--secondary-bg);
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  min-height: 30px;
+  line-height: 1.2;
+}
+
+.recent-chip:hover,
+.related-chip:hover {
+  color: var(--text-primary);
+  background: var(--accent-bg);
+}
+
+/* ── Список і компактні картки ──────────────────────────────────────── */
+
+.move-groups {
+  padding-bottom: 1.5rem;
+}
+
+.move-group__title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.78rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary) !important;
+  padding: 0.6rem var(--moves-gutter) 0.4rem !important;
+  background: var(--primary-bg);
+  font-family: 'Open Sans', sans-serif !important;
+}
+
+.move-group__star {
+  color: var(--warning);
+}
+
+.move-group__count {
+  margin-left: auto;
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.move-group__empty {
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  padding: 0 var(--moves-gutter);
+}
+
+.combat-hint {
+  margin: 0 var(--moves-gutter) 0.4rem;
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+}
+
+.combat-hint summary {
+  cursor: pointer;
+  color: var(--text-muted);
+  min-height: 28px;
+}
+
+.combat-hint ul {
+  margin: 0.3rem 0 0.5rem;
+  padding-left: 1.1rem;
+}
+
+.combat-hint li {
+  margin-bottom: 0.25rem;
+}
+
+.move-list-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0 calc(var(--moves-gutter) - 6px);
+}
+
+.move-card {
+  display: flex;
+  align-items: stretch;
+  border-radius: 8px;
+  margin-bottom: 2px;
+  position: relative;
+}
+
+.move-card::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 8px;
+  bottom: 8px;
+  width: 4px;
+  border-radius: 2px;
+  background: var(--cat);
+}
+
+.move-card:hover,
+.move-card.is-selected {
+  background: var(--accent-bg);
+}
+
+.move-card.is-selected {
+  box-shadow: inset 0 0 0 1px var(--border-color);
+}
+
+.move-card__link {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+  padding: 0.55rem 0.25rem 0.55rem 0.9rem;
+  color: inherit;
+  min-height: 56px;
+  justify-content: center;
+}
+
+.move-card__link:hover {
+  color: inherit;
+}
+
+.move-card__link:focus-visible {
+  outline: 2px solid var(--highlight);
+  outline-offset: -2px;
+  border-radius: 8px;
+}
+
+.move-card__row {
+  display: flex;
+  flex-wrap: wrap; /* довгий бейдж переходить на свій рядок, а не стискає назву */
+  align-items: baseline;
+  gap: 0.15rem 0.5rem;
+  min-width: 0;
+}
+
+.move-card__name {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 1.25;
+  color: var(--text-primary);
+  min-width: 0;
+}
+
+.move-card__star-mark {
+  color: var(--text-muted);
+}
+
+.move-card__row .roll-badge {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.move-card__trigger {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  line-height: 1.35;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.move-card__via {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+}
+
+.move-card mark,
+.cheat-card mark {
+  background: color-mix(in srgb, var(--highlight) 28%, transparent);
+  color: inherit;
+  border-radius: 2px;
+}
+
+.star-btn {
+  flex-shrink: 0;
+  border: none;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 1.1rem;
+  width: 44px;
+  min-height: 44px;
+  padding: 0;
+  line-height: 1;
+  border-radius: 8px;
+}
+
+.star-btn:hover {
+  background: transparent;
+  color: var(--text-primary);
+}
+
+.star-btn--on {
+  color: var(--warning);
+}
+
+.roll-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  line-height: 1.3;
+  padding: 0.1rem 0.45rem;
+  border-radius: 999px;
+  border: 1px solid var(--border-color);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  font-weight: 600;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.roll-badge--progress {
+  border-style: dashed;
+}
+
+.roll-badge--none {
+  color: var(--text-muted);
+  font-weight: 400;
+}
+
+.roll-badge--oracle {
+  border-color: var(--cat-fate);
+}
+
+.moves-empty,
+.move-not-found {
+  padding: 1rem var(--moves-gutter);
+  color: var(--text-secondary);
+}
+
+/* ── Повна картка ───────────────────────────────────────────────────── */
+
+.move-detail {
+  max-width: 640px; /* ≈ 68 символів у рядку */
+  font-size: 15.5px;
+  line-height: 1.55;
+}
+
+.move-detail__category {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.move-detail__title-row {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 0.15rem;
+}
+
+.move-detail__title {
+  font-size: 1.85rem !important;
+  line-height: 1.2;
+}
+
+.move-detail__badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.35rem;
+}
+
+.move-detail__badges .roll-badge {
+  font-size: 0.8rem;
+}
+
+.tag-badge {
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 0.05rem 0.5rem;
+}
+
+.tag-badge--core {
+  color: var(--text-secondary);
+}
+
+.copy-link-btn {
+  margin-left: auto;
+  font-size: 0.78rem;
+  padding: 0.25rem 0.6rem;
+  min-height: 32px;
+  background: transparent;
+  color: var(--text-secondary);
+}
+
+/* Хвилястий пензлевий роздільник після назви, як у гральному наборі. */
+.move-detail__rule {
+  height: 8px;
+  margin: 0.7rem 0 0.9rem;
+  background: var(--cat);
+  opacity: 0.85;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M0 4.5 C10 2.5 20 6 30 4 S50 2.8 60 4.2 S80 6 90 3.8 S110 3 120 4.5 L120 5.5 C110 4.5 100 6.8 90 5.2 S70 3.5 60 5.4 S40 6.2 30 5.2 S10 4 0 5.6 Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 8' preserveAspectRatio='none'%3E%3Cpath d='M0 4.5 C10 2.5 20 6 30 4 S50 2.8 60 4.2 S80 6 90 3.8 S110 3 120 4.5 L120 5.5 C110 4.5 100 6.8 90 5.2 S70 3.5 60 5.4 S40 6.2 30 5.2 S10 4 0 5.6 Z'/%3E%3C/svg%3E") center / 100% 100% no-repeat;
+}
+
+.move-section {
+  margin-bottom: 1.1rem;
+}
+
+.move-section__label-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.4rem;
+}
+
+.move-section__label {
+  font-family: 'Open Sans', sans-serif !important;
+  font-size: 0.72rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--text-muted) !important;
+  margin-bottom: 0.35rem !important;
+}
+
+.move-section__label-row .move-section__label {
+  margin-bottom: 0 !important;
+}
+
+.move-section__body strong,
+.move-section--after strong {
+  color: var(--text-primary);
+}
+
+.move-roll-hint {
+  font-size: 0.85rem;
+  color: var(--text-secondary);
+  border-left: 2px dashed var(--border-color);
+  padding-left: 0.6rem;
+}
+
+.move-list {
+  margin: 0.2rem 0 0.7rem;
+  padding-left: 1.2rem;
+}
+
+.move-list li {
+  margin-bottom: 0.3rem;
+}
+
+.move-list li::marker {
+  content: '➢  ';
+  color: var(--text-muted);
+  font-size: 0.85em;
+}
+
+.move-ref {
+  border: none;
+  background: transparent;
+  padding: 0;
+  font: inherit;
+  font-style: italic;
+  color: var(--highlight);
+  border-radius: 2px;
+  text-decoration: underline;
+  text-decoration-style: dotted;
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.move-ref:hover {
+  background: transparent;
+  color: var(--highlight-hover);
+}
+
+.approach-table td {
+  padding: 0.4rem 0 !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  vertical-align: top;
+}
+
+.approach-table tr:last-child td {
+  border-bottom: none !important;
+}
+
+.approach-stat {
+  text-align: right;
+  white-space: nowrap;
+  font-weight: 700;
+  padding-left: 1rem !important;
+  width: 1%;
+}
+
+.approach-note {
+  color: var(--text-muted);
+  font-size: 0.9em;
+}
+
+.bonus-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+  margin-top: 0.5rem;
+}
+
+.bonus-chip {
+  font-size: 0.78rem;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 0.1rem 0.55rem;
+  color: var(--text-secondary);
+}
+
+/* ── Смуги результатів і ромби ──────────────────────────────────────── */
+
+.diamonds {
+  display: inline-flex;
+  gap: 2px;
+  flex-shrink: 0;
+}
+
+.diamonds--strong { color: var(--band-strong); }
+.diamonds--weak { color: var(--band-weak); }
+.diamonds--miss { color: var(--band-miss); }
+
+.outcome-bands {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.outcome-band {
+  --band: var(--band-strong);
+  border-left: 4px solid var(--band);
+  background: color-mix(in srgb, var(--band) 12%, transparent);
+  border-radius: 0 8px 8px 0;
+  padding: 0.6rem 0.85rem 0.3rem;
+  transition: opacity 150ms ease;
+  scroll-margin: 64px 0 96px;
+}
+
+.outcome-band--weak { --band: var(--band-weak); }
+.outcome-band--miss { --band: var(--band-miss); }
+
+.outcome-band--dimmed {
+  opacity: 0.35;
+}
+
+.outcome-band__title {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: 'Open Sans', sans-serif !important;
+  font-size: 0.85rem !important;
+  font-weight: 700;
+  margin-bottom: 0.3rem !important;
+}
+
+.outcome-band__body p:last-child,
+.outcome-band__body ul:last-child {
+  margin-bottom: 0.35rem;
+}
+
+.outcome-switcher {
+  display: inline-flex;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.outcome-switcher__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: none;
+  border-radius: 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 0.8rem;
+  padding: 0.3rem 0.65rem;
+  min-height: 32px;
+}
+
+.outcome-switcher__btn + .outcome-switcher__btn {
+  border-left: 1px solid var(--border-color);
+}
+
+.outcome-switcher__btn[aria-pressed='true'] {
+  color: var(--text-primary);
+  font-weight: 700;
+  background: var(--accent-bg);
+}
+
+.outcome-switcher--floating {
+  position: fixed;
+  left: 12px;
+  right: 12px;
+  bottom: calc(12px + env(safe-area-inset-bottom));
+  display: flex;
+  background: var(--secondary-bg);
+  box-shadow: 0 6px 24px rgba(0, 0, 0, 0.45);
+  z-index: 2;
+}
+
+.outcome-switcher--floating .outcome-switcher__btn {
+  flex: 1;
+  justify-content: center;
+  min-height: 48px;
+  font-size: 0.95rem;
+}
+
+.move-section--after {
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.8rem;
+}
+
+.move-table-wrap {
+  margin: 0.4rem 0 0.8rem;
+}
+
+.move-table th {
+  text-align: left;
+  font-size: 0.75rem;
+  color: var(--text-muted) !important;
+  background: transparent !important;
+  font-weight: 600;
+  padding: 0.25rem 0.5rem 0.25rem 0 !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+.move-table td {
+  padding: 0.35rem 0.5rem 0.35rem 0 !important;
+  border-bottom: 1px solid var(--border-color) !important;
+  vertical-align: top;
+}
+
+.move-table__range {
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-secondary);
+  width: 1%;
+  padding-right: 0.9rem !important;
+}
+
+.move-table-details summary {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 0.85rem;
+  min-height: 32px;
+  padding: 0.3rem 0;
+}
+
+.move-detail__foot {
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.8rem;
+  margin-top: 0.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  font-size: 0.85rem;
+}
+
+.related-moves {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.related-moves__label {
+  color: var(--text-muted);
+}
+
+.move-source {
+  color: var(--text-muted);
+  font-size: 0.75rem;
+}
+
+/* ── Памʼятка кидка ─────────────────────────────────────────────────── */
+
+.roll-primer {
+  max-width: 560px;
+  color: var(--text-secondary);
+}
+
+.roll-primer__title {
+  font-size: 1.4rem !important;
+  color: var(--text-primary);
+  margin-bottom: 0.6rem !important;
+}
+
+.roll-primer__subtitle {
+  font-size: 1rem !important;
+  margin: 1.2rem 0 0.5rem !important;
+}
+
+.roll-primer__outcomes {
+  list-style: none;
+  padding: 0;
+  margin: 0.5rem 0 0.8rem;
+}
+
+.roll-primer__outcome {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+}
+
+.roll-primer__note {
+  font-size: 0.85rem;
+}
+
+.roll-primer__frequent {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.35rem;
+}
+
+.roll-primer__keys {
+  margin-top: 1.5rem !important;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+.moves-page kbd {
+  font-family: 'Courier New', monospace;
+  font-size: 0.85em;
+  border: 1px solid var(--border-color);
+  border-bottom-width: 2px;
+  border-radius: 4px;
+  padding: 0 0.35em;
+  background: var(--secondary-bg);
+}
+
+/* ── Шпаргалка ──────────────────────────────────────────────────────── */
+
+.cheat-sheet {
+  columns: 3 240px;
+  column-gap: 1rem;
+  padding: 0 var(--moves-gutter) 2rem;
+}
+
+.cheat-group {
+  margin-bottom: 0.9rem;
+}
+
+.cheat-group__title {
+  break-after: avoid; /* заголовок не лишається внизу колонки без карток */
+  break-inside: avoid;
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-family: 'Open Sans', sans-serif !important;
+  font-size: 0.75rem !important;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-secondary) !important;
+  margin-bottom: 0.3rem !important;
+}
+
+.cheat-card {
+  break-inside: avoid;
+  border-left: 4px solid var(--cat);
+  background: var(--secondary-bg);
+  border-radius: 0 6px 6px 0;
+  margin-bottom: 4px;
+}
+
+.cheat-card.is-selected {
+  background: var(--accent-bg);
+}
+
+.cheat-card__link {
+  display: block;
+  padding: 0.25rem 0.55rem;
+  color: inherit;
+}
+
+.cheat-card__link:hover {
+  color: inherit;
+}
+
+a.cheat-card__link:hover {
+  background: var(--accent-bg);
+}
+
+.cheat-card__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 0 0.4rem;
+}
+
+.cheat-card__name {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-weight: 700;
+  font-size: 0.92rem;
+  line-height: 1.25;
+}
+
+.cheat-card__row .roll-badge {
+  margin-left: auto;
+}
+
+.cheat-card__trigger {
+  display: block;
+  font-size: 0.78rem;
+  color: var(--text-secondary);
+  line-height: 1.3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cheat-card__outcomes,
+.cheat-card__body {
+  display: none;
+}
+
+.cheat-card__outcomes {
+  list-style: none;
+  margin: 0;
+  padding: 0 0.6rem 0.4rem;
+}
+
+.cheat-card__outcome {
+  display: flex;
+  align-items: baseline;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  line-height: 1.35;
+  color: var(--text-secondary);
+}
+
+.cheat-card__outcome > span:last-child {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.cheat-card__body {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+  padding: 0 0.6rem 0.4rem;
+  margin: 0 !important;
+}
+
+/* ── Тренування ─────────────────────────────────────────────────────── */
+
+.trainer {
+  max-width: 560px;
+  padding: 0 var(--moves-gutter) 2.5rem;
+}
+
+.trainer__title {
+  font-size: 1.3rem !important;
+  margin-bottom: 0.4rem !important;
+}
+
+.trainer__lead {
+  color: var(--text-secondary);
+}
+
+.trainer__field {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 0.5rem 0.8rem 0.6rem;
+  margin: 0 0 0.8rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 1rem;
+}
+
+.trainer__field legend {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+  padding: 0 0.3rem;
+}
+
+.trainer__option {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  min-height: 36px;
+  cursor: pointer;
+  font-size: 0.92rem;
+}
+
+.trainer__actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 0.9rem;
+}
+
+.trainer__primary {
+  background: var(--highlight);
+  border-color: var(--highlight);
+  color: #fff;
+  font-weight: 600;
+  min-height: 44px;
+}
+
+.trainer__primary:hover {
+  background: var(--highlight-hover);
+}
+
+.trainer__primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.trainer__secondary {
+  min-height: 44px;
+}
+
+.trainer__meta {
+  display: flex;
+  justify-content: space-between;
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  margin: 0.5rem 0;
+}
+
+.trainer__score {
+  font-size: 1.2rem;
+}
+
+.trainer-card {
+  border: 1px solid var(--border-color);
+  border-top: 4px solid var(--cat);
+  border-radius: 10px;
+  background: var(--secondary-bg);
+  padding: 1rem 1.1rem;
+}
+
+.trainer-card__prompt {
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--text-muted);
+}
+
+.trainer-card__situation {
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.2rem;
+  line-height: 1.4;
+}
+
+.trainer-card__name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-family: Georgia, 'Times New Roman', serif;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.trainer-card__choices {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-top: 0.8rem;
+}
+
+.trainer-choice {
+  min-height: 48px;
+  font-family: Georgia, 'Times New Roman', serif;
+  text-align: left;
+}
+
+.trainer-choice:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+.trainer-choice.is-correct {
+  opacity: 1;
+  border-color: var(--success);
+  background: color-mix(in srgb, var(--success) 18%, transparent);
+}
+
+.trainer-choice.is-wrong {
+  opacity: 1;
+  border-color: var(--danger);
+  background: color-mix(in srgb, var(--danger) 14%, transparent);
+}
+
+.trainer-card__verdict {
+  margin-top: 0.8rem !important;
+  font-weight: 600;
+}
+
+.trainer-card__back .cheat-card__outcomes {
+  display: block;
+  padding: 0;
+}
+
+.trainer-card__back .cheat-card__outcome > span:last-child {
+  white-space: normal;
+}
+
+/* ── Клавіатурна підказка ───────────────────────────────────────────── */
+
+.moves-help-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 1200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.moves-help {
+  background: var(--secondary-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 1.2rem 1.4rem;
+  max-width: 380px;
+  width: 100%;
+}
+
+.moves-help h2 {
+  font-size: 1.15rem !important;
+  margin-bottom: 0.7rem !important;
+}
+
+.moves-help__table td {
+  padding: 0.3rem 0.6rem 0.3rem 0 !important;
+}
+
+.moves-help button {
+  margin-top: 0.9rem;
+}
+
+/* ── Десктоп: дві панелі ────────────────────────────────────────────── */
+
+@media (min-width: 901px) {
+  .moves-page--wide {
+    height: 100%;
+    flex-shrink: 0;
+  }
+
+  .moves-page--wide.moves-page--list {
+    min-height: 0;
+  }
+
+  .moves-split {
+    display: grid;
+    grid-template-columns: 360px minmax(0, 1fr);
+    grid-template-rows: auto minmax(0, 1fr);
+    height: 100%;
+  }
+
+  .moves-split > .moves-header {
+    grid-column: 1 / -1;
+    border-bottom: 1px solid var(--border-color);
+    padding-bottom: 0.75rem;
+    align-items: center;
+  }
+
+  .moves-list-pane .move-search {
+    padding-top: 0.75rem;
+  }
+
+  .moves-list-pane .chip {
+    font-size: 0.78rem;
+    padding: 0.15rem 0.55rem;
+    min-height: 28px;
+  }
+
+  .moves-list-pane .chip-row {
+    gap: 0.3rem;
+    margin-top: 0.4rem;
+  }
+
+  .moves-list-pane {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    border-right: 1px solid var(--border-color);
+  }
+
+  .moves-list-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow-y: auto;
+  }
+
+  .moves-list-scroll .move-group__title {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+  }
+
+  .moves-detail-pane {
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1.75rem 2.5rem 3rem;
+  }
+
+  .star-btn {
+    width: 36px;
+    min-height: 36px;
+  }
+
+  .moves-single {
+    height: 100%;
+    overflow-y: auto;
+  }
+
+  .moves-page--wide .moves-single .move-search {
+    position: sticky;
+    top: 0;
+    z-index: 3;
+  }
+
+  .move-drawer {
+    position: fixed;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    width: min(600px, 46vw);
+    overflow-y: auto;
+    background: var(--primary-bg);
+    border-left: 1px solid var(--border-color);
+    box-shadow: -12px 0 32px rgba(0, 0, 0, 0.45);
+    z-index: 950;
+    padding: 1.5rem 2rem 3rem;
+    animation: moves-slide-left 200ms ease-out;
+  }
+
+  .move-drawer__close {
+    position: sticky;
+    top: 0;
+    float: right;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    font-size: 1.4rem;
+    line-height: 1;
+    z-index: 2;
+  }
+}
+
+/* На великому екрані шпаргалка вміщається на одному екрані 1440×900. */
+@media (min-width: 1240px) {
+  .cheat-sheet {
+    columns: 4;
+  }
+
+  .moves-page--sheet .moves-header {
+    padding-top: 0.9rem;
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1200px) {
+  .moves-split {
+    grid-template-columns: 320px minmax(0, 1fr);
+  }
+
+  .moves-detail-pane {
+    padding: 1.5rem 1.5rem 3rem;
+  }
+}
+
+/* ── Телефон: одна колонка, шторка ходу ─────────────────────────────── */
+
+@media (max-width: 900px) {
+  /* `overflow: hidden` у `.main-content` робить його контейнером прокрутки,
+     і `position: sticky` перестає працювати. `clip` так само обрізає, але
+     контейнером прокрутки не є. */
+  .main-content:has(.moves-page) {
+    overflow: clip;
+  }
+
+  .moves-page--narrow .move-search {
+    position: sticky;
+    top: 0;
+    z-index: 20;
+    padding-top: 0.5rem;
+    border-bottom: 1px solid var(--border-color);
+    transition: transform 200ms ease;
+  }
+
+  .moves-page--narrow .move-search--hidden {
+    transform: translateY(-100%);
+  }
+
+  .moves-page--narrow .move-search:focus-within {
+    transform: none;
+  }
+
+  .chip-row--categories {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scrollbar-width: none;
+    margin-left: calc(-1 * var(--moves-gutter));
+    margin-right: calc(-1 * var(--moves-gutter));
+    padding: 0 var(--moves-gutter);
+  }
+
+  .chip-row--categories::-webkit-scrollbar {
+    display: none;
+  }
+
+  .chip {
+    min-height: 36px;
+  }
+
+  .recent-row {
+    padding-top: 0.6rem;
+  }
+
+  .move-groups {
+    padding-top: 0.25rem;
+  }
+
+  .cheat-sheet {
+    columns: 1;
+  }
+
+  .cheat-card__outcomes,
+  .cheat-card__body {
+    display: block;
+  }
+
+  .cheat-card__trigger {
+    white-space: normal;
+  }
+
+  .move-sheet {
+    position: fixed;
+    inset: 0;
+    z-index: 1100;
+    background: var(--primary-bg);
+    display: flex;
+    flex-direction: column;
+    animation: moves-slide-up 200ms ease-out;
+  }
+
+  .move-sheet__bar {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: calc(4px + env(safe-area-inset-top)) 8px 4px;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--secondary-bg);
+    min-height: 52px;
+    position: relative;
+    touch-action: none;
+  }
+
+  .move-sheet__close,
+  .move-sheet__back {
+    border: none;
+    background: transparent;
+    min-height: 44px;
+    min-width: 44px;
+    padding: 0 0.5rem;
+    font-size: 1rem;
+    color: var(--text-primary);
+    text-align: left;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 60%;
+  }
+
+  .move-sheet__close {
+    font-size: 1.4rem;
+  }
+
+  .move-sheet__grip {
+    position: absolute;
+    left: 50%;
+    top: 6px;
+    width: 36px;
+    height: 4px;
+    margin-left: -18px;
+    border-radius: 2px;
+    background: var(--border-color);
+  }
+
+  .move-sheet__nav {
+    margin-left: auto;
+    display: flex;
+    gap: 4px;
+  }
+
+  .move-sheet__nav button {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    font-size: 1.5rem;
+    line-height: 1;
+  }
+
+  .move-sheet__nav button:disabled {
+    opacity: 0.35;
+    cursor: default;
+  }
+
+  .move-sheet__scroll {
+    flex: 1;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 1rem var(--moves-gutter) calc(88px + env(safe-area-inset-bottom));
+  }
+
+  .move-detail__title {
+    font-size: 1.6rem !important;
+  }
+
+  .copy-link-btn {
+    margin-left: 0;
+  }
+
+  .move-ref {
+    padding: 0.15rem 0;
+  }
+
+  .related-chip,
+  .recent-chip {
+    min-height: 36px;
+  }
+
+  .book-link {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+  }
+}
+
+@media (max-width: 480px) {
+  .moves-page {
+    --moves-gutter: 12px;
+  }
+
+  .trainer-card__choices {
+    grid-template-columns: 1fr;
+  }
+
+  .view-switch__btn {
+    padding: 0.4rem 0.6rem;
+  }
+}
+
+@keyframes moves-slide-up {
+  from { transform: translateY(24px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@keyframes moves-slide-left {
+  from { transform: translateX(24px); opacity: 0; }
+  to { transform: none; opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .move-sheet,
+  .move-drawer {
+    animation: none;
+  }
+
+  .outcome-band,
+  .moves-page--narrow .move-search {
+    transition: none;
+  }
+}
+
+/* ── Друк: шпаргалка на 2 аркуші A4, чорним по білому ──────────────── */
+
+.moves-print {
+  display: none;
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 10mm;
+  }
+
+  body:has(.moves-page) {
+    background: #fff !important;
+  }
+
+  body:has(.moves-page) .navigation,
+  body:has(.moves-page) .sidebar,
+  body:has(.moves-page) .sidebar-overlay,
+  body:has(.moves-page) .footer,
+  .moves-page > :not(.moves-print) {
+    display: none !important;
+  }
+
+  body:has(.moves-page) .app,
+  body:has(.moves-page) .main-content,
+  body:has(.moves-page) .content-wrapper,
+  .moves-page {
+    display: block !important;
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .moves-print {
+    display: block;
+    columns: 2;
+    column-gap: 6mm;
+    color: #000;
+    font-size: 7.6pt;
+    line-height: 1.3;
+  }
+
+  .moves-print * {
+    color: #000 !important;
+    background: transparent !important;
+  }
+
+  .moves-print__title {
+    column-span: all;
+    font-size: 12pt !important;
+    margin-bottom: 3mm !important;
+  }
+
+  .moves-print .cheat-group__title {
+    font-size: 8pt !important;
+    margin: 2mm 0 1mm !important;
+    border-bottom: 0.5pt solid #000 !important;
+  }
+
+  .moves-print .cheat-card {
+    border-left: 2pt solid #000;
+    border-radius: 0;
+    margin-bottom: 1.4mm;
+  }
+
+  .moves-print .cheat-card__link {
+    padding: 0 0 0 1.5mm;
+  }
+
+  .moves-print .cheat-card__name {
+    font-size: 8.4pt;
+  }
+
+  .moves-print .cheat-card__trigger {
+    white-space: normal;
+    font-size: 7.4pt;
+  }
+
+  .moves-print .roll-badge {
+    font-size: 6.6pt;
+    border-color: #000;
+  }
+
+  .moves-print .cheat-card__outcomes,
+  .moves-print .cheat-card__body {
+    display: block;
+    padding: 0 0 0 1.5mm;
+    font-size: 7.2pt;
+  }
+
+  .moves-print .cheat-card__outcome {
+    font-size: 7.2pt;
+  }
+
+  .moves-print .cheat-card__outcome > span:last-child {
+    white-space: normal;
+  }
+}

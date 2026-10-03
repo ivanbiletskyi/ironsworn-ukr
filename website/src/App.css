@@ -296,6 +296,19 @@
   overflow-x: hidden;
 }
 
+/* Посилання з розділів ходів книги на довідник ходів */
+.moves-quick-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin-bottom: 1rem;
+  padding: 0.4rem 0.8rem;
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  font-size: 0.9rem;
+  background: var(--secondary-bg);
+}
+
 /* Next Chapter Navigation */
 .next-chapter-container {
   margin-top: 5rem;
@@ -575,6 +588,33 @@
 
   .chapter-card {
     padding: 1.25rem;
+  }
+}
+
+@media (max-width: 400px) {
+  /* П'ять кнопок у шапці на 320–400 px: стискаємо відступи, щоб бургер не
+     наповзав на іконки. */
+  .nav-container {
+    padding: 0.5rem 0.6rem;
+  }
+
+  .nav-left {
+    gap: 0.4rem;
+  }
+
+  .mobile-menu-toggle {
+    flex-shrink: 0;
+    width: 40px;
+    padding: 8px;
+  }
+
+  .nav-controls {
+    gap: 0.4rem;
+    margin-left: 0.4rem;
+  }
+
+  .nav-icon-btn {
+    font-size: 1.05rem;
   }
 }
 
