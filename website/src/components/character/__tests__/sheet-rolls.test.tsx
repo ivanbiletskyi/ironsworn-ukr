@@ -451,7 +451,7 @@ describe('progress roll (§3.8)', () => {
     expect(q(container, '.roll-card__label')?.textContent).toBe('Присяга 2');
   });
 
-  // «Написати свій епілог»: кидок за спільною шкалою, а не за окремим стосунком.
+  // «Написати епілог»: кидок за спільною шкалою, а не за окремим стосунком.
   it('rolls the shared bond track under the zone name', () => {
     seedCharacter({ bondTicks: 12 });
     const { container } = renderSheet();

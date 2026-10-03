@@ -17,7 +17,7 @@ This glossary contains all important terms of Ironsworn.
 | **Burden** | Тягар | A debility (cursed or tormented) that represents a life-changing experience binding you to a quest. |
 | **Clash** | Відбитись | When your foe has initiative and you fight with them in close quarters, roll +iron to inflict your harm and potentially steal initiative. |
 | **Compel** | Примушувати | When you attempt to persuade someone to do something through charm, threats, lies, or trickery. |
-| **Companion Endure Harm** | Супутник зазнає шкоди | A move to determine outcome when your companion suffers physical damage. |
+| **Companion Endure Harm** | Шкода супутнику | A move to determine outcome when your companion suffers physical damage. |
 | **Dangerous** | Небезпечний | A challenge rank for moderate challenges; also a harm/stress rank (2 harm/stress). |
 | **Draw a Conclusion** | Зробити висновки | An Ask the Oracle option where you decide the answer based on the most interesting and obvious result. |
 | **Banes** | Згуба | Permanent debilities including maimed and corrupted that represent lasting physical or emotional trauma. |
@@ -54,7 +54,7 @@ This glossary contains all important terms of Ironsworn.
 | **Progress Move** | Ходи прогресу | A type of move that uses challenge dice compared to your progress score to resolve extended challenges. |
 | **Reach a Destination** | Досягти місця призначення | A progress move used when your journey comes to an end, rolling challenge dice against your journey progress score. |
 | **Reach a Milestone** | Досягти проміжної віхи | When you make significant progress in your quest by overcoming obstacles, you may mark progress on your quest track. |
-| **Resupply** | Поповнити припаси | When you hunt, forage, or scavenge in the field, roll +wits to increase your supply track. |
+| **Resupply** | Поповнення | When you hunt, forage, or scavenge in the field, roll +wits to increase your supply track. |
 | **Secure an Advantage** | Здобути перевагу | When you assess a situation, make preparations, or attempt to gain leverage, roll the appropriate stat to gain momentum or position. |
 | **Sojourn** | Співіснування | When you spend time in a community seeking assistance, roll +heart to clear debilities, recover status tracks, or gain quests. |
 | **Strike** | Напасти | When you have initiative and attack in close quarters, roll +iron to inflict harm. |
