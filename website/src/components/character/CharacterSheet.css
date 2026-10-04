@@ -1585,6 +1585,22 @@
   cursor: pointer;
 }
 
+.profile-card__remove {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.profile-card__remove svg {
+  width: 1rem;
+  height: 1rem;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
 .profile-card__remove:hover {
   color: var(--danger);
 }
