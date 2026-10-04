@@ -1,6 +1,6 @@
 // Бічне меню: глави книги й доповнення як однакові групи-акордеони
 // (розгорнута та, де ви зараз), фільтр за назвами, підзаголовки відкритої
-// сторінки з підсвіткою поточного і позначки вже переглянутих сторінок.
+// сторінки з підсвіткою поточного.
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
@@ -8,7 +8,7 @@ import { EXTENSIONS_SETTINGS_PATH } from '../../extensions/extensionsContext';
 import { useExtensionNav } from '../../extensions/useExtensionNav';
 import { CHAPTERS, pagePath, pageTitle, type Lang } from '../../utils/chapters';
 import { useMediaQuery, WIDE_QUERY } from '../moves/useMediaQuery';
-import { GROUPS_KEY, loadFlags, loadSet, save, VISITED_KEY } from './sidebarStorage';
+import { dropLegacyKeys, GROUPS_KEY, loadFlags, save } from './sidebarStorage';
 import { usePageHeadings } from './usePageHeadings';
 import './Sidebar.css';
 
@@ -23,8 +23,6 @@ const TEXT = {
     close: 'Закрити меню',
     empty: 'Серед назв розділів нічого немає.',
     fullSearch: 'Шукати в тексті книги →',
-    visited: 'переглянуто',
-    progress: (seen: number, total: number) => `Переглянуто ${seen} з ${total}`,
   },
   en: {
     nav: 'Book contents',
@@ -36,8 +34,6 @@ const TEXT = {
     close: 'Close menu',
     empty: 'No section titles match.',
     fullSearch: 'Search the book text →',
-    visited: 'visited',
-    progress: (seen: number, total: number) => `Visited ${seen} of ${total}`,
   },
 } as const;
 
@@ -47,8 +43,6 @@ interface NavItem {
   title: string;
   /** Інструмент сайту (довідник, генератори) — не сторінка тексту. */
   tool?: boolean;
-  /** Ключ позначки «переглянуто»; у книзі — ім'я файлу, як і раніше. */
-  track?: string;
   /** `data-source` її Markdown — звідти беруться підзаголовки. */
   source?: string;
 }
@@ -91,7 +85,6 @@ function bookGroups(lang: Lang): NavGroup[] {
           key: file,
           to: pagePath(lang, file),
           title: pageTitle(file, chapter.prefix, lang),
-          track: file,
           source: `${lang}/${file}`,
         })),
       ],
@@ -141,7 +134,6 @@ const Sidebar = ({ currentLang, isOpen, onClose }: SidebarProps) => {
           key: item.path,
           to: item.to,
           title: item.label,
-          track: `x/${ext.id}/${item.path}`,
           source: item.to,
         })),
       })),
@@ -161,24 +153,20 @@ const Sidebar = ({ currentLang, isOpen, onClose }: SidebarProps) => {
   const filtering = query.length > 0;
 
   const [openFlags, setOpenFlags] = useState(() => loadFlags(GROUPS_KEY));
-  const [visited, setVisited] = useState(() => loadSet(VISITED_KEY));
   const isExpanded = (group: NavGroup) => filtering || (openFlags[group.key] ?? group.defaultOpen);
 
-  // Перехід на нову сторінку: її група розгортається, сторінка — «переглянута».
+  // Перехід на нову сторінку розгортає її групу.
   // Каталог доповнень приходить асинхронно, тож стежимо за ключем, а не за маршрутом.
-  const [seen, setSeen] = useState<string | null>(null);
-  const seenKey = currentItem ? `${currentGroup!.key}|${currentItem.key}` : null;
-  if (seenKey !== seen) {
-    setSeen(seenKey);
+  const [lastPageKey, setLastPageKey] = useState<string | null>(null);
+  const pageKey = currentItem ? `${currentGroup!.key}|${currentItem.key}` : null;
+  if (pageKey !== lastPageKey) {
+    setLastPageKey(pageKey);
     if (currentGroup && !(openFlags[currentGroup.key] ?? currentGroup.defaultOpen)) {
       setOpenFlags({ ...openFlags, [currentGroup.key]: true });
     }
-    if (currentItem?.track && !visited.has(currentItem.track)) {
-      setVisited(new Set(visited).add(currentItem.track));
-    }
   }
   useEffect(() => save(GROUPS_KEY, openFlags), [openFlags]);
-  useEffect(() => save(VISITED_KEY, visited), [visited]);
+  useEffect(dropLegacyKeys, []);
 
   const toggleGroup = (group: NavGroup) => {
     setOpenFlags(prev => ({ ...prev, [group.key]: !(prev[group.key] ?? group.defaultOpen) }));
@@ -205,7 +193,7 @@ const Sidebar = ({ currentLang, isOpen, onClose }: SidebarProps) => {
     if (a.top < s.top + 80 || a.bottom > s.bottom) {
       aside.scrollTop += a.top - s.top - s.height / 3;
     }
-  }, [seenKey, isOpen]);
+  }, [pageKey, isOpen]);
 
   // Мобільна шухляда: Escape закриває, сторінка під нею не прокручується.
   const drawerOpen = isOpen && !isWide;
@@ -232,8 +220,6 @@ const Sidebar = ({ currentLang, isOpen, onClose }: SidebarProps) => {
 
   const renderGroup = (group: NavGroup, shown: NavItem[]) => {
     const expanded = isExpanded(group);
-    const pages = group.items.filter(item => item.track);
-    const seenCount = pages.filter(item => visited.has(item.track!)).length;
     const listId = `sb-${group.key.replace(/[^\w-]/g, '-')}`;
 
     return (
@@ -251,14 +237,6 @@ const Sidebar = ({ currentLang, isOpen, onClose }: SidebarProps) => {
         >
           {group.badge && <span className="sb-chapter__num" aria-hidden="true">{group.badge}</span>}
           <span className="sb-chapter__name">{highlight(group.title, query)}</span>
-          {seenCount > 0 && pages.length > 1 && (
-            <span
-              className={`sb-chapter__progress ${seenCount === pages.length ? 'is-done' : ''}`}
-              title={t.progress(seenCount, pages.length)}
-            >
-              {seenCount === pages.length ? '✓' : `${seenCount}/${pages.length}`}
-            </span>
-          )}
           <span className="sb-chapter__chevron" aria-hidden="true" />
         </button>
 
@@ -276,11 +254,6 @@ const Sidebar = ({ currentLang, isOpen, onClose }: SidebarProps) => {
                     onClick={leave}
                   >
                     <span className="sb-page__title">{highlight(item.title, query)}</span>
-                    {item.track && !active && visited.has(item.track) && (
-                      <span className="sb-page__visited" title={t.visited} aria-label={t.visited}>
-                        ✓
-                      </span>
-                    )}
                   </Link>
                   {showHeadings && (
                     <ul className="sb-headings">

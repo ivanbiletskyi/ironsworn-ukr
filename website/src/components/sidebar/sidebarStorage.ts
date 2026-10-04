@@ -1,10 +1,20 @@
-// Що з бічного меню пам'ятаємо між візитами: які групи розгорнуті чи згорнуті
-// і які сторінки вже переглянуто. Лише в браузері — це зручність, а не дані
-// акаунта.
+// Що з бічного меню пам'ятаємо між візитами: які групи розгорнуті чи згорнуті.
+// Лише в браузері — це зручність, а не дані акаунта.
 
 /** { [ключ групи]: розгорнута } — лише групи, які гравець перемикав сам. */
 export const GROUPS_KEY = 'ironsworn-sidebar-groups-v1';
-export const VISITED_KEY = 'ironsworn-sidebar-visited-v1';
+
+// Ключі попередніх версій меню: список переглянутих сторінок (трекінг
+// прибрано) і розгорнуті глави до переходу на GROUPS_KEY.
+const LEGACY_KEYS = ['ironsworn-sidebar-visited-v1', 'ironsworn-sidebar-open-v1'];
+
+export function dropLegacyKeys(): void {
+  try {
+    for (const key of LEGACY_KEYS) localStorage.removeItem(key);
+  } catch {
+    // Сховище недоступне — тоді й прибирати нічого.
+  }
+}
 
 export function loadFlags(key: string): Record<string, boolean> {
   try {
@@ -18,19 +28,9 @@ export function loadFlags(key: string): Record<string, boolean> {
   }
 }
 
-export function loadSet(key: string): Set<string> {
+export function save(key: string, value: Record<string, boolean>): void {
   try {
-    const raw = localStorage.getItem(key);
-    const parsed: unknown = raw ? JSON.parse(raw) : [];
-    return new Set(Array.isArray(parsed) ? parsed.filter((v): v is string => typeof v === 'string') : []);
-  } catch {
-    return new Set();
-  }
-}
-
-export function save(key: string, value: Set<string> | Record<string, boolean>): void {
-  try {
-    localStorage.setItem(key, JSON.stringify(value instanceof Set ? [...value] : value));
+    localStorage.setItem(key, JSON.stringify(value));
   } catch {
     // Приватний режим чи заблоковане сховище — меню працює й без пам'яті.
   }

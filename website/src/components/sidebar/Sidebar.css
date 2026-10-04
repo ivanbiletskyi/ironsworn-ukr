@@ -191,19 +191,6 @@
   min-width: 0;
 }
 
-.sb-chapter__progress {
-  flex-shrink: 0;
-  color: var(--text-muted);
-  font-size: 0.75em;
-  font-weight: 500;
-  font-variant-numeric: tabular-nums;
-}
-
-.sb-chapter__progress.is-done {
-  color: var(--success);
-  font-size: 0.85em;
-}
-
 .sb-chapter__chevron {
   flex-shrink: 0;
   width: 0.45rem;
@@ -242,13 +229,6 @@
 .sb-page__title {
   flex: 1;
   min-width: 0;
-}
-
-.sb-page__visited {
-  flex-shrink: 0;
-  color: var(--text-muted);
-  font-size: 0.8em;
-  opacity: 0.7;
 }
 
 .sidebar .sb-page--tool {
