@@ -19,13 +19,17 @@ function sentenceCase(text: string): string {
 // Межа «прочитаності» заголовка — трохи нижче верхнього краю екрана.
 const ACTIVE_OFFSET = 120;
 
+/**
+ * @param markdownPath ключ із `data-source` блоку MarkdownRenderer: шлях файлу книги
+ *   («uk/1-Basics_4-Momentum.md») або маршрут сторінки доповнення.
+ */
 export function usePageHeadings(markdownPath: string | null) {
   const [found, setFound] = useState<{ path: string; list: PageHeading[] } | null>(null);
   const [activeId, setActiveId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!markdownPath) return;
-    const selector = `.markdown-content[data-source="${CSS.escape(markdownPath)}"] h2[id]`;
+    const selector = `.markdown-content[data-source="${markdownPath.replace(/["\\]/g, '\\$&')}"] h2[id]`;
     let elements: HTMLElement[] = [];
     let frame = 0;
 

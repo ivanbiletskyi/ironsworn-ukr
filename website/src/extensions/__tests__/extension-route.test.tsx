@@ -8,7 +8,7 @@ import type { AuthValue } from '../../components/auth/authContext';
 import type { CatalogEntry } from '../loader';
 import ExtensionsProvider from '../ExtensionsProvider';
 import ExtensionRoute from '../ExtensionRoute';
-import ExtensionsNav from '../ExtensionsNav';
+import Sidebar from '../../components/sidebar/Sidebar';
 import ExtensionsSettings from '../ExtensionsSettings';
 import { ExtensionIntegrityError } from '../verify';
 
@@ -58,7 +58,7 @@ const renderAt = (path: string) =>
             path="/:lang/*"
             element={
               <>
-                <ExtensionsNav currentLang="uk" onNavigate={() => {}} />
+                <Sidebar currentLang="uk" isOpen={false} onClose={() => {}} />
                 <Routes>
                   <Route path="x/:extId/*" element={<ExtensionRoute currentLang="uk" />} />
                   <Route path="profile/extensions" element={<ExtensionsSettings currentLang="uk" />} />
@@ -110,7 +110,7 @@ describe('extension route', () => {
     expect(await screen.findByText('Текст першого розділу')).toBeTruthy();
     expect(screen.getByText('Доповнення')).toBeTruthy();
     expect(screen.getByText('Демо')).toBeTruthy();
-    expect(screen.getByText('Перший розділ').getAttribute('href')).toBe('/uk/x/demo/one');
+    expect(screen.getByRole('link', { name: 'Перший розділ' }).getAttribute('href')).toBe('/uk/x/demo/one');
   });
 
   it('refuses to show a release whose signature fails', async () => {

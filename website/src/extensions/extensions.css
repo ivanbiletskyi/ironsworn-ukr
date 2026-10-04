@@ -33,18 +33,6 @@
   border-color: var(--highlight);
 }
 
-.ext-nav__title {
-  margin: 0.75rem 0 0.25rem;
-  padding: 0 0.75rem;
-  font-size: 0.85em;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.ext-nav__group ul {
-  margin-bottom: 0.75rem;
-}
-
 /* ── Профіль: керування доповненнями ──────────────────────────────── */
 
 .ext-settings h1 {

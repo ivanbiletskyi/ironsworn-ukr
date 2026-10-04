@@ -1,19 +1,23 @@
-// Бічне меню книги: глави-акордеони (розгорнута та, де ви зараз), фільтр за
-// назвами розділів, підзаголовки відкритої сторінки з підсвіткою поточного
-// і позначки вже переглянутих сторінок.
+// Бічне меню: глави книги й доповнення як однакові групи-акордеони
+// (розгорнута та, де ви зараз), фільтр за назвами, підзаголовки відкритої
+// сторінки з підсвіткою поточного і позначки вже переглянутих сторінок.
 
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import ExtensionsNav from '../../extensions/ExtensionsNav';
-import { CHAPTERS, fileFromPath, pagePath, pageTitle, type Lang } from '../../utils/chapters';
+import { EXTENSIONS_SETTINGS_PATH } from '../../extensions/extensionsContext';
+import { useExtensionNav } from '../../extensions/useExtensionNav';
+import { CHAPTERS, pagePath, pageTitle, type Lang } from '../../utils/chapters';
 import { useMediaQuery, WIDE_QUERY } from '../moves/useMediaQuery';
-import { loadSet, OPEN_CHAPTERS_KEY, saveSet, VISITED_KEY } from './sidebarStorage';
+import { GROUPS_KEY, loadFlags, loadSet, save, VISITED_KEY } from './sidebarStorage';
 import { usePageHeadings } from './usePageHeadings';
 import './Sidebar.css';
 
 const TEXT = {
   uk: {
     nav: 'Зміст книги',
+    book: 'Книга правил',
+    supplements: 'Доповнення',
+    manage: 'Налаштувати доповнення',
     filter: 'Фільтр розділів…',
     clear: 'Очистити фільтр',
     close: 'Закрити меню',
@@ -24,6 +28,9 @@ const TEXT = {
   },
   en: {
     nav: 'Book contents',
+    book: 'Rulebook',
+    supplements: 'Supplements',
+    manage: 'Manage supplements',
     filter: 'Filter sections…',
     clear: 'Clear filter',
     close: 'Close menu',
@@ -38,8 +45,22 @@ interface NavItem {
   key: string;
   to: string;
   title: string;
-  file?: string;
+  /** Інструмент сайту (довідник, генератори) — не сторінка тексту. */
   tool?: boolean;
+  /** Ключ позначки «переглянуто»; у книзі — ім'я файлу, як і раніше. */
+  track?: string;
+  /** `data-source` її Markdown — звідти беруться підзаголовки. */
+  source?: string;
+}
+
+interface NavGroup {
+  key: string;
+  section: 'book' | 'ext';
+  badge: string;
+  title: string;
+  items: NavItem[];
+  /** Доповнень мало, тож вони розгорнуті, доки гравець не згорне сам. */
+  defaultOpen: boolean;
 }
 
 // Інструменти сайту, що стосуються глави, — першими в її списку.
@@ -52,6 +73,30 @@ function chapterTools(prefix: string, lang: Lang): NavItem[] {
     return [{ key: 'oracles', to: `/${lang}/oracles`, title, tool: true }];
   }
   return [];
+}
+
+function bookGroups(lang: Lang): NavGroup[] {
+  return CHAPTERS.map(chapter => {
+    const full = lang === 'uk' ? chapter.titleUk : chapter.titleEn;
+    const m = /^(\d+)\.\s*(.+)$/.exec(full);
+    return {
+      key: chapter.prefix,
+      section: 'book',
+      badge: m ? m[1] : '',
+      title: m ? m[2] : full,
+      defaultOpen: false,
+      items: [
+        ...chapterTools(chapter.prefix, lang),
+        ...chapter.files.map(file => ({
+          key: file,
+          to: pagePath(lang, file),
+          title: pageTitle(file, chapter.prefix, lang),
+          track: file,
+          source: `${lang}/${file}`,
+        })),
+      ],
+    };
+  });
 }
 
 const normalize = (s: string) => s.toLowerCase().replace(/[’ʼ`]/g, "'").trim();
@@ -69,11 +114,6 @@ function highlight(text: string, query: string): ReactNode {
   );
 }
 
-function splitChapterTitle(title: string): { num: string; name: string } {
-  const m = /^(\d+)\.\s*(.+)$/.exec(title);
-  return m ? { num: m[1], name: m[2] } : { num: '', name: title };
-}
-
 interface SidebarProps {
   currentLang: Lang;
   isOpen: boolean;
@@ -86,65 +126,74 @@ const Sidebar = ({ currentLang, isOpen, onClose }: SidebarProps) => {
   const navigate = useNavigate();
   const isWide = useMediaQuery(WIDE_QUERY);
   const asideRef = useRef<HTMLElement>(null);
+  const extensions = useExtensionNav(currentLang);
 
-  const currentFile = fileFromPath(location.pathname, currentLang);
-  const currentChapter = currentFile ? CHAPTERS.find(c => currentFile.startsWith(`${c.prefix}_`))?.prefix ?? null : null;
-  const { headings, activeId } = usePageHeadings(currentFile ? `${currentLang}/${currentFile}` : null);
+  const groups = useMemo<NavGroup[]>(
+    () => [
+      ...bookGroups(currentLang),
+      ...extensions.map(ext => ({
+        key: `x:${ext.id}`,
+        section: 'ext' as const,
+        badge: ext.title.charAt(0).toUpperCase(),
+        title: ext.title,
+        defaultOpen: true,
+        items: ext.items.map(item => ({
+          key: item.path,
+          to: item.to,
+          title: item.label,
+          track: `x/${ext.id}/${item.path}`,
+          source: item.to,
+        })),
+      })),
+    ],
+    [currentLang, extensions],
+  );
+
+  // Де ми зараз: сторінка тексту — точний збіг, інструмент — за префіксом.
+  const here = location.pathname.replace(/\/$/, '').replace(/\.md$/, '');
+  const isActive = (item: NavItem) => (item.tool ? here.startsWith(item.to) : here === item.to);
+  const currentGroup = groups.find(g => g.items.some(isActive)) ?? null;
+  const currentItem = currentGroup?.items.find(isActive) ?? null;
+  const { headings, activeId } = usePageHeadings(currentItem?.source ?? null);
 
   const [filter, setFilter] = useState('');
   const query = normalize(filter);
+  const filtering = query.length > 0;
 
-  // Розгорнуті глави пам'ятаємо; глава відкритої сторінки розгортається сама.
-  const [openChapters, setOpenChapters] = useState(() => {
-    const stored = loadSet(OPEN_CHAPTERS_KEY);
-    if (currentChapter) stored.add(currentChapter);
-    return stored;
-  });
-  const [visited, setVisited] = useState(() => {
-    const stored = loadSet(VISITED_KEY);
-    if (currentFile) stored.add(currentFile);
-    return stored;
-  });
-  const [seenFile, setSeenFile] = useState(currentFile);
-  if (currentFile !== seenFile) {
-    setSeenFile(currentFile);
-    if (currentFile && !visited.has(currentFile)) setVisited(new Set(visited).add(currentFile));
-    if (currentChapter && !openChapters.has(currentChapter)) setOpenChapters(new Set(openChapters).add(currentChapter));
+  const [openFlags, setOpenFlags] = useState(() => loadFlags(GROUPS_KEY));
+  const [visited, setVisited] = useState(() => loadSet(VISITED_KEY));
+  const isExpanded = (group: NavGroup) => filtering || (openFlags[group.key] ?? group.defaultOpen);
+
+  // Перехід на нову сторінку: її група розгортається, сторінка — «переглянута».
+  // Каталог доповнень приходить асинхронно, тож стежимо за ключем, а не за маршрутом.
+  const [seen, setSeen] = useState<string | null>(null);
+  const seenKey = currentItem ? `${currentGroup!.key}|${currentItem.key}` : null;
+  if (seenKey !== seen) {
+    setSeen(seenKey);
+    if (currentGroup && !(openFlags[currentGroup.key] ?? currentGroup.defaultOpen)) {
+      setOpenFlags({ ...openFlags, [currentGroup.key]: true });
+    }
+    if (currentItem?.track && !visited.has(currentItem.track)) {
+      setVisited(new Set(visited).add(currentItem.track));
+    }
   }
-  useEffect(() => saveSet(OPEN_CHAPTERS_KEY, openChapters), [openChapters]);
-  useEffect(() => saveSet(VISITED_KEY, visited), [visited]);
+  useEffect(() => save(GROUPS_KEY, openFlags), [openFlags]);
+  useEffect(() => save(VISITED_KEY, visited), [visited]);
 
-  const toggleChapter = (prefix: string) => {
-    setOpenChapters(prev => {
-      const next = new Set(prev);
-      if (!next.delete(prefix)) next.add(prefix);
-      return next;
-    });
+  const toggleGroup = (group: NavGroup) => {
+    setOpenFlags(prev => ({ ...prev, [group.key]: !(prev[group.key] ?? group.defaultOpen) }));
   };
 
-  const chapters = useMemo(
-    () =>
-      CHAPTERS.map(chapter => {
-        const title = currentLang === 'uk' ? chapter.titleUk : chapter.titleEn;
-        const items: NavItem[] = [
-          ...chapterTools(chapter.prefix, currentLang),
-          ...chapter.files.map(file => ({
-            key: file,
-            file,
-            to: pagePath(currentLang, file),
-            title: pageTitle(file, chapter.prefix, currentLang),
-          })),
-        ];
-        // Збіг у назві глави показує її повністю.
-        const shown = !query || normalize(title).includes(query)
-          ? items
-          : items.filter(item => normalize(item.title).includes(query));
-        return { chapter, title, items, shown };
-      }),
-    [currentLang, query],
-  );
-  const filtering = query.length > 0;
-  const firstMatch = filtering ? chapters.flatMap(c => c.shown)[0] : undefined;
+  // Збіг у назві групи показує її повністю.
+  const shownItems = (group: NavGroup) =>
+    !filtering || normalize(group.title).includes(query)
+      ? group.items
+      : group.items.filter(item => normalize(item.title).includes(query));
+  const visibleGroups = groups
+    .map(group => ({ group, shown: shownItems(group) }))
+    .filter(({ shown }) => !filtering || shown.length > 0);
+  const firstMatch = filtering ? visibleGroups[0]?.shown[0] : undefined;
+  const hasExtensions = visibleGroups.some(({ group }) => group.section === 'ext');
 
   // Активний пункт — у полі зору меню (лише прокрутка самого меню, без зсуву сторінки).
   useEffect(() => {
@@ -156,7 +205,7 @@ const Sidebar = ({ currentLang, isOpen, onClose }: SidebarProps) => {
     if (a.top < s.top + 80 || a.bottom > s.bottom) {
       aside.scrollTop += a.top - s.top - s.height / 3;
     }
-  }, [currentFile, isOpen]);
+  }, [seenKey, isOpen]);
 
   // Мобільна шухляда: Escape закриває, сторінка під нею не прокручується.
   const drawerOpen = isOpen && !isWide;
@@ -176,10 +225,93 @@ const Sidebar = ({ currentLang, isOpen, onClose }: SidebarProps) => {
     };
   }, [drawerOpen, onClose]);
 
-  const jumpToHeading = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  const leave = () => {
+    setFilter('');
     onClose();
   };
+
+  const renderGroup = (group: NavGroup, shown: NavItem[]) => {
+    const expanded = isExpanded(group);
+    const pages = group.items.filter(item => item.track);
+    const seenCount = pages.filter(item => visited.has(item.track!)).length;
+    const listId = `sb-${group.key.replace(/[^\w-]/g, '-')}`;
+
+    return (
+      <section
+        key={group.key}
+        className={`sb-chapter sb-chapter--${group.section} ${group === currentGroup ? 'is-current' : ''}`}
+      >
+        <button
+          type="button"
+          className="sb-chapter__toggle"
+          aria-expanded={expanded}
+          aria-controls={listId}
+          onClick={() => toggleGroup(group)}
+          disabled={filtering}
+        >
+          {group.badge && <span className="sb-chapter__num" aria-hidden="true">{group.badge}</span>}
+          <span className="sb-chapter__name">{highlight(group.title, query)}</span>
+          {seenCount > 0 && pages.length > 1 && (
+            <span
+              className={`sb-chapter__progress ${seenCount === pages.length ? 'is-done' : ''}`}
+              title={t.progress(seenCount, pages.length)}
+            >
+              {seenCount === pages.length ? '✓' : `${seenCount}/${pages.length}`}
+            </span>
+          )}
+          <span className="sb-chapter__chevron" aria-hidden="true" />
+        </button>
+
+        {expanded && (
+          <ul id={listId} className="sb-pages">
+            {shown.map(item => {
+              const active = isActive(item);
+              const showHeadings = active && !filtering && item.source && headings.length > 0;
+              return (
+                <li key={item.key}>
+                  <Link
+                    to={item.to}
+                    className={`sb-page ${item.tool ? 'sb-page--tool' : ''} ${active ? 'active' : ''}`}
+                    aria-current={active ? 'page' : undefined}
+                    onClick={leave}
+                  >
+                    <span className="sb-page__title">{highlight(item.title, query)}</span>
+                    {item.track && !active && visited.has(item.track) && (
+                      <span className="sb-page__visited" title={t.visited} aria-label={t.visited}>
+                        ✓
+                      </span>
+                    )}
+                  </Link>
+                  {showHeadings && (
+                    <ul className="sb-headings">
+                      {headings.map(h => (
+                        <li key={h.id}>
+                          <Link
+                            to={`${location.pathname}#${h.id}`}
+                            replace
+                            className={h.id === activeId ? 'active' : ''}
+                            onClick={() => {
+                              document.getElementById(h.id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                              onClose();
+                            }}
+                          >
+                            {h.text}
+                          </Link>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+    );
+  };
+
+  const bookShown = visibleGroups.filter(({ group }) => group.section === 'book');
+  const extShown = visibleGroups.filter(({ group }) => group.section === 'ext');
 
   return (
     <aside ref={asideRef} className={`sidebar ${isOpen ? 'open' : ''}`} aria-label={t.nav} tabIndex={-1}>
@@ -202,8 +334,7 @@ const Sidebar = ({ currentLang, isOpen, onClose }: SidebarProps) => {
                 setFilter('');
               } else if (e.key === 'Enter' && firstMatch) {
                 navigate(firstMatch.to);
-                setFilter('');
-                onClose();
+                leave();
               }
             }}
           />
@@ -219,107 +350,41 @@ const Sidebar = ({ currentLang, isOpen, onClose }: SidebarProps) => {
       </div>
 
       <nav className="sb-chapters">
-        {chapters.map(({ chapter, title, items, shown }) => {
-          if (filtering && shown.length === 0) return null;
-          const expanded = filtering || openChapters.has(chapter.prefix);
-          const { num, name } = splitChapterTitle(title);
-          const pages = items.filter(item => item.file);
-          const seen = pages.filter(item => visited.has(item.file!)).length;
-          const listId = `sb-${chapter.prefix}`;
+        {hasExtensions && bookShown.length > 0 && <h2 className="sb-section">{t.book}</h2>}
+        {bookShown.map(({ group, shown }) => renderGroup(group, shown))}
 
-          return (
-            <section
-              key={chapter.prefix}
-              className={`sb-chapter ${chapter.prefix === currentChapter ? 'is-current' : ''}`}
-            >
-              <button
-                type="button"
-                className="sb-chapter__toggle"
-                aria-expanded={expanded}
-                aria-controls={listId}
-                onClick={() => toggleChapter(chapter.prefix)}
-                disabled={filtering}
+        {extShown.length > 0 && (
+          <>
+            <h2 className="sb-section sb-section--ext">
+              <span>{t.supplements}</span>
+              <Link
+                to={`/${currentLang}/${EXTENSIONS_SETTINGS_PATH}`}
+                className="sb-section__manage"
+                aria-label={t.manage}
+                title={t.manage}
+                onClick={leave}
               >
-                {num && <span className="sb-chapter__num">{num}</span>}
-                <span className="sb-chapter__name">{highlight(name, query)}</span>
-                {seen > 0 && (
-                  <span
-                    className={`sb-chapter__progress ${seen === pages.length ? 'is-done' : ''}`}
-                    title={t.progress(seen, pages.length)}
-                  >
-                    {seen === pages.length ? '✓' : `${seen}/${pages.length}`}
-                  </span>
-                )}
-                <span className="sb-chapter__chevron" aria-hidden="true" />
-              </button>
-
-              {expanded && (
-                <ul id={listId} className="sb-pages">
-                  {shown.map(item => {
-                    const active = item.file
-                      ? item.file === currentFile
-                      : location.pathname.startsWith(item.to);
-                    const showHeadings = active && !filtering && item.file && headings.length > 0;
-                    return (
-                      <li key={item.key}>
-                        <Link
-                          to={item.to}
-                          className={`sb-page ${item.tool ? 'sb-page--tool' : ''} ${active ? 'active' : ''}`}
-                          aria-current={active ? 'page' : undefined}
-                          onClick={() => {
-                            setFilter('');
-                            onClose();
-                          }}
-                        >
-                          <span className="sb-page__title">{highlight(item.title, query)}</span>
-                          {item.file && !active && visited.has(item.file) && (
-                            <span className="sb-page__visited" title={t.visited} aria-label={t.visited}>
-                              ✓
-                            </span>
-                          )}
-                        </Link>
-                        {showHeadings && (
-                          <ul className="sb-headings">
-                            {headings.map(h => (
-                              <li key={h.id}>
-                                <Link
-                                  to={`${location.pathname}#${h.id}`}
-                                  replace
-                                  className={h.id === activeId ? 'active' : ''}
-                                  onClick={() => jumpToHeading(h.id)}
-                                >
-                                  {h.text}
-                                </Link>
-                              </li>
-                            ))}
-                          </ul>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              )}
-            </section>
-          );
-        })}
+                <svg viewBox="0 0 16 16" aria-hidden="true">
+                  <path d="M2 4h7M13 4h1M2 8h2M8 8h6M2 12h8M14 12h0" />
+                  <circle cx="11" cy="4" r="1.6" />
+                  <circle cx="6" cy="8" r="1.6" />
+                  <circle cx="12" cy="12" r="1.6" />
+                </svg>
+              </Link>
+            </h2>
+            {extShown.map(({ group, shown }) => renderGroup(group, shown))}
+          </>
+        )}
 
         {filtering && !firstMatch && (
           <div className="sb-empty">
             <p>{t.empty}</p>
-            <Link
-              to={`/${currentLang}/search?q=${encodeURIComponent(filter.trim())}`}
-              onClick={() => {
-                setFilter('');
-                onClose();
-              }}
-            >
+            <Link to={`/${currentLang}/search?q=${encodeURIComponent(filter.trim())}`} onClick={leave}>
               {t.fullSearch}
             </Link>
           </div>
         )}
       </nav>
-
-      {!filtering && <ExtensionsNav currentLang={currentLang} onNavigate={onClose} />}
     </aside>
   );
 };

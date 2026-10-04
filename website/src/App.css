@@ -206,17 +206,7 @@
   color: var(--text-primary);
 }
 
-/* Заголовки й посилання секції доповнень (ExtensionsNav) */
-.sidebar h3 {
-  margin: 1.5rem 0 0.75rem;
-  font-size: 0.8em;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  color: var(--text-muted);
-  border-bottom: 2px solid var(--accent-bg);
-  padding-bottom: 0.25rem;
-}
-
+/* Базовий вигляд посилань меню; деталі — у Sidebar.css */
 .sidebar ul {
   list-style: none;
   padding: 0;

@@ -251,7 +251,8 @@ const MarkdownRenderer: React.FC<MarkdownRendererProps> = ({ markdownPath, conte
       className="markdown-content"
       ref={contentRef}
       data-color-mode={isDark ? 'dark' : 'light'}
-      data-source={content === undefined ? loadedPath ?? undefined : undefined}
+      // Готовий текст (сторінка доповнення) рендериться одразу, тож його ключ — маршрут.
+      data-source={content === undefined ? loadedPath ?? undefined : location.pathname.replace(/\/$/, '')}
     >
       {title && <h1 className="page-title">{title}</h1>}
       <MarkdownPreview
